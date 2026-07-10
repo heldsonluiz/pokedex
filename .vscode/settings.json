@@ -3,6 +3,10 @@
   "editor.formatOnSave": true,
   "editor.formatOnPaste": false,
 
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 120,
+  "editor.rulers": [120],
+
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
     "source.organizeImports": "never"

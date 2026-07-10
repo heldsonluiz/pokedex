@@ -59,6 +59,6 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "src/components/ui/**",
   ]),
-]);
+])
 
-export default eslintConfig;
+export default eslintConfig

@@ -1,4 +1,4 @@
-# DevFest Triângulo Passport
+# DevFest Triângulo DevDex
 
 Aplicação web desenvolvida para gamificação do DevFest Triângulo.
 

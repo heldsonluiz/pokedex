@@ -1,0 +1,67 @@
+# Componentes
+
+## Organização
+
+```text
+components/
+├── ui/          # primitivas Shadcn customizadas
+├── layout/      # estrutura global da aplicação
+└── shared/      # componentes reutilizados entre domínios
+```
+
+Componentes específicos de uma funcionalidade ficam no módulo correspondente. Promova-os para `shared` somente quando houver reutilização real.
+
+## Componentes estruturais
+
+| Componente         | Responsabilidade                           |
+| ------------------ | ------------------------------------------ |
+| `AppShell`         | largura mobile, safe areas e regiões fixas |
+| `AppHeader`        | título, voltar e ações contextuais         |
+| `BottomNavigation` | destinos principais e estado ativo         |
+| `OnboardingLayout` | progresso e composição das etapas iniciais |
+
+## Componentes de domínio
+
+| Domínio    | Componentes principais                        |
+| ---------- | --------------------------------------------- |
+| Perfil     | `ProfileCard`, `ProfileForm`, `SkillSelector` |
+| QR Code    | `QrCodeCard`, `QrScanner`                     |
+| Empresas   | `CompanyCard`, `CompanyBadge`                 |
+| Missões    | `MissionCard`, `MissionProgress`              |
+| Passaporte | `PassportProgress`, `PassportStamp`           |
+| Ranking    | `RankingCard`, `CurrentRanking`               |
+| Sorteios   | `TicketCard`                                  |
+| Badges     | `BadgeCard`                                   |
+
+Esses nomes representam responsabilidades previstas, não obrigação de criar um arquivo antes de existir necessidade.
+
+## Regras
+
+- prefira componentes pequenos, nomeados e com props tipadas;
+- componentes visuais recebem dados e callbacks; regras ficam nos módulos;
+- não acesse Firestore ou segredos em componentes;
+- não duplique variantes que podem ser resolvidas na primitiva de UI;
+- use composição para conteúdo variável;
+- mantenha a fronteira de Client Component tão pequena quanto possível.
+
+## Estados obrigatórios
+
+Telas e componentes de dados devem considerar:
+
+- loading;
+- vazio;
+- erro recuperável;
+- sucesso ou confirmação;
+- disabled e ação em andamento.
+
+## Checklist
+
+- [ ] Responsabilidade única e nome claro.
+- [ ] Props estritamente tipadas.
+- [ ] Estados e acessibilidade tratados.
+- [ ] Tokens do Design System utilizados.
+- [ ] Sem regra de negócio ou acesso direto a dados.
+
+## Próximo documento
+
+➡️ [Páginas](./03-pages.md)
