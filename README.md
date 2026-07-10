@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DevFest Triângulo Passport
 
-## Getting Started
+Aplicação web desenvolvida para gamificação do DevFest Triângulo.
 
-First, run the development server:
+O objetivo é incentivar a interação entre participantes, patrocinadores e palestrantes através de missões, QR Codes, networking e recompensas durante o evento.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+- Next.js 16+
+- React 19+
+- TypeScript
+- Tailwind CSS v4
+- Shadcn/UI
+- Auth.js (Google)
+- Firebase / Firestore
+- React Hook Form
+- Zod
+
+## Estrutura
+
+```text
+src
+├── app          # Rotas e páginas (App Router)
+├── components   # Componentes reutilizáveis
+├── modules      # Regras de negócio
+├── lib          # Infraestrutura e configurações
+├── utils        # Funções utilitárias
+└── data         # Dados estáticos
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Primeiros passos
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Instale as dependências:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm install
+```
 
-## Learn More
+Inicie o servidor de desenvolvimento:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+A aplicação estará disponível em:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```text
+http://localhost:3000
+```
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Executar em modo de desenvolvimento:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+pnpm dev
+```
+
+Gerar build de produção:
+
+```bash
+pnpm build
+```
+
+Executar a aplicação em produção:
+
+```bash
+pnpm start
+```
+
+Executar o ESLint:
+
+```bash
+pnpm lint
+```
+
+Corrigir automaticamente problemas do ESLint:
+
+```bash
+pnpm lint:fix
+```
+
+Formatar todo o projeto:
+
+```bash
+pnpm format
+```
+
+Verificar formatação:
+
+```bash
+pnpm format:check
+```
+
+Executar todas as validações:
+
+```bash
+pnpm check
+```
+
+## Convenções
+
+- **Arquivos:** `kebab-case`
+- **Componentes:** `PascalCase`
+- **Funções e variáveis:** `camelCase`
+- **Constantes:** `UPPER_SNAKE_CASE`
+- **Imports:** organizados automaticamente pelo ESLint
+- **Commits:** Conventional Commits
+
+Exemplos:
+
+```text
+feat(profile): add skill selector
+fix(auth): prevent redirect loop
+refactor(qr-code): extract parser
+```
+
+## Funcionalidades
+
+- Login com Google
+- Onboarding
+- Perfil do participante
+- Passaporte digital
+- Sistema de missões
+- Leitor de QR Code
+- Networking
+- Ranking
+- Badges
+- Premiações
+- Avaliação de palestras
+
+## Licença
+
+Este projeto foi desenvolvido para o evento DevFest Triângulo.

@@ -1,0 +1,13 @@
+.next
+node_modules
+coverage
+dist
+build
+out
+
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+public
+src/components/ui
