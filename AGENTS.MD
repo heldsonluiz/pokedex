@@ -36,6 +36,7 @@ UI → Server Action/Route Handler → Service → Repository → Firestore
 - regras de negócio ficam em `modules`;
 - infraestrutura e integrações ficam em `lib`;
 - primitivas Shadcn ficam em `components/ui`;
+- arquivos gerados em `components/ui` não devem ser alterados por ESLint ou Prettier;
 - componentes não acessam o Firestore diretamente;
 - Firebase Admin é exclusivo do servidor e deve ser protegido com `server-only`.
 

@@ -55,6 +55,8 @@ Evite caminhos relativos longos e barrels que escondam dependências ou misturem
 - limite valores arbitrários a casos que não pertençam ao Design System;
 - reutilize ou estenda componentes de `components/ui` antes de criar novas primitivas.
 
+Os arquivos em `components/ui` são gerados e mantidos pelo Shadcn/UI. Essa pasta é ignorada pelo ESLint e pelo Prettier para preservar o código produzido pela dependência. Adaptações específicas devem ser feitas por composição ou, quando uma alteração direta for indispensável, de forma deliberada e revisada.
+
 ## Formulários e validação
 
 - defina o schema Zod antes do formulário;

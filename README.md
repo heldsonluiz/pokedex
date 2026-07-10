@@ -19,14 +19,15 @@ O objetivo é incentivar a interação entre participantes, patrocinadores e pal
 ## Estrutura
 
 ```text
-src
-├── app          # Rotas e páginas (App Router)
-├── components   # Componentes reutilizáveis
-├── modules      # Regras de negócio
-├── lib          # Infraestrutura e configurações
-├── utils        # Funções utilitárias
-└── data         # Dados estáticos
+app/          # Rotas e páginas do App Router
+components/   # Componentes reutilizáveis e Shadcn/UI
+modules/      # Regras de negócio, criado conforme necessário
+lib/          # Infraestrutura e utilitários compartilhados
+docs/         # Documentação funcional e técnica
+env.ts        # Variáveis de ambiente validadas
 ```
+
+O projeto utiliza a estrutura do App Router diretamente na raiz e não utiliza o diretório `src/`.
 
 ## Primeiros passos
 
