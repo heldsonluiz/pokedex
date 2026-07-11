@@ -10,6 +10,7 @@ Disponíveis somente no servidor:
 AUTH_SECRET=
 AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
+NEXTAUTH_URL=
 FIREBASE_PROJECT_ID=
 FIREBASE_CLIENT_EMAIL=
 FIREBASE_PRIVATE_KEY=
@@ -47,7 +48,9 @@ Evite acessar `process.env` fora do módulo central. Arquivos de Firebase Admin 
 
 ## Auth.js
 
-O login Google requer `AUTH_SECRET`, ID e secret OAuth. URLs de callback seguem:
+O login Google requer `AUTH_SECRET`, ID e secret OAuth. Enquanto o projeto utilizar NextAuth.js v4, `NEXTAUTH_URL` informa a URL canônica usada internamente pela autenticação. `NEXT_PUBLIC_APP_URL` permanece separado para usos no navegador.
+
+URLs de callback seguem:
 
 ```text
 http://localhost:3000/api/auth/callback/google

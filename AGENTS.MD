@@ -2,7 +2,7 @@
 
 ## Escopo
 
-O DevFest Triângulo DevDex é uma aplicação mobile first para participantes do evento. Cada implantação atende uma edição, mas a base deve ser reutilizável em edições futuras.
+O DevFest Triângulo Pokedex é uma aplicação mobile first para participantes do evento. Cada implantação atende uma edição, mas a base deve ser reutilizável em edições futuras.
 
 O produto inclui autenticação com Google, perfil, onboarding, networking por QR Code, empresas, missões, passaporte, palestras, XP, níveis, ranking, badges e tickets por nível para sorteios.
 

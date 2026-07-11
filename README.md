@@ -1,4 +1,4 @@
-# DevFest Triângulo DevDex
+# DevFest Triângulo Pokedex
 
 Aplicação web desenvolvida para gamificação do DevFest Triângulo.
 

@@ -1,6 +1,6 @@
 # Visão geral do projeto
 
-O DevFest Triângulo DevDex é uma aplicação mobile first para apoiar networking, participação em palestras e interação com patrocinadores durante o evento. A experiência utiliza QR Codes e gamificação, sem substituir a interação presencial. Cada implantação atende uma edição do DevFest Triângulo, mas a base deve ser reutilizável em edições futuras.
+O DevFest Triângulo Pokedex é uma aplicação mobile first para apoiar networking, participação em palestras e interação com patrocinadores durante o evento. A experiência utiliza QR Codes e gamificação, sem substituir a interação presencial. Cada implantação atende uma edição do DevFest Triângulo, mas a base deve ser reutilizável em edições futuras.
 
 A referência de capacidade é de aproximadamente 1.600 pessoas, 10 a 20 empresas e pico entre 800 e 1.000 acessos simultâneos.
 

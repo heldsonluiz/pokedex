@@ -1,4 +1,4 @@
-# Documentação do DevFest Triângulo DevDex
+# Documentação do DevFest Triângulo Pokedex
 
 Esta pasta contém a documentação funcional, técnica e arquitetural do projeto.
 
