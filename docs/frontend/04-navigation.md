@@ -5,12 +5,12 @@
 O layout autenticado usa Bottom Navigation com destinos estáveis:
 
 - Home (`/home`);
-- Passaporte (`/passport`);
+- Missões (`/missions`);
 - Scanner (`/scan`) como ação central;
-- Ranking (`/ranking`);
+- Passaporte (`/passport`);
 - Perfil (`/profile`).
 
-Empresas, missões, conexões, palestras, badges e tickets são acessados por atalhos e navegação contextual.
+Empresas, ranking, conexões, palestras, badges e tickets são acessados por atalhos e navegação contextual. Todos os itens principais exibem ícone e texto; o scanner usa um botão central elevado e destacado.
 
 ## Acesso às rotas
 

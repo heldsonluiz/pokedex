@@ -94,6 +94,9 @@
   --gradient-primary: linear-gradient(135deg, #7c3aed, #06b6d4);
   --gradient-gamification: linear-gradient(90deg, #f59e0b, #fbbf24);
   --gradient-immersive: linear-gradient(180deg, #020617, #2e1065);
+  --gradient-page-backdrop:
+    radial-gradient(circle at top, rgb(124 58 237 / 14%), transparent 42%),
+    linear-gradient(180deg, #f8fafc, #e2e8f0);
   --card-shadow: 0 4px 12px rgb(15 23 42 / 8%);
   --glow-primary: 0 0 32px rgb(124 58 237 / 35%);
   --glow-gamification: 0 0 28px rgb(245 158 11 / 30%);
@@ -139,6 +142,9 @@
   --info: #06b6d4;
   --info-foreground: #ecfeff;
   --surface-glass: rgb(15 23 42 / 72%);
+  --gradient-page-backdrop:
+    radial-gradient(circle at top, rgb(6 182 212 / 16%), transparent 38%),
+    linear-gradient(180deg, #020617, #2e1065);
   --card-shadow: 0 8px 24px rgb(0 0 0 / 24%);
   --sidebar: #0f172a;
   --sidebar-foreground: #f8fafc;

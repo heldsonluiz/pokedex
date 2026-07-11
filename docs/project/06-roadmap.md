@@ -2,6 +2,8 @@
 
 O desenvolvimento é incremental. Cada fase deve entregar uma parte utilizável, manter o projeto validável e atualizar a documentação afetada.
 
+Status atual: Fases 1 (Fundação) e 2 (Design System) concluídas. A rota temporária `/design-system` permanece disponível durante o desenvolvimento e deve ser removida na conclusão do MVP.
+
 ## MVP
 
 O MVP inclui autenticação, perfil, onboarding, navegação, empresas, missões, passaporte, QR Code, scanner, networking, palestras, ranking, badges e tickets para sorteios. Operações de pontuação, scans e tickets são validadas no servidor.

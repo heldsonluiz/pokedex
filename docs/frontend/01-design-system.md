@@ -14,11 +14,14 @@ O Design System prioriza uso em celulares, acessibilidade e consistência. Token
 ## Layout
 
 - conteúdo centralizado com largura máxima aproximada de `430px`;
+- fundo externo com gradiente coerente com o tema light ou dark da rota;
 - altura baseada em `100dvh` e suporte a safe areas;
 - header e navegação inferior fixos quando aplicável;
 - scroll restrito à área principal;
 - espaçamento mínimo lateral consistente;
 - expansão progressiva para telas maiores sem perder o foco mobile.
+
+A largura de `430px` é um limite máximo, não uma largura fixa. Em telas menores, o shell ocupa `100%` da largura disponível.
 
 ## Cores
 
@@ -104,6 +107,17 @@ As primitivas principais são Button, Card, Badge, Avatar, Progress, Input, Text
 - chips e badges usam formato cápsula;
 - cards são sólidos no light;
 - cards podem ser translúcidos somente no dark.
+
+Escala de altura para controles:
+
+| Tamanho   | Altura | Uso                                |
+| --------- | ------ | ---------------------------------- |
+| `xs`      | 32px   | ações compactas e auxiliares       |
+| `sm`      | 36px   | controles secundários              |
+| `default` | 40px   | botões, inputs e selects padrão    |
+| `lg`      | 44px   | ações principais de maior destaque |
+
+Variantes de ícone seguem as mesmas dimensões. Controles `xs` e `sm` devem ser usados apenas quando a área clicável ou o contexto preserve usabilidade adequada.
 
 Todos os componentes interativos devem oferecer:
 
