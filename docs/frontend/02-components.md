@@ -13,12 +13,12 @@ Componentes específicos de uma funcionalidade ficam no módulo correspondente. 
 
 ## Componentes estruturais
 
-| Componente         | Responsabilidade                           |
-| ------------------ | ------------------------------------------ |
-| `AppShell`         | largura mobile, safe areas e regiões fixas |
-| `AppHeader`        | título, voltar e ações contextuais         |
-| `BottomNavigation` | destinos principais e estado ativo         |
-| `OnboardingLayout` | progresso e composição das etapas iniciais |
+| Componente         | Responsabilidade                            |
+| ------------------ | ------------------------------------------- |
+| `AppShell`         | largura mobile, safe areas e regiões fixas  |
+| `AppHeader`        | saudação/título, voltar e ações contextuais |
+| `BottomNavigation` | destinos principais e estado ativo          |
+| `OnboardingLayout` | progresso e composição das etapas iniciais  |
 
 ## Componentes de domínio
 
@@ -53,6 +53,10 @@ Telas e componentes de dados devem considerar:
 - erro recuperável;
 - sucesso ou confirmação;
 - disabled e ação em andamento.
+
+## Catálogo de desenvolvimento
+
+A rota `/design-system` reúne tokens, temas e estados dos componentes para inspeção durante o desenvolvimento. Ela deve permanecer com `noindex` e ser removida ao final da entrega do MVP.
 
 ## Checklist
 
