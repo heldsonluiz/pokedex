@@ -11,7 +11,7 @@ O objetivo é incentivar a interação entre participantes, patrocinadores e pal
 - TypeScript
 - Tailwind CSS v4
 - Shadcn/UI
-- Auth.js (Google)
+- Auth.js v5 (Google)
 - Firebase / Firestore
 - React Hook Form
 - Zod
