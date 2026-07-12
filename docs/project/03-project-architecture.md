@@ -61,7 +61,8 @@ Crie somente os arquivos necessários; módulos pequenos não precisam reproduzi
 
 ### `lib`, `utils` e `data`
 
-- `lib`: clientes e adaptadores de Auth.js, Firebase e serviços externos;
+- `lib`: clientes e adaptadores de Firebase e serviços externos;
+- `lib/auth.ts`: configuração central do Auth.js e exports de autenticação do servidor;
 - `utils`: funções puras, genéricas e sem conhecimento do domínio;
 - `data`: listas estáticas sem regra de negócio.
 

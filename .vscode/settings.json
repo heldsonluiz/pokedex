@@ -47,5 +47,7 @@
 
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+
+  "js/ts.tsdh.path": "node_modules/typescript/lib"
 }

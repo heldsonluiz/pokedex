@@ -10,7 +10,6 @@ Disponíveis somente no servidor:
 AUTH_SECRET=
 AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
-NEXTAUTH_URL=
 FIREBASE_PROJECT_ID=
 FIREBASE_CLIENT_EMAIL=
 FIREBASE_PRIVATE_KEY=
@@ -48,7 +47,9 @@ Evite acessar `process.env` fora do módulo central. Arquivos de Firebase Admin 
 
 ## Auth.js
 
-O login Google requer `AUTH_SECRET`, ID e secret OAuth. Enquanto o projeto utilizar NextAuth.js v4, `NEXTAUTH_URL` informa a URL canônica usada internamente pela autenticação. `NEXT_PUBLIC_APP_URL` permanece separado para usos no navegador.
+O login Google utiliza Auth.js v5 e requer `AUTH_SECRET`, `AUTH_GOOGLE_ID` e `AUTH_GOOGLE_SECRET`. O prefixo `AUTH_` permite que o Auth.js reconheça automaticamente as credenciais do provider Google, portanto elas não precisam ser repassadas manualmente na configuração.
+
+Na v5, o host normalmente é inferido dos headers da requisição e uma URL privada de autenticação não é obrigatória. `AUTH_URL` deve ser adicionada apenas quando a aplicação utilizar um base path personalizado. `NEXT_PUBLIC_APP_URL` permanece separado para usos no navegador e não contém segredos.
 
 URLs de callback seguem:
 
@@ -62,6 +63,8 @@ Gere um secret forte com:
 ```bash
 pnpm exec auth secret
 ```
+
+Em ambientes atrás de proxy reverso, avalie `AUTH_TRUST_HOST=true`. Vercel e Cloudflare Pages são detectados automaticamente pelo Auth.js; não habilite confiança em headers de host sem conhecer a infraestrutura.
 
 ## Ambientes
 

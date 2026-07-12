@@ -1,6 +1,20 @@
 # Autenticação
 
-O projeto utiliza Auth.js com Google OAuth como único método de login.
+O projeto utiliza Auth.js v5 com Google OAuth como único método de login.
+
+## Integração com Next.js
+
+A configuração principal fica em `lib/auth.ts` e exporta `auth`, `handlers`, `signIn` e `signOut`. O Route Handler em `app/api/auth/[...nextauth]/route.ts` reexporta `GET` e `POST` a partir de `handlers`.
+
+A aplicação utiliza sessões JWT. O callback de sessão disponibiliza `token.sub` como `session.user.id`, permitindo associar a identidade autenticada ao perfil sem usar o e-mail como chave.
+
+No Next.js 16, `proxy.ts` protege antecipadamente as rotas configuradas e preserva o destino original. O layout do grupo `(app)` também valida a sessão no servidor por meio de `requireAuth()`. O proxy coordena navegação, mas não substitui a validação de sessão e autorização nas operações sensíveis.
+
+Login e logout são executados pelas Server Actions de `modules/auth/auth.actions.ts`. Destinos recebidos por formulário são validados e convertidos em caminhos internos permitidos antes do redirecionamento.
+
+A página `/login` trata separadamente erros OAuth esperados, falhas inesperadas de renderização, carregamento e estado pendente das ações.
+
+As credenciais `AUTH_GOOGLE_ID` e `AUTH_GOOGLE_SECRET` seguem a inferência de ambiente do Auth.js. A versão exata da dependência continua definida por `package.json` e `pnpm-lock.yaml`.
 
 ## Fluxo
 
@@ -10,6 +24,8 @@ Google OAuth → Auth.js → sessão → localizar/criar profile
 ```
 
 Não há cadastro manual, senha ou recuperação de senha.
+
+A criação idempotente do documento de perfil será integrada na Fase 4. Nesta fase, a sessão já fornece o identificador necessário para essa associação.
 
 ## Sessão e perfil
 
@@ -42,11 +58,19 @@ Administradores e revisores de missão são definidos pela organização. Neste 
 
 ## Checklist
 
-- [ ] Login e logout funcionam.
-- [ ] Criação do profile é idempotente.
-- [ ] Rotas e callbacks são protegidos.
-- [ ] Onboarding direciona corretamente.
-- [ ] Operações validam autorização além da sessão.
+### Fase 3 — Autenticação
+
+- [x] Login e logout funcionam.
+- [x] Sessão JWT identifica o participante com `id`, `name`, `email` e `image`.
+- [x] Rotas privadas validam a sessão no proxy e no servidor.
+- [x] Callbacks aceitam apenas destinos internos permitidos.
+- [x] Loading, erros esperados, falhas inesperadas e ações pendentes são tratados.
+
+### Integrações futuras
+
+- [ ] Criação do profile é idempotente na Fase 4.
+- [ ] Onboarding direciona corretamente na Fase 5.
+- [ ] Operações de domínio validam autorização além da sessão nas fases correspondentes.
 
 ## Próximo documento
 
