@@ -18,6 +18,17 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return Boolean(auth?.user)
     },
 
+    jwt({ token, account }) {
+      if (account?.provider === "google") {
+        return {
+          ...token,
+          sub: account.providerAccountId,
+        }
+      }
+
+      return token
+    },
+
     session({ session, token }) {
       if (token.sub) {
         session.user.id = token.sub

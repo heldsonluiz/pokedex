@@ -10,6 +10,7 @@ Disponíveis somente no servidor:
 AUTH_SECRET=
 AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
+EVENT_ID=
 FIREBASE_PROJECT_ID=
 FIREBASE_CLIENT_EMAIL=
 FIREBASE_PRIVATE_KEY=
@@ -65,6 +66,10 @@ pnpm exec auth secret
 ```
 
 Em ambientes atrás de proxy reverso, avalie `AUTH_TRUST_HOST=true`. Vercel e Cloudflare Pages são detectados automaticamente pelo Auth.js; não habilite confiança em headers de host sem conhecer a infraestrutura.
+
+## Evento da implantação
+
+Cada implantação atende uma única edição e define seu evento por `EVENT_ID`. O servidor usa esse identificador ao criar perfis e demais documentos vinculados ao evento. A aplicação não infere o evento consultando `isActive`, evitando comportamento ambíguo quando não houver exatamente um evento ativo.
 
 ## Ambientes
 

@@ -25,7 +25,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = getAuthErrorMessage(authError)
 
   if (session?.user) {
-    redirect(redirectTo)
+    redirect(`/auth/complete?callbackUrl=${encodeURIComponent(redirectTo)}`)
   }
 
   return (

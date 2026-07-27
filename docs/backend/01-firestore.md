@@ -18,9 +18,18 @@
 
 Schemas completos devem existir no código e ser validados com Zod. Este documento registra o modelo conceitual, não substitui os contratos tipados.
 
+### Perfil implementado
+
+O contrato inicial de `profiles` possui `userId`, `eventId`, `displayName`, `email`, `avatarUrl`, `bio`, `role`, `company`, `link`, `skills`, `qrId`, `onboardingCompleted`, `createdAt` e `updatedAt`. A criação usa uma transação em `profiles/{userId}`: se o documento já existir, nenhuma nova gravação é feita. O repositório valida documentos lidos com Zod e converte `Timestamp` para `Date` antes de devolvê-los ao domínio.
+
+`displayName` e `skills` são obrigatórios para concluir o perfil. O nome possui no mínimo 3 caracteres; `skills` aceita de 1 a 5 strings não vazias; `bio` é opcional e aceita no máximo 200 caracteres; `role`, `company` e `link` são opcionais; `link` aceita uma única URL válida. Antes da conclusão, o documento pode manter `skills` vazio e os campos opcionais nulos.
+
+Campos de progressão e regras de exposição pública serão acrescentados somente quando seus contratos forem definidos nas fases correspondentes.
+
 ## Relacionamentos e IDs
 
 - documentos relacionados ao evento carregam `eventId`;
+- `eventId` vem da variável privada `EVENT_ID` configurada por implantação;
 - referências usam IDs simples quando não houver benefício claro em `DocumentReference`;
 - IDs internos do Firestore não são colocados em QR Codes;
 - entidades escaneáveis possuem `qrId` público, aleatório e único no evento;

@@ -1,0 +1,118 @@
+import "server-only"
+
+import { randomUUID } from "node:crypto"
+
+import { Timestamp } from "firebase-admin/firestore"
+import * as z from "zod"
+
+import { firestore } from "@/lib/firebase/admin"
+
+import {
+  type ProfileIdentity,
+  profileIdentitySchema,
+  type ProfileUpdate,
+  profileUpdateSchema,
+  storedProfileFieldsSchema,
+} from "./profile.schema"
+import type { Profile } from "./profile.types"
+
+const PROFILES_COLLECTION = "profiles"
+const INITIAL_PROFILE_FIELDS = storedProfileFieldsSchema.parse({})
+const profileDocumentSchema = profileIdentitySchema.extend({
+  ...storedProfileFieldsSchema.shape,
+  qrId: z.string().uuid(),
+  onboardingCompleted: z.boolean(),
+  createdAt: z.instanceof(Timestamp),
+  updatedAt: z.instanceof(Timestamp),
+})
+
+export type EnsureProfileResult = {
+  created: boolean
+}
+
+export async function ensureProfileExists(
+  identity: ProfileIdentity
+): Promise<EnsureProfileResult> {
+  const profileRef = firestore
+    .collection(PROFILES_COLLECTION)
+    .doc(identity.userId)
+
+  return firestore.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(profileRef)
+
+    if (snapshot.exists) {
+      return {
+        created: false,
+      }
+    }
+
+    const now = Timestamp.now()
+
+    transaction.create(profileRef, {
+      ...identity,
+      ...INITIAL_PROFILE_FIELDS,
+      qrId: randomUUID(),
+      onboardingCompleted: false,
+      createdAt: now,
+      updatedAt: now,
+    })
+
+    return {
+      created: true,
+    }
+  })
+}
+
+export async function findProfileByUserId(
+  userId: string
+): Promise<Profile | null> {
+  const validatedUserId = profileIdentitySchema.shape.userId.parse(userId)
+
+  const snapshot = await firestore
+    .collection(PROFILES_COLLECTION)
+    .doc(validatedUserId)
+    .get()
+
+  if (!snapshot.exists) {
+    return null
+  }
+
+  const result = profileDocumentSchema.safeParse(snapshot.data())
+
+  if (!result.success || result.data.userId !== validatedUserId) {
+    throw new Error("Stored profile document is invalid")
+  }
+
+  const { createdAt, updatedAt, ...profile } = result.data
+
+  return {
+    ...profile,
+    createdAt: createdAt.toDate(),
+    updatedAt: updatedAt.toDate(),
+  }
+}
+
+export async function updateProfileByUserId(
+  userId: string,
+  input: ProfileUpdate
+): Promise<void> {
+  const validatedUserId = profileIdentitySchema.shape.userId.parse(userId)
+  const validatedInput = profileUpdateSchema.parse(input)
+
+  const profileRef = firestore
+    .collection(PROFILES_COLLECTION)
+    .doc(validatedUserId)
+
+  await firestore.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(profileRef)
+
+    if (!snapshot.exists) {
+      throw new Error("Profile not found")
+    }
+
+    transaction.update(profileRef, {
+      ...validatedInput,
+      updatedAt: Timestamp.now(),
+    })
+  })
+}
