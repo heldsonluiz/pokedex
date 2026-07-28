@@ -106,8 +106,12 @@ export function validateUserQrToken({
       JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8"))
     )
 
-    if (payload.eventId !== eventId || payload.qrId !== qrId) {
+    if (payload.eventId !== eventId) {
       return { valid: false, code: "INVALID_EVENT" }
+    }
+
+    if (payload.qrId !== qrId) {
+      return { valid: false, code: "INVALID_QR" }
     }
 
     if (

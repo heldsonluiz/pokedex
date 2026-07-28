@@ -138,6 +138,7 @@ Durante o desenvolvimento:
 ```bash
 pnpm lint
 pnpm typecheck
+pnpm test
 ```
 
 Antes de concluir:
@@ -147,7 +148,7 @@ pnpm check
 pnpm build
 ```
 
-O repositório usa ESLint, Prettier, lint-staged, Husky e Commitlint. As configurações reais desses arquivos são a fonte de verdade; não devem ser duplicadas aqui.
+O repositório usa ESLint, Prettier, Vitest, lint-staged, Husky e Commitlint. `pnpm check` executa tipos, lint, testes e formatação. As configurações reais desses arquivos são a fonte de verdade; não devem ser duplicadas aqui.
 
 ## Checklist
 

@@ -6,6 +6,7 @@ import { toString } from "qrcode"
 import { env } from "@/env"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
 
+import { buildQrCodeUrl } from "./qr-code.contract"
 import { createUserQrToken } from "./user-qr-token"
 
 export type UserQrCode = {
@@ -20,13 +21,17 @@ export async function issueUserQrCode(session: Session): Promise<UserQrCode> {
     eventId: profile.eventId,
     qrId: profile.qrId,
   })
-  const qrUrl = new URL(
-    `/qr/${encodeURIComponent(profile.eventId)}/user/${profile.qrId}`,
+  const qrUrl = buildQrCodeUrl(
+    {
+      eventId: profile.eventId,
+      type: "user",
+      qrId: profile.qrId,
+      token,
+    },
     env.NEXT_PUBLIC_APP_URL
   )
-  qrUrl.searchParams.set("token", token)
 
-  const svg = await toString(qrUrl.toString(), {
+  const svg = await toString(qrUrl, {
     type: "svg",
     width: 320,
     margin: 2,
@@ -38,7 +43,7 @@ export async function issueUserQrCode(session: Session): Promise<UserQrCode> {
   })
 
   return {
-    value: qrUrl.toString(),
+    value: qrUrl,
     svg,
     expiresAt: expiresAt.toISOString(),
   }

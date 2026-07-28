@@ -12,6 +12,8 @@ Tipos iniciais: `user`, `company`, `talk` e `mission`.
 
 `qrId` é um UUID v4 público, aleatório e estável, diferente do ID interno do documento do Firestore. A aleatoriedade torna colisões desprezíveis na escala do evento, mas o identificador não é tratado como segredo ou autorização.
 
+O contrato central em `modules/qr-code/qr-code.contract.ts` define os tipos, constrói URLs e interpreta valores externos. A URL completa aceita no máximo 4.096 caracteres, deve usar `http` ou `https`, possuir a mesma origem de `NEXT_PUBLIC_APP_URL`, não pode conter credenciais ou fragmento e deve corresponder exatamente ao formato documentado. O `eventId` deve ser o `EVENT_ID` da implantação e `qrId` deve ser um UUID válido.
+
 QR Codes de empresas, palestras e missões permanecem válidos durante o evento. O QR Code de participante acrescenta um token temporário:
 
 ```text
@@ -31,20 +33,37 @@ O scanner apenas controla câmera e leitura. Regras de networking, visita, prese
 
 ## Validação
 
-O servidor verifica:
+A validação ocorre em camadas:
+
+```text
+texto externo → origem e estrutura → evento e tipo → assinatura temporária
+→ existência da entidade → autorização e regra de domínio
+```
+
+O contrato central verifica:
+
+- tamanho, protocolo e origem da URL;
+- formato exato do caminho;
+- evento configurado na implantação;
+- tipo permitido e UUID válido;
+- ausência de fragmentos e parâmetros inesperados;
+- presença de um único token para participantes.
+
+Depois dessa validação estrutural, o servidor verifica:
 
 - sessão e autorização;
-- origem e formato da URL;
-- evento ativo e correspondente;
-- tipo permitido e existência do `qrId`;
+- existência da entidade identificada pelo `qrId`;
 - assinatura, claims e expiração do token para participantes;
-- validade temporal quando aplicável;
 - duplicidade da ação;
 - regras específicas do domínio.
 
+O status ativo de empresas, palestras e missões será validado pelos serviços correspondentes quando essas entidades forem implementadas.
+
 Existe um intervalo mínimo de um minuto entre scans do mesmo tipo. Um scan de participante cria uma solicitação de conexão; a XP só é concedida após o aceite do destinatário.
 
-Códigos de erro estáveis incluem `INVALID_QR`, `QR_NOT_FOUND`, `QR_ALREADY_SCANNED`, `INVALID_EVENT` e `UNAUTHORIZED`.
+Erros estruturais estáveis incluem `INVALID_QR`, `INVALID_ORIGIN`, `INVALID_EVENT`, `UNSUPPORTED_QR_TYPE` e `MISSING_TOKEN`. Validações temporais acrescentam `QR_EXPIRED`. As fases de domínio acrescentarão erros como `QR_NOT_FOUND`, `QR_ALREADY_SCANNED` e `UNAUTHORIZED` quando suas respectivas operações existirem.
+
+O parser e a assinatura possuem testes automatizados para URLs válidas, quatro tipos de alvo, origem externa, credenciais embutidas, outro evento, tipo desconhecido, UUID inválido, token ausente, parâmetros inesperados, tamanho máximo, assinatura ou payload alterados, expiração e tolerância de relógio.
 
 ## Segurança
 
