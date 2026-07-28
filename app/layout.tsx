@@ -3,7 +3,13 @@ import "./globals.css"
 import { GeistMono } from "geist/font/mono"
 import { GeistPixelSquare } from "geist/font/pixel"
 import { GeistSans } from "geist/font/sans"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://pokedex.devfesttriangulo.com.br"),

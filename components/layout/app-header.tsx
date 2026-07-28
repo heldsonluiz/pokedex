@@ -28,7 +28,7 @@ export function AppHeader({
   return (
     <header
       className={cn(
-        "flex min-h-14 shrink-0 items-center gap-3 border-b border-border/70 bg-background/95 px-4 backdrop-blur-sm",
+        "flex min-h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 items-center gap-3 border-b border-border/70 bg-background/95 px-4 pt-[env(safe-area-inset-top)] backdrop-blur-sm",
         className
       )}
     >

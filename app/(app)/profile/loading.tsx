@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function ProfileLoading() {
   return (
-    <main
+    <div
       className="mx-auto w-full max-w-3xl space-y-6 p-6"
       aria-label="Carregando perfil"
       aria-busy="true"
@@ -17,6 +17,6 @@ export default function ProfileLoading() {
 
       <Skeleton className="h-32 w-full rounded-xl" />
       <Skeleton className="h-28 w-full rounded-xl" />
-    </main>
+    </div>
   )
 }
