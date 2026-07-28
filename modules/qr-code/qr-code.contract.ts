@@ -1,6 +1,6 @@
 import * as z from "zod"
 
-export const QR_CODE_TYPES = ["user", "company", "talk", "mission"] as const
+export const QR_CODE_TYPES = ["user", "company", "mission", "tag"] as const
 export const MAX_QR_CODE_URL_LENGTH = 4_096
 export const MAX_QR_CODE_TOKEN_LENGTH = 2_048
 
@@ -20,7 +20,7 @@ const userQrCodeTargetSchema = qrCodeBaseTargetSchema
 
 const staticQrCodeTargetSchema = qrCodeBaseTargetSchema
   .extend({
-    type: z.enum(["company", "talk", "mission"]),
+    type: z.enum(["company", "mission", "tag"]),
   })
   .strict()
 

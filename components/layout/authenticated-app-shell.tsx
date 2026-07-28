@@ -59,6 +59,12 @@ const routeLayouts: Record<string, RouteLayout> = {
     showNavigation: false,
     backHref: "/home",
   },
+  "/companies": {
+    title: "Empresas",
+    showHeader: true,
+    showNavigation: false,
+    backHref: "/home",
+  },
 }
 
 const fallbackLayout: RouteLayout = {
@@ -73,7 +79,16 @@ export function AuthenticatedAppShell({
 }: Readonly<{ children: ReactNode }>) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const routeLayout = routeLayouts[pathname] ?? fallbackLayout
+  const routeLayout =
+    routeLayouts[pathname] ??
+    (pathname.startsWith("/companies/")
+      ? {
+          title: "Empresa",
+          showHeader: true,
+          showNavigation: false,
+          backHref: "/companies",
+        }
+      : fallbackLayout)
   const backHref =
     pathname === "/profile/qr-code" && searchParams.get("source") === "home"
       ? "/home"

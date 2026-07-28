@@ -44,7 +44,7 @@ describe("QR Code URL contract", () => {
     })
   })
 
-  it.each(["company", "talk", "mission"] as const)(
+  it.each(["company", "mission", "tag"] as const)(
     "builds and parses a static %s QR Code",
     (type) => {
       const target = {

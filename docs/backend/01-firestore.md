@@ -6,13 +6,14 @@
 | --------------------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
 | `events`              | configuração do evento  | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                                  |
 | `profiles`            | participante            | `userId`, `eventId`, dados públicos, `qrId`, `level`, `xp`, `xpReachedAt`, onboarding, timestamps |
-| `companies`           | patrocinadores          | `eventId`, `name`, `category`, descrição, links, `qrId`, `order`                                  |
-| `talks`               | palestras               | `eventId`, título, palestrante, horários, sala, `qrId`                                            |
+| `companies`           | patrocinadores          | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                                 |
+| `talks`               | palestras               | `eventId`, título, palestrante, horários, sala e liberação da avaliação                           |
 | `missions`            | missões                 | `eventId`, título, tipo, XP, estado e ordem                                                       |
 | `mission-submissions` | validações de missões   | `eventId`, missão, perfil, status, revisor e timestamps                                           |
 | `badges`              | conquistas              | `eventId`, nome, descrição, ícone e visibilidade                                                  |
 | `tickets`             | entradas para sorteios  | `eventId`, `profileId`, nível de origem, sorteio e timestamp                                      |
 | `connections`         | networking              | `eventId`, perfis, status, criação, remoção e XP concedida                                        |
+| `activityCompletions` | progresso e carimbos    | evento, participante, tipo, entidade, QR, XP concedida e conclusão                                |
 | `scans`               | histórico de leituras   | `eventId`, perfil, tipo, alvo, QR e timestamp                                                     |
 | `talk-ratings`        | avaliações de palestras | `eventId`, palestra, avaliador, respostas e timestamp                                             |
 
@@ -53,9 +54,39 @@ idempotente e não concede XP novamente.
 
 O contrato registra `xpAwardedPerParticipant`, `xpGrantedAt` e `xpRevokedAt`.
 Ao criar a conexão, os dois participantes recebem os 5 XP definidos por
-`SCORES.CONNECTION`. A conexão e os dois perfis são atualizados na mesma
+`SCORES.PARTICIPANT_CONNECTION`. A conexão e os dois perfis são atualizados na mesma
 transação. A remoção por qualquer participante subtrai de ambos exatamente o
 valor registrado na conexão, também atomicamente, sem apagar o histórico.
+
+### Empresas e visitas
+
+Cada documento de `companies` possui `eventId`, um único `qrId` público,
+`name`, `description`, `logoUrl`, `stampImageUrl`, `active`, `xpAwarded`,
+`createdAt` e `updatedAt`. `stampImageUrl` é opcional; o passaporte usa
+`logoUrl` como fallback. `xpAwarded` também é opcional e, quando ausente, a
+visita usa `SCORES.COMPANY_VISIT`.
+
+O QR Code identifica a empresa, mas não autoriza nem pontua sozinho. O servidor
+valida sessão, evento, perfil concluído, existência e estado ativo dentro do
+caso de uso.
+
+A primeira visita cria um documento em `activityCompletions` e soma XP ao
+perfil na mesma transação. O ID da conclusão é um hash determinístico de
+`eventId`, participante, tipo `company` e ID interno da empresa. Assim,
+releituras simultâneas ou posteriores retornam a conclusão existente sem criar
+outro carimbo ou conceder XP novamente.
+
+A conclusão registra `activityId`, `qrId`, `xpAwarded` e `completedAt`. Esse
+registro representa também o carimbo da empresa e preserva o valor realmente
+concedido mesmo que a configuração padrão seja alterada depois.
+
+Visitas e carimbos são permanentes. Não existe operação de remoção, revogação
+de XP ou nova conclusão para a mesma empresa.
+
+O catálogo consulta as empresas do evento, filtra somente as ativas e ordena
+os resultados por nome. O estado dos carimbos é obtido pelas conclusões do
+participante. No detalhe, o ID determinístico permite buscar diretamente a
+visita daquela empresa.
 
 ## Relacionamentos e IDs
 
@@ -64,7 +95,7 @@ valor registrado na conexão, também atomicamente, sem apagar o histórico.
 - referências usam IDs simples quando não houver benefício claro em `DocumentReference`;
 - IDs internos do Firestore não são colocados em QR Codes;
 - entidades escaneáveis possuem `qrId` público, aleatório e único no evento;
-- conexões e scans devem possuir chave ou regra que impeça duplicidade lógica;
+- conexões, scans e conclusões devem possuir chave ou regra que impeça duplicidade lógica;
 - `xpReachedAt` registra quando o participante atingiu a pontuação atual e resolve empates no ranking.
 
 ## Datas e exclusão
@@ -93,7 +124,7 @@ Use paginação em listas potencialmente grandes e selecione somente os dados ne
 - pontuação, badges, scans, conexões e tickets são escritos pelo servidor;
 - criar uma conexão concede XP uma única vez; removê-la revoga a XP na mesma operação, sem apagar o histórico;
 - cada nível concede no máximo um ticket por participante, usando chave idempotente;
-- avaliações exigem presença registrada e são únicas por participante e palestra;
+- avaliações são liberadas após o encerramento configurado, concluem sua missão e são únicas por participante e palestra;
 - operações concorrentes usam transações ou atualizações atômicas;
 - regras de segurança seguem menor privilégio;
 - dados públicos e privados do perfil devem ser separados na leitura ou projeção;

@@ -77,7 +77,7 @@ export async function createConnectionRequestForSession(
     eventId: requester.eventId,
     requesterId: requester.userId,
     recipientId: recipient.userId,
-    xpAwardedPerParticipant: SCORES.CONNECTION,
+    xpAwardedPerParticipant: SCORES.PARTICIPANT_CONNECTION,
   })
 
   switch (result) {
