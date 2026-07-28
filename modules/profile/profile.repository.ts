@@ -22,6 +22,8 @@ const profileDocumentSchema = profileIdentitySchema.extend({
   ...storedProfileFieldsSchema.shape,
   qrId: z.string().uuid(),
   onboardingCompleted: z.boolean(),
+  xp: z.number().int().nonnegative().default(0),
+  xpReachedAt: z.instanceof(Timestamp).nullable().default(null),
   createdAt: z.instanceof(Timestamp),
   updatedAt: z.instanceof(Timestamp),
 })
@@ -53,6 +55,8 @@ export async function ensureProfileExists(
       ...INITIAL_PROFILE_FIELDS,
       qrId: randomUUID(),
       onboardingCompleted: false,
+      xp: 0,
+      xpReachedAt: now,
       createdAt: now,
       updatedAt: now,
     })
@@ -83,10 +87,11 @@ export async function findProfileByUserId(
     throw new Error("Stored profile document is invalid")
   }
 
-  const { createdAt, updatedAt, ...profile } = result.data
+  const { createdAt, updatedAt, xpReachedAt, ...profile } = result.data
 
   return {
     ...profile,
+    xpReachedAt: xpReachedAt?.toDate() ?? null,
     createdAt: createdAt.toDate(),
     updatedAt: updatedAt.toDate(),
   }
@@ -125,10 +130,11 @@ export async function findProfileByQrId(
     throw new Error("Stored profile document is invalid")
   }
 
-  const { createdAt, updatedAt, ...profile } = result.data
+  const { createdAt, updatedAt, xpReachedAt, ...profile } = result.data
 
   return {
     ...profile,
+    xpReachedAt: xpReachedAt?.toDate() ?? null,
     createdAt: createdAt.toDate(),
     updatedAt: updatedAt.toDate(),
   }

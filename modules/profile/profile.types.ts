@@ -5,6 +5,8 @@ export type Profile = Readonly<
     StoredProfileFields & {
       qrId: string
       onboardingCompleted: boolean
+      xp: number
+      xpReachedAt: Date | null
       createdAt: Date
       updatedAt: Date
     }

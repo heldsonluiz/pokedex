@@ -92,6 +92,10 @@ export async function getProfileByPublicQrId(eventId: string, qrId: string) {
   return findProfileByQrId(eventId, qrId)
 }
 
+export async function getProfileByUserId(userId: string) {
+  return findProfileByUserId(userId)
+}
+
 export async function updateProfileForSession(
   session: Session,
   input: unknown

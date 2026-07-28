@@ -13,7 +13,7 @@
 | `/scan`                       | ler QR Code             | câmera, permissão, leitura e resultado              |
 | `/passport`                   | exibir progresso        | visitas, missões e selos                            |
 | `/ranking`                    | mostrar classificação   | posição atual, lista e nível                        |
-| `/connections`                | gerenciar networking    | solicitações, conexões, aceite e remoção            |
+| `/connections`                | gerenciar networking    | conexões criadas pelo scanner e remoção             |
 | `/profile`                    | exibir o próprio perfil | dados públicos, progresso e ações                   |
 | `/profile/edit`               | editar perfil           | formulário validado e feedback                      |
 | `/profile/qr-code`            | compartilhar QR         | código, instrução e alternativa de compartilhamento |
@@ -43,6 +43,18 @@ HTTPS e ausência de conexão também possuem estados recuperáveis. Nesta etapa
 somente o tipo `user` possui deep link funcional. Empresas, palestras e missões
 são reconhecidas pelo contrato, mas informam que o destino ainda será
 habilitado.
+
+Ao reconhecer um QR Code válido de participante, o scanner chama a Server
+Action que repete a validação de evento, assinatura e expiração e cria a
+conexão automaticamente. Os dois participantes recebem 5 XP. Abrir diretamente
+o deep link apenas apresenta sua validade e não executa a mutação.
+
+`/connections` apresenta as conexões ativas e o e-mail do outro participante.
+Qualquer uma das partes pode remover uma conexão após confirmação; os dois
+participantes perdem a XP concedida por ela, e o documento permanece armazenado
+para preservar o histórico e permitir uma futura reconexão. A página possui
+skeleton estrutural durante a consulta e erro recuperável para falhas de
+carregamento.
 
 `/missions` e `/passport` já participam da navegação autenticada, mas exibem
 estados informativos até que suas respectivas regras de negócio sejam

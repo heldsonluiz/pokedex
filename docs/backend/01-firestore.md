@@ -12,7 +12,7 @@
 | `mission-submissions` | validações de missões   | `eventId`, missão, perfil, status, revisor e timestamps                                           |
 | `badges`              | conquistas              | `eventId`, nome, descrição, ícone e visibilidade                                                  |
 | `tickets`             | entradas para sorteios  | `eventId`, `profileId`, nível de origem, sorteio e timestamp                                      |
-| `connections`         | networking              | `eventId`, perfis, status, solicitação, aceite, remoção e XP concedida                            |
+| `connections`         | networking              | `eventId`, perfis, status, criação, remoção e XP concedida                                        |
 | `scans`               | histórico de leituras   | `eventId`, perfil, tipo, alvo, QR e timestamp                                                     |
 | `talk-ratings`        | avaliações de palestras | `eventId`, palestra, avaliador, respostas e timestamp                                             |
 
@@ -28,7 +28,34 @@ A edição em `/profile/edit` envia somente esses campos editáveis para uma Ser
 
 No setup obrigatório, a mesma transação persiste os campos validados e define `onboardingCompleted: true`. Cancelar o setup não altera o documento; voltar apenas reinicia as etapas introdutórias.
 
-Campos de progressão e regras de exposição pública serão acrescentados somente quando seus contratos forem definidos nas fases correspondentes.
+Os campos `xp` e `xpReachedAt` armazenam a pontuação atual e o instante em que
+ela foi atingida. Os valores concedidos por cada interação ficam centralizados
+em `config/scores.ts`; o cliente não informa nem calcula pontuação.
+
+### Networking
+
+Cada documento de `connections` representa um único par de participantes no
+evento. O ID é um hash determinístico do `eventId` e dos dois IDs de participante
+em ordem canônica; por isso, leituras em sentidos opostos não criam
+documentos duplicados.
+
+O contrato possui `participantIds`, `requesterId`, `recipientId`, `status`,
+`requestCount`, `firstRequestedAt`, `lastRequestedAt`, `acceptedAt`,
+`rejectedAt`, `removedAt`, `removedBy`, `createdAt` e `updatedAt`. Os estados
+`pending` e `rejected` permanecem reconhecidos para compatibilidade com dados
+anteriores, mas o fluxo atual cria a conexão diretamente como `accepted`. Uma
+nova leitura após remoção reutiliza o documento, incrementa `requestCount` e
+preserva o histórico.
+
+O intervalo de um minuto bloqueia somente a recriação do mesmo par após uma
+remoção. A leitura de uma conexão já ativa retorna o estado atual de forma
+idempotente e não concede XP novamente.
+
+O contrato registra `xpAwardedPerParticipant`, `xpGrantedAt` e `xpRevokedAt`.
+Ao criar a conexão, os dois participantes recebem os 5 XP definidos por
+`SCORES.CONNECTION`. A conexão e os dois perfis são atualizados na mesma
+transação. A remoção por qualquer participante subtrai de ambos exatamente o
+valor registrado na conexão, também atomicamente, sem apagar o histórico.
 
 ## Relacionamentos e IDs
 
@@ -64,7 +91,7 @@ Use paginação em listas potencialmente grandes e selecione somente os dados ne
 ## Integridade e segurança
 
 - pontuação, badges, scans, conexões e tickets são escritos pelo servidor;
-- aceitar uma conexão concede XP uma única vez; removê-la revoga a XP na mesma operação, sem apagar o histórico;
+- criar uma conexão concede XP uma única vez; removê-la revoga a XP na mesma operação, sem apagar o histórico;
 - cada nível concede no máximo um ticket por participante, usando chave idempotente;
 - avaliações exigem presença registrada e são únicas por participante e palestra;
 - operações concorrentes usam transações ou atualizações atômicas;

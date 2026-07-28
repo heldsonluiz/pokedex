@@ -72,7 +72,11 @@ Depois dessa validação estrutural, o servidor verifica:
 
 O status ativo de empresas, palestras e missões será validado pelos serviços correspondentes quando essas entidades forem implementadas.
 
-Existe um intervalo mínimo de um minuto entre scans do mesmo tipo. Um scan de participante cria uma solicitação de conexão; a XP só é concedida após o aceite do destinatário.
+Uma leitura válida de participante feita pelo scanner cria a conexão
+automaticamente e concede 5 XP a cada participante. A operação é idempotente:
+reler uma conexão ativa não duplica a conexão nem a pontuação. Depois de uma
+remoção, existe um intervalo mínimo de um minuto antes de recriar o mesmo par.
+A remoção preserva o histórico e revoga de ambos a XP registrada na conexão.
 
 Erros estruturais estáveis incluem `INVALID_QR`, `INVALID_ORIGIN`, `INVALID_EVENT`, `UNSUPPORTED_QR_TYPE` e `MISSING_TOKEN`. Validações temporais acrescentam `QR_EXPIRED`. As fases de domínio acrescentarão erros como `QR_NOT_FOUND`, `QR_ALREADY_SCANNED` e `UNAUTHORIZED` quando suas respectivas operações existirem.
 
@@ -89,7 +93,9 @@ O parser e a assinatura possuem testes automatizados para URLs válidas, quatro 
 - aplique limitação de frequência quando necessário;
 - não execute mutação automaticamente ao abrir um deep link.
 
-Abrir o deep link de participante apenas valida o código e apresenta um resultado. A criação da solicitação de conexão pertence à fase de networking e exigirá confirmação explícita.
+Abrir diretamente o deep link de participante apenas valida o código e
+apresenta um resultado. A criação automática da conexão acontece somente por
+uma leitura no scanner autenticado, nunca pela simples abertura da URL.
 
 ## Próximo documento
 
