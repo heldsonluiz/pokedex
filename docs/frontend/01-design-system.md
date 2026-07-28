@@ -25,15 +25,16 @@ A largura de `430px` é um limite máximo, não uma largura fixa. Em telas menor
 
 ## Cores
 
-| Papel          | Base      | Estado ativo |
-| -------------- | --------- | ------------ |
-| Primary        | `#7C3AED` | `#6D28D9`    |
-| Secondary/info | `#06B6D4` | `#0891B2`    |
-| Gamification   | `#F59E0B` | `#D97706`    |
-| Success        | `#22C55E` | —            |
-| Destructive    | `#EF4444` | —            |
+| Papel        | Base      | Estado ativo |
+| ------------ | --------- | ------------ |
+| Primary      | `#7C3AED` | `#6D28D9`    |
+| Secondary    | `#F6F118` | `#DCD80E`    |
+| Info         | `#06B6D4` | `#0891B2`    |
+| Gamification | `#F97316` | `#EA580C`    |
+| Success      | `#22C55E` | —            |
+| Destructive  | `#EF4444` | —            |
 
-O amarelo é exclusivo de XP, níveis, ranking, tickets e recompensas. O ciano comunica foco, links, informação e scanner, além de compor o gradiente principal.
+O amarelo ácido da cor secundária reforça a direção gamer e Halloween da edição e identifica ações complementares. Em superfícies claras, o foco usa o roxo primário para manter contraste; em superfícies escuras, pode usar o amarelo ácido. O laranja é exclusivo de XP, níveis, ranking, tickets e recompensas. O ciano permanece restrito a informação e scanner, sem compor a identidade principal.
 
 Superfícies light:
 
@@ -59,8 +60,8 @@ Componentes devem consumir tokens, evitando cores HEX, medidas e sombras arbitr�
 ## Gradientes, sombras e transparência
 
 ```text
-Primary: 135deg, #7C3AED → #06B6D4
-Gamification: 90deg, #F59E0B → #FBBF24
+Primary: 135deg, #7C3AED → #F6F118
+Gamification: 90deg, #F97316 → #FB923C
 Immersive: 180deg, #020617 → #2E1065
 ```
 
@@ -68,8 +69,8 @@ Immersive: 180deg, #020617 → #2E1065
 - ações principais no light usam roxo sólido;
 - cards light usam sombras discretas;
 - transparência e glass effect são exclusivos das telas dark;
-- glow roxo/ciano é reservado a scanner, QR Code e conquistas;
-- glow amarelo é reservado a elementos de gamificação.
+- glow roxo ou ciano é reservado a scanner, QR Code e conquistas;
+- glow laranja é reservado a elementos de gamificação.
 
 ## Tipografia
 
