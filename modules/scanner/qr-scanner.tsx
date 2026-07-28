@@ -88,13 +88,20 @@ export function QrScanner({ appUrl, eventId }: QrScannerProps) {
         return
       }
 
-      if (parsedQrCode.target.type !== "user") {
-        showFailure("target-unavailable")
+      if (!navigator.onLine) {
+        showFailure("offline")
         return
       }
 
-      if (!navigator.onLine) {
-        showFailure("offline")
+      if (parsedQrCode.target.type === "company") {
+        router.push(
+          `/qr/${encodeURIComponent(parsedQrCode.target.eventId)}/company/${encodeURIComponent(parsedQrCode.target.qrId)}`
+        )
+        return
+      }
+
+      if (parsedQrCode.target.type !== "user") {
+        showFailure("target-unavailable")
         return
       }
 

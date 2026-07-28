@@ -68,23 +68,31 @@ UI → Server Action/Route Handler → Service → Repository → Firestore
 ### QR Codes
 
 - Formato: `/qr/{eventId}/{type}/{qrId}`.
-- Tipos iniciais: `user`, `company`, `talk` e `mission`.
+- Tipos: `user`, `company`, `mission` e `tag`.
 - Scans exigem conexão e validação no servidor.
 - O QR Code do participante expira após um minuto.
-- QR Codes de empresas, palestras e missões permanecem válidos durante o evento.
-- Existe intervalo mínimo de um minuto entre scans do mesmo tipo.
+- QR Codes de empresas, missões automáticas e tags são fixos e controlados pelo estado da entidade.
+- Palestras não possuem QR Code; a avaliação é liberada pelo horário de encerramento configurado.
 - Abrir diretamente um deep link não deve ignorar autenticação, autorização ou validação.
 
 ### Networking
 
 ```text
-scan → solicitação → aceite → concessão de XP
+scan → conexão automática → concessão de XP
 ```
 
-- uma conexão concede XP uma única vez;
+- uma conexão concede XP aos dois participantes uma única vez;
 - o participante pode remover uma conexão;
 - a remoção revoga a XP concedida, mas preserva o histórico;
-- aceite, concessão e revogação devem ser atômicos e idempotentes.
+- criação, concessão e revogação devem ser atômicas e idempotentes.
+
+### Empresas
+
+- cada empresa possui somente um QR Code ativo;
+- QR Codes adicionais no estande pertencem a missões associadas à empresa;
+- a primeira visita concede XP e um carimbo; novas leituras retornam o estado existente;
+- visitas e seus carimbos são permanentes e não possuem fluxo de remoção;
+- visita, XP e carimbo são registrados atomicamente e de forma idempotente.
 
 ### XP, ranking, badges e tickets
 
@@ -99,9 +107,10 @@ scan → solicitação → aceite → concessão de XP
 ### Missões e palestras
 
 - missões podem ser validadas automaticamente por QR Code ou submetidas a revisores;
-- revisores decidem somente submissões dentro do seu escopo;
-- presença em palestra é registrada pelo QR Code exibido na saída;
-- somente participantes com presença registrada podem avaliar;
+- qualquer usuário com papel de reviewer pode validar uma missão que exija revisão;
+- missões podem exigir visitas ou outras conclusões como pré-requisitos;
+- avaliações de palestra são liberadas após o horário de encerramento, sem QR Code de presença;
+- enviar uma avaliação válida conclui sua missão e concede XP uma única vez;
 - avaliações são vinculadas ao perfil do avaliador.
 
 ## Decisões pendentes

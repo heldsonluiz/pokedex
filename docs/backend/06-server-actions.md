@@ -2,7 +2,7 @@
 
 ## Quando usar
 
-- **Server Actions:** mutações iniciadas pela própria interface, como salvar perfil, concluir onboarding, conectar participantes ou remover conexão.
+- **Server Actions:** mutações iniciadas pela própria interface, como salvar perfil, concluir onboarding, conectar participantes, registrar visita ou remover conexão.
 - **Route Handlers:** scanner, webhooks, integrações externas e endpoints que precisam de contrato HTTP.
 - **Firebase Admin:** leitura ou escrita privilegiada exclusivamente no servidor.
 
@@ -46,6 +46,12 @@ validação criptográfica no servidor e deriva o participante da sessão. O val
 de XP vem de `config/scores.ts`, nunca do cliente. A remoção recebe somente o ID
 determinístico da conexão; o service deriva o participante da sessão e o
 repository valida sua posição no relacionamento dentro da transação.
+
+No QR Code fixo de empresa, a rota `GET` valida estrutura e autenticação, mas
+não altera dados. Depois da montagem, a página chama uma Server Action com
+`eventId` e `qrId`. O service deriva o participante da sessão, e o repository
+relê empresa, perfil e conclusão dentro da transação. O cliente nunca informa
+ID interno, XP ou identidade do participante.
 
 ## Evite
 

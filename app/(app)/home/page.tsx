@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  Building2,
   ChevronRight,
   QrCode,
   ScanLine,
@@ -20,6 +21,12 @@ export const metadata: Metadata = {
 }
 
 const shortcuts = [
+  {
+    href: "/companies",
+    label: "Empresas",
+    description: "Explore os estandes",
+    icon: Building2,
+  },
   {
     href: "/missions",
     label: "Missões",
@@ -128,13 +135,10 @@ export default async function HomePage() {
         </h2>
 
         <div className="grid grid-cols-2 gap-3">
-          {shortcuts.map(({ href, label, description, icon: Icon }, index) => (
+          {shortcuts.map(({ href, label, description, icon: Icon }) => (
             <Link
               href={href}
-              className={cn(
-                "flex min-h-28 flex-col justify-between rounded-2xl bg-card p-4 text-card-foreground ring-1 ring-foreground/10 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-                index === shortcuts.length - 1 && "col-span-2 min-h-24"
-              )}
+              className="flex min-h-28 flex-col justify-between rounded-2xl bg-card p-4 text-card-foreground ring-1 ring-foreground/10 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               key={href}
             >
               <div className="flex items-start justify-between gap-3">

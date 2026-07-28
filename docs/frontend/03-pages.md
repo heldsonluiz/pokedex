@@ -20,7 +20,7 @@
 | `/badges`                     | listar conquistas       | obtidas, bloqueadas e critérios públicos            |
 | `/tickets`                    | consultar tickets       | nível de origem e sorteio relacionado               |
 | `/talks`                      | mostrar agenda          | horários, palestrantes e status                     |
-| `/talks/[talkId]`             | detalhar palestra       | descrição, presença e avaliação identificada        |
+| `/talks/[talkId]`             | detalhar palestra       | descrição, horário e avaliação identificada         |
 | `/qr/[eventId]/[type]/[qrId]` | tratar deep link de QR  | validação e redirecionamento seguro                 |
 
 O fluxo de perfil já permite consultar os dados persistidos em `/profile` e editar nome, biografia, atuação, empresa, link e de três a cinco habilidades em `/profile/edit`. Somente nome e skills são obrigatórios. Habilidades são pesquisadas por nome ou alias no catálogo estático e persistidas pelo slug. O formulário valida no cliente para feedback imediato e repete a validação na Server Action antes da persistência; erros esperados são apresentados junto ao campo correspondente.
@@ -33,21 +33,37 @@ O fluxo de perfil já permite consultar os dados persistidos em `/profile` e edi
 
 `/home` usa somente dados reais do perfil para apresentar saudação e avatar. O scanner é a ação principal; o QR Code do participante e os destinos de Missões, Passaporte e Perfil aparecem como atalhos. Ao abrir o QR Code pela Home, a origem controlada `source=home` faz o retorno levar novamente ao início; acessos sem essa origem retornam ao Perfil. Progresso, XP, ranking e atividades recentes não são simulados e serão incorporados quando seus contratos de domínio existirem. A página possui skeleton estrutural e erro recuperável para a leitura do perfil. A ação de logout fica em `/profile`, junto às demais ações de conta.
 
+A Home também oferece acesso ao catálogo de empresas. `/companies` lista
+somente empresas ativas do evento atual, ordenadas pelo nome, e mostra quantas
+já foram visitadas. Cada card informa o estado do carimbo e abre
+`/companies/[companyId]`. O detalhe apresenta logo, descrição, XP e instrução
+para encontrar o QR Code; depois da visita, passa a exibir a imagem do carimbo,
+o momento da conquista e a pontuação recebida. O catálogo possui estados de
+carregamento, vazio e erro recuperável.
+
 `/scan` inicia a câmera automaticamente, aceita tanto a webcam quanto as câmeras
 do smartphone e prioriza a câmera traseira quando ela estiver disponível. O
 stream é encerrado ao sair da página, ocultar a aplicação ou obter a primeira
 leitura, antes da validação e da navegação. O valor lido passa pelo contrato
 central de QR Code. Códigos externos, inválidos, de outro evento ou sem suporte
 recebem mensagens específicas; falta de permissão, câmera ocupada, contexto sem
-HTTPS e ausência de conexão também possuem estados recuperáveis. Nesta etapa,
-somente o tipo `user` possui deep link funcional. Empresas, palestras e missões
-são reconhecidas pelo contrato, mas informam que o destino ainda será
-habilitado.
+HTTPS e ausência de conexão também possuem estados recuperáveis. Participantes
+criam conexões e empresas abrem seu deep link de visita. Missões e tags já são
+reconhecidas pelo contrato, mas informam que o destino ainda será habilitado.
 
 Ao reconhecer um QR Code válido de participante, o scanner chama a Server
 Action que repete a validação de evento, assinatura e expiração e cria a
 conexão automaticamente. Os dois participantes recebem 5 XP. Abrir diretamente
 o deep link apenas apresenta sua validade e não executa a mutação.
+
+`/qr/[eventId]/company/[qrId]` aceita tanto navegação pelo scanner interno
+quanto abertura pela câmera do smartphone. Sem sessão, preserva o caminho no
+login. Depois da autenticação, apresenta “Validando sua visita” enquanto uma
+Server Action registra a primeira conclusão. O sucesso informa XP e carimbo;
+releituras informam que a empresa já pertence ao passaporte sem pontuar
+novamente. Empresa inexistente, inativa, evento inválido, perfil incompleto e
+falha inesperada possuem resultados específicos. Visitas e carimbos não podem
+ser removidos pelo participante.
 
 `/connections` apresenta as conexões ativas e o e-mail do outro participante.
 Qualquer uma das partes pode remover uma conexão após confirmação; os dois
@@ -83,7 +99,7 @@ Cada página deve tratar:
 - não revele IDs internos ou dados privados;
 - confirme ações irreversíveis;
 - ao remover uma conexão, informe que a XP recebida será revogada;
-- permita avaliar palestra somente após presença registrada pelo QR Code exibido na saída;
+- permita avaliar palestra somente depois do horário de encerramento configurado;
 - após mutações, atualize a interface e revalide os dados relacionados.
 
 ## Próximo documento

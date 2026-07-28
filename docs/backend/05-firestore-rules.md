@@ -11,6 +11,7 @@ As regras seguem menor privilégio. O Firebase Admin ignora Firestore Rules, por
 | `tickets`                                  | próprios tickets                                     | servidor                                  |
 | `profiles`                                 | próprio perfil e projeção pública permitida          | próprio usuário, somente campos editáveis |
 | `connections`                              | conexões do próprio participante                     | servidor                                  |
+| `activityCompletions`                      | próprias conclusões e carimbos                       | servidor                                  |
 | `scans`                                    | scans do próprio participante quando necessário      | servidor                                  |
 | `mission-submissions`                      | próprias submissões; revisão autorizada via servidor | servidor                                  |
 | `talk-ratings`                             | própria avaliação quando necessária                  | servidor                                  |
@@ -35,7 +36,7 @@ As Rules devem comparar campos alterados e validar tipos/limites básicos. Regra
 
 ## Operações críticas
 
-Conclusão de missões, avaliações, scans, conexões, badges, ranking e tickets são persistidos somente pelo backend. O painel administrativo pertence a outro projeto e acessa os dados por uma integração de servidor autorizada; não existe papel administrativo confiável no cliente desta aplicação.
+Visitas, conclusões de missões, avaliações, scans, conexões, badges, ranking e tickets são persistidos somente pelo backend. O painel administrativo pertence a outro projeto e acessa os dados por uma integração de servidor autorizada; não existe papel administrativo confiável no cliente desta aplicação.
 
 ## Testes obrigatórios
 

@@ -1,15 +1,11 @@
-import { AlertCircle, CheckCircle2 } from "lucide-react"
 import type { Metadata } from "next"
-import Link from "next/link"
 import { redirect } from "next/navigation"
-import type { ReactNode } from "react"
 
-import { buttonVariants } from "@/components/ui/button"
 import { env } from "@/env"
 import { auth } from "@/lib/auth"
-import { cn } from "@/lib/utils"
 import { getProfileByPublicQrId } from "@/modules/profile/profile.service"
 import { parseQrCodeUrl } from "@/modules/qr-code/qr-code.contract"
+import { QrResult } from "@/modules/qr-code/qr-result"
 import { validateUserQrToken } from "@/modules/qr-code/user-qr-token"
 
 export const metadata: Metadata = {
@@ -52,7 +48,7 @@ export default async function UserQrCodePage({
 
     return (
       <QrResult
-        valid={false}
+        status="error"
         title={
           isDifferentEvent ? "QR Code de outro evento" : "QR Code inválido"
         }
@@ -68,7 +64,7 @@ export default async function UserQrCodePage({
   if (parsedQrCode.target.type !== "user") {
     return (
       <QrResult
-        valid={false}
+        status="error"
         title="QR Code inválido"
         description="O tipo deste código não corresponde a um participante."
       />
@@ -90,7 +86,7 @@ export default async function UserQrCodePage({
 
     return (
       <QrResult
-        valid={false}
+        status="error"
         title={isExpired ? "Este QR Code expirou" : "QR Code inválido"}
         description={
           isExpired
@@ -109,7 +105,7 @@ export default async function UserQrCodePage({
   if (!targetProfile) {
     return (
       <QrResult
-        valid={false}
+        status="error"
         title="Participante não encontrado"
         description="O perfil associado a este QR Code não está disponível."
       />
@@ -119,7 +115,7 @@ export default async function UserQrCodePage({
   if (targetProfile.userId === session.user.id) {
     return (
       <QrResult
-        valid={false}
+        status="error"
         title="Este é o seu QR Code"
         description="Peça para outro participante escanear o código para iniciar uma conexão."
       />
@@ -128,54 +124,9 @@ export default async function UserQrCodePage({
 
   return (
     <QrResult
-      valid
+      status="success"
       title={targetProfile.displayName}
       description="QR Code válido. Use o scanner do aplicativo para registrar a conexão."
     />
-  )
-}
-
-function QrResult({
-  valid,
-  title,
-  description,
-  children,
-}: Readonly<{
-  valid: boolean
-  title: string
-  description: string
-  children?: ReactNode
-}>) {
-  const Icon = valid ? CheckCircle2 : AlertCircle
-
-  return (
-    <main className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-background p-6 text-center">
-      <span
-        className={cn(
-          "rounded-full p-4",
-          valid
-            ? "bg-success/10 text-success"
-            : "bg-destructive/10 text-destructive"
-        )}
-      >
-        <Icon className="size-8" aria-hidden="true" />
-      </span>
-
-      <div className="max-w-sm space-y-2">
-        <h1 className="text-2xl font-semibold">{title}</h1>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-
-      {children}
-
-      <Link
-        href="/home"
-        className={buttonVariants({
-          variant: children ? "outline" : "default",
-        })}
-      >
-        Voltar para o início
-      </Link>
-    </main>
   )
 }

@@ -8,13 +8,16 @@ QR Codes são links para páginas internas da aplicação. As leituras exigem co
 /qr/{eventId}/{type}/{qrId}
 ```
 
-Tipos iniciais: `user`, `company`, `talk` e `mission`.
+Tipos: `user`, `company`, `mission` e `tag`.
 
 `qrId` é um UUID v4 público, aleatório e estável, diferente do ID interno do documento do Firestore. A aleatoriedade torna colisões desprezíveis na escala do evento, mas o identificador não é tratado como segredo ou autorização.
 
 O contrato central em `modules/qr-code/qr-code.contract.ts` define os tipos, constrói URLs e interpreta valores externos. A URL completa aceita no máximo 4.096 caracteres, deve usar `http` ou `https`, possuir a mesma origem de `NEXT_PUBLIC_APP_URL`, não pode conter credenciais ou fragmento e deve corresponder exatamente ao formato documentado. O `eventId` deve ser o `EVENT_ID` da implantação e `qrId` deve ser um UUID válido.
 
-QR Codes de empresas, palestras e missões permanecem válidos durante o evento. O QR Code de participante acrescenta um token temporário:
+QR Codes de empresas, missões automáticas e tags são fixos e não expiram. Seu
+uso pode ser interrompido desativando a entidade no Firestore. Palestras não
+possuem QR Code; suas avaliações são liberadas após o horário de encerramento.
+O QR Code de participante acrescenta um token temporário:
 
 ```text
 /qr/{eventId}/user/{qrId}?token={signedToken}
@@ -70,7 +73,14 @@ Depois dessa validação estrutural, o servidor verifica:
 - duplicidade da ação;
 - regras específicas do domínio.
 
-O status ativo de empresas, palestras e missões será validado pelos serviços correspondentes quando essas entidades forem implementadas.
+O status ativo de empresas, tags e missões é validado pelos serviços
+correspondentes.
+
+Uma leitura válida de empresa abre o deep link da entidade. A página
+autenticada dispara uma Server Action para registrar a visita; a requisição
+`GET` não altera dados. O servidor cria uma conclusão determinística, concede o
+XP padrão ou a sobrescrita da empresa e registra o carimbo na mesma transação.
+Reabrir a URL retorna a visita existente sem duplicar pontuação.
 
 Uma leitura válida de participante feita pelo scanner cria a conexão
 automaticamente e concede 5 XP a cada participante. A operação é idempotente:
