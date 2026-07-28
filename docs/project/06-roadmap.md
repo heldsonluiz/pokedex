@@ -2,7 +2,7 @@
 
 O desenvolvimento é incremental. Cada fase deve entregar uma parte utilizável, manter o projeto validável e atualizar a documentação afetada.
 
-Status atual: Fases 1 (Fundação), 2 (Design System) e 3 (Autenticação) concluídas. A Fase 4 (Perfil) está em andamento, com schema, criação idempotente, leitura, edição e QR temporário do participante implementados. A rota temporária `/design-system` permanece disponível durante o desenvolvimento e deve ser removida na conclusão do MVP.
+Status atual: Fases 1 (Fundação), 2 (Design System), 3 (Autenticação) e 4 (Perfil) concluídas. A Fase 5 (Onboarding) está em andamento, com splash, cinco etapas introdutórias, setup obrigatório do perfil e proteção por estado implementados. A rota temporária `/design-system` permanece disponível durante o desenvolvimento e deve ser removida na conclusão do MVP.
 
 ## MVP
 

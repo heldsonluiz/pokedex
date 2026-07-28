@@ -27,6 +27,10 @@ O fluxo de perfil já permite consultar os dados persistidos em `/profile` e edi
 
 `/profile/qr-code` emite e apresenta o QR temporário do participante, informa a validade restante e renova o token automaticamente. O deep link valida sessão, assinatura, evento, UUID, expiração, existência do perfil e tentativa de auto-scan, mas não executa mutação de networking.
 
+`/` redireciona imediatamente para `/login`. A página de login mantém logo e ilustração montados nas mesmas posições enquanto consulta a sessão sem cache por no mínimo dois segundos. Durante a consulta, exibe “Preparando sua jornada...”. Sem sessão, substitui somente a área inferior pelos textos e ação de login com fade-in; com sessão, segue para `/home`, onde o layout autenticado encaminha perfis incompletos ao onboarding.
+
+`/onboarding` apresenta cinco etapas com imagem WebP otimizada, título, descrição, indicador e ação de avanço. O passo atual permanece no parâmetro `step`, sobrevivendo a refresh. O gesto horizontal para a esquerda avança e para a direita retorna, sem botão visual de voltar; a próxima imagem é pré-carregada. Imagem e textos saem na direção do movimento e a etapa seguinte entra pelo lado oposto em uma transição curta. A última etapa encaminha para `/onboarding/profile`, que reutiliza o formulário de perfil. Voltar do setup retorna ao início das etapas; cancelar encerra a sessão; salvar um perfil válido conclui o onboarding e encaminha para `/home`.
+
 ## Composição
 
 Páginas são Server Components por padrão e coordenam carregamento, metadata e composição. Interações como formulários, câmera e filtros locais devem ser isoladas em Client Components.

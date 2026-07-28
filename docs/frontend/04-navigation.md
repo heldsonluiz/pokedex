@@ -22,7 +22,7 @@ Rotas públicas:
 /qr/[eventId]/[type]/[qrId]
 ```
 
-`/onboarding` exige autenticação, mas antecede o restante da aplicação. As demais páginas funcionais são protegidas.
+`/onboarding` e `/onboarding/profile` exigem autenticação, mas antecedem o restante da aplicação. A raiz redireciona para `/login`, que mantém sua estrutura visual enquanto verifica a sessão por no mínimo dois segundos. As demais páginas funcionais são protegidas.
 
 ## Redirecionamentos
 
@@ -32,6 +32,8 @@ com sessão e onboarding incompleto → /onboarding
 com sessão e onboarding concluído → /home
 usuário autenticado em /login → destino adequado ao perfil
 ```
+
+O callback do Google garante a existência do perfil antes de decidir o destino. O layout de onboarding impede que perfis concluídos retornem ao fluxo, e o layout da aplicação impede que perfis incompletos acessem páginas funcionais diretamente.
 
 Preserve o destino original quando seguro para permitir retorno após o login. Nunca aceite URLs externas ou destinos não autorizados como callback.
 

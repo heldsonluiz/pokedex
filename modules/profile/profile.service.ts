@@ -5,6 +5,7 @@ import type { Session } from "next-auth"
 import { env } from "@/env"
 
 import {
+  completeProfileByUserId,
   ensureProfileExists,
   type EnsureProfileResult,
   findProfileByQrId,
@@ -107,4 +108,22 @@ export async function updateProfileForSession(
   }
 
   return updatedProfile
+}
+
+export async function completeProfileForSession(
+  session: Session,
+  input: unknown
+): Promise<Profile> {
+  const validatedInput = profileUpdateSchema.parse(input)
+  const currentProfile = await requireProfileForSession(session)
+
+  await completeProfileByUserId(currentProfile.userId, validatedInput)
+
+  const completedProfile = await getProfileForSession(session)
+
+  if (!completedProfile?.onboardingCompleted) {
+    throw new Error("Profile onboarding could not be completed")
+  }
+
+  return completedProfile
 }

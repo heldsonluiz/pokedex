@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 
 import { auth } from "@/lib/auth"
 import { getSafeCallbackPath } from "@/lib/get-safe-callback-path"
-import { ensureProfileForSession } from "@/modules/profile/profile.service"
+import { requireProfileForSession } from "@/modules/profile/profile.service"
 
 type CompleteAuthenticationPageProps = Readonly<{
   searchParams: Promise<{
@@ -24,7 +24,11 @@ export default async function CompleteAuthenticationPage({
     redirect(`/login?callbackUrl=${encodeURIComponent(redirectTo)}`)
   }
 
-  await ensureProfileForSession(session)
+  const profile = await requireProfileForSession(session)
+
+  if (!profile.onboardingCompleted) {
+    redirect("/onboarding")
+  }
 
   redirect(redirectTo)
 }
