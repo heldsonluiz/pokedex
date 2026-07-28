@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import type { ReactNode } from "react"
 
+import { AuthenticatedAppShell } from "@/components/layout/authenticated-app-shell"
 import { requireAuth } from "@/lib/require-auth"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
 
@@ -18,5 +19,5 @@ export default async function AuthenticatedLayout({
     redirect("/onboarding")
   }
 
-  return children
+  return <AuthenticatedAppShell>{children}</AuthenticatedAppShell>
 }

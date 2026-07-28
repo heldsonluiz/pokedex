@@ -29,7 +29,7 @@ export default async function ProfilePage() {
   const profile = await requireProfileForSession(session)
 
   return (
-    <main className="mx-auto w-full max-w-3xl space-y-6 p-6">
+    <div className="mx-auto w-full max-w-3xl space-y-6 p-6">
       <section className="flex items-start gap-4">
         <Avatar className="size-20">
           {profile.avatarUrl && (
@@ -117,6 +117,6 @@ export default async function ProfilePage() {
         <QrCode data-icon="inline-start" aria-hidden="true" />
         Mostrar meu QR Code
       </Link>
-    </main>
+    </div>
   )
 }

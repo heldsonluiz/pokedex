@@ -37,7 +37,7 @@ export function BottomNavigation() {
 
   return (
     <nav
-      className="relative z-10 shrink-0 border-t border-border/70 bg-background/95 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-sm"
+      className="relative z-10 shrink-0 border-t border-border/70 bg-background/95 px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur-sm"
       aria-label="Navegação principal"
     >
       <ul className="grid grid-cols-5 items-end">
@@ -59,7 +59,7 @@ export function BottomNavigation() {
                   className={cn(
                     "flex size-7 items-center justify-center",
                     isScanner &&
-                      "size-14 rounded-full bg-(image:--gradient-primary) text-primary-foreground shadow-glow-primary ring-4 ring-background"
+                      "size-14 rounded-full bg-primary text-primary-foreground shadow-glow-primary ring-4 ring-background"
                   )}
                 >
                   <Icon

@@ -12,6 +12,10 @@ O layout autenticado usa Bottom Navigation com destinos estáveis:
 
 Empresas, ranking, conexões, palestras, badges e tickets são acessados por atalhos e navegação contextual. Todos os itens principais exibem ícone e texto; o scanner usa um botão central elevado e destacado.
 
+O layout autenticado mantém os controles de navegação fora da área rolável. Home, Missões, Scanner, Passaporte e Perfil não exibem header; elas usam somente a navegação inferior, com o item atual identificado visualmente e por `aria-current`. Telas secundárias, como edição de perfil e exibição do QR Code, ocultam a navegação inferior e exibem header com retorno explícito para `/profile`.
+
+O scanner usa o tema dark; as demais rotas principais usam o tema light. Telas secundárias podem escolher o tema adequado ao próprio fluxo sem criar outro shell.
+
 ## Acesso às rotas
 
 Rotas públicas:
@@ -49,11 +53,13 @@ Preserve o destino original quando seguro para permitir retorno após o login. N
 
 Use histórico quando houver origem conhecida; caso contrário, forneça destino seguro. Preserve filtros e posição de scroll quando isso melhorar o retorno a listas. Loading e transições não devem permitir ações duplicadas.
 
+O documento usa `viewport-fit=cover` para que navegadores móveis exponham corretamente as safe areas. O header considera a safe area superior, e a navegação inferior soma a safe area inferior ao espaçamento visual do componente. Somente o conteúdo central deve rolar, preservando os controles principais em telas pequenas.
+
 ## Checklist
 
-- [ ] Estado ativo da navegação está correto.
-- [ ] Rotas protegidas validam sessão no servidor.
-- [ ] Onboarding incompleto é redirecionado.
+- [x] Estado ativo da navegação está correto.
+- [x] Rotas protegidas validam sessão no servidor.
+- [x] Onboarding incompleto é redirecionado.
 - [ ] Parâmetros e callbacks são validados.
 - [ ] Deep links não executam ações sem autenticação, autorização e validação.
 

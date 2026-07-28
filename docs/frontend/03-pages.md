@@ -31,9 +31,13 @@ O fluxo de perfil já permite consultar os dados persistidos em `/profile` e edi
 
 `/onboarding` apresenta cinco etapas com imagem WebP otimizada, título, descrição, indicador e ação de avanço. O passo atual permanece no parâmetro `step`, sobrevivendo a refresh. O gesto horizontal para a esquerda avança e para a direita retorna, sem botão visual de voltar; a próxima imagem é pré-carregada. Imagem e textos saem na direção do movimento e a etapa seguinte entra pelo lado oposto em uma transição curta. A última etapa encaminha para `/onboarding/profile`, que reutiliza o formulário de perfil. Voltar do setup retorna ao início das etapas; cancelar encerra a sessão; salvar um perfil válido conclui o onboarding e encaminha para `/home`.
 
+`/missions`, `/scan` e `/passport` já participam da navegação autenticada, mas exibem estados informativos até que suas respectivas regras de negócio sejam implementadas. Esses estados tornam os destinos navegáveis sem simular dados ou comportamentos ainda inexistentes.
+
 ## Composição
 
 Páginas são Server Components por padrão e coordenam carregamento, metadata e composição. Interações como formulários, câmera e filtros locais devem ser isoladas em Client Components.
+
+O layout autenticado é responsável pelo único `AppShell` das rotas funcionais. Ele escolhe tema, retorno seguro e presença de header e navegação inferior com base na rota. As páginas renderizam somente seu conteúdo e não criam shells ou elementos `main` adicionais.
 
 Cada página deve tratar:
 
