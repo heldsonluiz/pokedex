@@ -1,0 +1,9 @@
+export const SCORES = {
+  PROFILE: 10,
+  CONNECTION: 5,
+  COMPANY: 50,
+  TAG: 75,
+  MISSION: 50,
+  EVALUATION: 75,
+  MISSION_EVALUATION: 75,
+} as const

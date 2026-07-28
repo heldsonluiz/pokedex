@@ -1,4 +1,4 @@
-import { ExternalLink, Pencil, QrCode } from "lucide-react"
+import { ExternalLink, Pencil, QrCode, UsersRound } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 
@@ -118,6 +118,14 @@ export default async function ProfilePage() {
       >
         <QrCode data-icon="inline-start" aria-hidden="true" />
         Mostrar meu QR Code
+      </Link>
+
+      <Link
+        href="/connections"
+        className={cn(buttonVariants({ variant: "outline" }), "w-full")}
+      >
+        <UsersRound data-icon="inline-start" aria-hidden="true" />
+        Minhas conexões
       </Link>
 
       <form action={signOutCurrentUser}>

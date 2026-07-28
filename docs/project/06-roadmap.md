@@ -2,7 +2,7 @@
 
 O desenvolvimento é incremental. Cada fase deve entregar uma parte utilizável, manter o projeto validável e atualizar a documentação afetada.
 
-Status atual: Fases 1 (Fundação), 2 (Design System), 3 (Autenticação), 4 (Perfil), 5 (Onboarding), 6 (Navegação), 7 (Home), 8 (QR Code) e 9 (Scanner) concluídas. O scanner inicia câmera móvel ou webcam automaticamente, encerra o stream após a primeira leitura e apresenta estados recuperáveis para falhas de câmera, conexão e conteúdo. O contrato central de QR Code constrói e interpreta URLs dos quatro tipos iniciais, enquanto assinatura compacta, expiração e deep link de participante são validados no servidor. A rota temporária `/design-system` permanece disponível durante o desenvolvimento e deve ser removida na conclusão do MVP.
+Status atual: Fases 1 (Fundação), 2 (Design System), 3 (Autenticação), 4 (Perfil), 5 (Onboarding), 6 (Navegação), 7 (Home), 8 (QR Code), 9 (Scanner) e 10 (Networking) concluídas. O networking cria a conexão automaticamente após uma leitura válida, concede 5 XP a cada participante e permite que qualquer uma das partes remova a conexão, revogando a pontuação de ambas. Criação, pontuação e remoção são transacionais e idempotentes, preservando o histórico do par. Os valores de XP ficam centralizados em `config/scores.ts`. O contrato central de QR Code constrói e interpreta URLs dos quatro tipos iniciais, enquanto assinatura compacta, expiração e deep link de participante são validados no servidor. A rota temporária `/design-system` permanece disponível durante o desenvolvimento e deve ser removida na conclusão do MVP.
 
 ## MVP
 
@@ -21,7 +21,7 @@ O MVP inclui autenticação, perfil, onboarding, navegação, empresas, missões
 | 7. Home                       | resumo e atalhos das atividades                    | Perfil e navegação            |
 | 8. QR Code                    | formato, geração e validação central               | Autenticação e Firestore      |
 | 9. Scanner                    | câmera, leitura e estados de resposta              | QR Code                       |
-| 10. Networking                | solicitação, aceite e remoção de conexões          | Scanner e perfil              |
+| 10. Networking                | criação automática, XP e remoção de conexões       | Scanner e perfil              |
 | 11. Empresas                  | catálogo, detalhes e registro de visita            | Scanner                       |
 | 12. Missões                   | catálogo, critérios e conclusão                    | Perfil                        |
 | 13. Passaporte                | progresso de visitas e missões                     | Empresas e missões            |

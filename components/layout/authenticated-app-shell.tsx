@@ -3,6 +3,8 @@
 import { usePathname, useSearchParams } from "next/navigation"
 import type { ReactNode } from "react"
 
+import { Toaster } from "@/components/ui/sonner"
+
 import { AppHeader } from "./app-header"
 import { AppShell } from "./app-shell"
 import { BottomNavigation } from "./bottom-navigation"
@@ -51,6 +53,12 @@ const routeLayouts: Record<string, RouteLayout> = {
     backHref: "/profile",
     theme: "dark",
   },
+  "/connections": {
+    title: "Conexões",
+    showHeader: true,
+    showNavigation: false,
+    backHref: "/home",
+  },
 }
 
 const fallbackLayout: RouteLayout = {
@@ -72,20 +80,25 @@ export function AuthenticatedAppShell({
       : routeLayout.backHref
 
   return (
-    <AppShell
-      header={
-        routeLayout.showHeader ? (
-          <AppHeader
-            title={routeLayout.title}
-            showBack={Boolean(backHref)}
-            backHref={backHref}
-          />
-        ) : undefined
-      }
-      navigation={routeLayout.showNavigation ? <BottomNavigation /> : undefined}
-      theme={routeLayout.theme}
-    >
-      {children}
-    </AppShell>
+    <>
+      <Toaster position="top-center" />
+      <AppShell
+        header={
+          routeLayout.showHeader ? (
+            <AppHeader
+              title={routeLayout.title}
+              showBack={Boolean(backHref)}
+              backHref={backHref}
+            />
+          ) : undefined
+        }
+        navigation={
+          routeLayout.showNavigation ? <BottomNavigation /> : undefined
+        }
+        theme={routeLayout.theme}
+      >
+        {children}
+      </AppShell>
+    </>
   )
 }

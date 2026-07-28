@@ -2,6 +2,7 @@ import { AlertCircle, CheckCircle2 } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import type { ReactNode } from "react"
 
 import { buttonVariants } from "@/components/ui/button"
 import { env } from "@/env"
@@ -128,8 +129,8 @@ export default async function UserQrCodePage({
   return (
     <QrResult
       valid
-      title="QR Code válido"
-      description="O participante foi identificado. A solicitação de conexão será habilitada na etapa de networking."
+      title={targetProfile.displayName}
+      description="QR Code válido. Use o scanner do aplicativo para registrar a conexão."
     />
   )
 }
@@ -138,10 +139,12 @@ function QrResult({
   valid,
   title,
   description,
+  children,
 }: Readonly<{
   valid: boolean
   title: string
   description: string
+  children?: ReactNode
 }>) {
   const Icon = valid ? CheckCircle2 : AlertCircle
 
@@ -163,7 +166,14 @@ function QrResult({
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
 
-      <Link href="/home" className={buttonVariants({ variant: "default" })}>
+      {children}
+
+      <Link
+        href="/home"
+        className={buttonVariants({
+          variant: children ? "outline" : "default",
+        })}
+      >
         Voltar para o início
       </Link>
     </main>

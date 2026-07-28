@@ -13,10 +13,8 @@ import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
-import {
-  buildQrCodeUrl,
-  parseQrCodeUrl,
-} from "@/modules/qr-code/qr-code.contract"
+import { connectFromScanAction } from "@/modules/networking/connection.actions"
+import { parseQrCodeUrl } from "@/modules/qr-code/qr-code.contract"
 
 import {
   classifyCameraError,
@@ -69,7 +67,7 @@ export function QrScanner({ appUrl, eventId }: QrScannerProps) {
   )
 
   const handleDecodedValue = useCallback(
-    (value: string, controls: IScannerControls) => {
+    async (value: string, controls: IScannerControls) => {
       if (isProcessingRef.current) {
         return
       }
@@ -100,8 +98,15 @@ export function QrScanner({ appUrl, eventId }: QrScannerProps) {
         return
       }
 
-      const normalizedUrl = new URL(buildQrCodeUrl(parsedQrCode.target, appUrl))
-      router.push(`${normalizedUrl.pathname}${normalizedUrl.search}`)
+      const result = await connectFromScanAction({
+        eventId: parsedQrCode.target.eventId,
+        targetQrId: parsedQrCode.target.qrId,
+        token: parsedQrCode.target.token,
+      })
+      const resultCode =
+        result.code ?? (result.success ? "CONNECTION_CREATED" : "SCAN_ERROR")
+
+      router.push(`/connections?result=${encodeURIComponent(resultCode)}`)
     },
     [appUrl, eventId, router, showFailure]
   )
@@ -150,7 +155,7 @@ export function QrScanner({ appUrl, eventId }: QrScannerProps) {
         videoRef.current,
         (result, _error, scannerControls) => {
           if (result) {
-            handleDecodedValue(result.getText(), scannerControls)
+            void handleDecodedValue(result.getText(), scannerControls)
           }
         }
       )
