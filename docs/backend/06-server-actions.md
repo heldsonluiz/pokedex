@@ -53,6 +53,12 @@ não altera dados. Depois da montagem, a página chama uma Server Action com
 relê empresa, perfil e conclusão dentro da transação. O cliente nunca informa
 ID interno, XP ou identidade do participante.
 
+Tags seguem o mesmo transporte seguro: o `GET` valida e apresenta a página, e
+a Server Action recebe somente `eventId` e `qrId`. O service deriva o
+participante da sessão; o repository valida tag, perfil e conclusão na
+transação. A resposta revela os dados da tag somente após uma descoberta válida
+ou já existente.
+
 ## Evite
 
 - Firestore em componentes;

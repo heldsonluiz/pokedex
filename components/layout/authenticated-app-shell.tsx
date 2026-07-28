@@ -65,6 +65,12 @@ const routeLayouts: Record<string, RouteLayout> = {
     showNavigation: false,
     backHref: "/home",
   },
+  "/tags": {
+    title: "Tags",
+    showHeader: true,
+    showNavigation: false,
+    backHref: "/home",
+  },
 }
 
 const fallbackLayout: RouteLayout = {

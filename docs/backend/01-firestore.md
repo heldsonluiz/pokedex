@@ -7,6 +7,7 @@
 | `events`              | configuração do evento  | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                                  |
 | `profiles`            | participante            | `userId`, `eventId`, dados públicos, `qrId`, `level`, `xp`, `xpReachedAt`, onboarding, timestamps |
 | `companies`           | patrocinadores          | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                                 |
+| `tags`                | itens escondidos        | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                           |
 | `talks`               | palestras               | `eventId`, título, palestrante, horários, sala e liberação da avaliação                           |
 | `missions`            | missões                 | `eventId`, título, tipo, XP, estado e ordem                                                       |
 | `mission-submissions` | validações de missões   | `eventId`, missão, perfil, status, revisor e timestamps                                           |
@@ -87,6 +88,23 @@ O catálogo consulta as empresas do evento, filtra somente as ativas e ordena
 os resultados por nome. O estado dos carimbos é obtido pelas conclusões do
 participante. No detalhe, o ID determinístico permite buscar diretamente a
 visita daquela empresa.
+
+### Tags e descobertas
+
+Cada documento de `tags` possui `eventId`, um único `qrId` público, `name`,
+`description`, `imageUrl`, `active`, `order`, `xpAwarded`, `createdAt` e
+`updatedAt`. Quando `xpAwarded` é nulo, a descoberta usa
+`SCORES.TAG_DISCOVERY`.
+
+A primeira leitura cria uma conclusão de tipo `tag` em
+`activityCompletions` e soma XP ao perfil na mesma transação. O ID é um hash
+determinístico de evento, participante, tipo e ID interno da tag. Descobertas e
+XP são permanentes; releituras retornam o registro existente.
+
+A coleção consulta somente tags ativas. Para itens ainda bloqueados, o service
+projeta apenas um número de slot, sem enviar ID, nome, descrição ou imagem ao
+cliente. Depois da descoberta, esses dados são revelados junto ao XP realmente
+concedido.
 
 ## Relacionamentos e IDs
 

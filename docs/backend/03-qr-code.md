@@ -82,6 +82,11 @@ autenticada dispara uma Server Action para registrar a visita; a requisição
 XP padrão ou a sobrescrita da empresa e registra o carimbo na mesma transação.
 Reabrir a URL retorna a visita existente sem duplicar pontuação.
 
+Uma leitura válida de tag abre `/qr/{eventId}/tag/{qrId}` e dispara uma Server
+Action autenticada. A primeira descoberta registra uma conclusão permanente e
+concede o XP padrão ou sobrescrito; releituras não duplicam a recompensa. Nome,
+imagem e descrição são apresentados somente depois da validação do servidor.
+
 Uma leitura válida de participante feita pelo scanner cria a conexão
 automaticamente e concede 5 XP a cada participante. A operação é idempotente:
 reler uma conexão ativa não duplica a conexão nem a pontuação. Depois de uma

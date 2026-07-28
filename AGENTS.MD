@@ -4,7 +4,7 @@
 
 O DevFest Triângulo Pokedex é uma aplicação mobile first para participantes do evento. Cada implantação atende uma edição, mas a base deve ser reutilizável em edições futuras.
 
-O produto inclui autenticação com Google, perfil, onboarding, networking por QR Code, empresas, missões, passaporte, palestras, XP, níveis, ranking, badges e tickets por nível para sorteios.
+O produto inclui autenticação com Google, perfil, onboarding, networking por QR Code, empresas, tags, missões, passaporte, palestras, XP, níveis, ranking, badges e tickets por nível para sorteios.
 
 O painel administrativo já existe em outro projeto e está fora deste repositório. Não implemente gestão administrativa, cadastro de conteúdo ou relatórios administrativos aqui, salvo uma integração explicitamente solicitada.
 
@@ -93,6 +93,14 @@ scan → conexão automática → concessão de XP
 - a primeira visita concede XP e um carimbo; novas leituras retornam o estado existente;
 - visitas e seus carimbos são permanentes e não possuem fluxo de remoção;
 - visita, XP e carimbo são registrados atomicamente e de forma idempotente.
+
+### Tags
+
+- cada tag possui um único QR Code fixo e pode ser descoberta uma vez por participante;
+- descobertas e seus XP são permanentes e não possuem fluxo de remoção;
+- tags bloqueadas exibem somente slots anônimos; nome, imagem e descrição são revelados após o scan;
+- descoberta e XP são registrados atomicamente e de forma idempotente;
+- critérios de badges baseados em tags pertencem à fase de badges.
 
 ### XP, ranking, badges e tickets
 
