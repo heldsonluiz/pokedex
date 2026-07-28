@@ -92,6 +92,48 @@ export async function findProfileByUserId(
   }
 }
 
+export async function findProfileByQrId(
+  eventId: string,
+  qrId: string
+): Promise<Profile | null> {
+  const validatedEventId = profileIdentitySchema.shape.eventId.parse(eventId)
+  const validatedQrId = z.string().uuid().parse(qrId)
+  const snapshots = await firestore
+    .collection(PROFILES_COLLECTION)
+    .where("eventId", "==", validatedEventId)
+    .where("qrId", "==", validatedQrId)
+    .limit(2)
+    .get()
+
+  if (snapshots.empty) {
+    return null
+  }
+
+  if (snapshots.size !== 1) {
+    throw new Error("Public profile QR identifier is not unique")
+  }
+
+  const snapshot = snapshots.docs[0]
+  const result = profileDocumentSchema.safeParse(snapshot.data())
+
+  if (
+    !result.success ||
+    result.data.userId !== snapshot.id ||
+    result.data.eventId !== validatedEventId ||
+    result.data.qrId !== validatedQrId
+  ) {
+    throw new Error("Stored profile document is invalid")
+  }
+
+  const { createdAt, updatedAt, ...profile } = result.data
+
+  return {
+    ...profile,
+    createdAt: createdAt.toDate(),
+    updatedAt: updatedAt.toDate(),
+  }
+}
+
 export async function updateProfileByUserId(
   userId: string,
   input: ProfileUpdate

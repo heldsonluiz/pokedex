@@ -11,6 +11,7 @@ AUTH_SECRET=
 AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
 EVENT_ID=
+QR_SIGNING_SECRET=
 FIREBASE_PROJECT_ID=
 FIREBASE_CLIENT_EMAIL=
 FIREBASE_PRIVATE_KEY=
@@ -69,7 +70,41 @@ Em ambientes atrás de proxy reverso, avalie `AUTH_TRUST_HOST=true`. Vercel e Cl
 
 ## Evento da implantação
 
-Cada implantação atende uma única edição e define seu evento por `EVENT_ID`. O servidor usa esse identificador ao criar perfis e demais documentos vinculados ao evento. A aplicação não infere o evento consultando `isActive`, evitando comportamento ambíguo quando não houver exatamente um evento ativo.
+Cada implantação atende uma única edição e define seu evento por `EVENT_ID`. Esse valor é o identificador estável da edição dentro da aplicação e associa perfis e demais documentos ao evento correto.
+
+Exemplo:
+
+```env
+EVENT_ID=devfest-triangulo-2026
+```
+
+O valor:
+
+- não é um segredo;
+- deve ser estável e não deve mudar depois que dados forem criados;
+- deve usar um identificador legível, sem espaços e em `kebab-case`;
+- deve ser diferente entre edições, como `devfest-triangulo-2026` e `devfest-triangulo-2027`;
+- deve ser igual em todas as instâncias de uma mesma implantação.
+
+O servidor usa `EVENT_ID` ao criar perfis e demais documentos vinculados ao evento. A aplicação não infere o evento consultando `isActive`, evitando comportamento ambíguo quando não houver exatamente um evento ativo.
+
+## Assinatura de QR Codes
+
+`QR_SIGNING_SECRET` assina tokens temporários de QR Code com HMAC-SHA-256 e deve possuir pelo menos 32 caracteres aleatórios. Use um valor exclusivo, diferente de `AUTH_SECRET`, e configure o mesmo segredo em todas as instâncias de uma implantação. A rotação invalida imediatamente tokens emitidos com o valor anterior.
+
+Gere um valor seguro com OpenSSL:
+
+```bash
+openssl rand -base64 48
+```
+
+O comando imprime uma sequência aleatória em Base64. Copie somente o valor gerado para o `.env.local`:
+
+```env
+QR_SIGNING_SECRET=valor-gerado-pelo-openssl
+```
+
+Em staging e produção, configure o valor diretamente no gerenciador de variáveis da plataforma de deploy. Gere um segredo diferente para cada ambiente. Não coloque o valor real em `.env.example`, documentação, commits, logs ou mensagens.
 
 ## Ambientes
 

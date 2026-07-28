@@ -1,5 +1,7 @@
 import * as z from "zod"
 
+import { isValidSkillSlug } from "./profile-skills"
+
 export const profileIdentitySchema = z.object({
   userId: z.string().trim().min(1),
   eventId: z.string().trim().min(1),
@@ -8,15 +10,28 @@ export const profileIdentitySchema = z.object({
   avatarUrl: z.string().url().nullable(),
 })
 
-const optionalTextSchema = z
-  .string()
-  .trim()
+const optionalBioSchema = z
+  .union([
+    z.string().trim().max(200, "A biografia deve ter no máximo 200 caracteres"),
+    z.null(),
+  ])
   .transform((value) => value || null)
 
-const optionalBioSchema = z
-  .string()
-  .trim()
-  .max(200, "A biografia deve ter no máximo 200 caracteres")
+const optionalRoleSchema = z
+  .union([
+    z
+      .string()
+      .trim()
+      .max(80, "O cargo ou atuação deve ter no máximo 80 caracteres"),
+    z.null(),
+  ])
+  .transform((value) => value || null)
+
+const optionalCompanySchema = z
+  .union([
+    z.string().trim().max(100, "A empresa deve ter no máximo 100 caracteres"),
+    z.null(),
+  ])
   .transform((value) => value || null)
 
 function isHttpUrl(value: string) {
@@ -33,17 +48,43 @@ const httpUrlSchema = z
   .refine(isHttpUrl, "Informe um link HTTP ou HTTPS válido")
 
 const optionalLinkSchema = z
-  .string()
-  .trim()
-  .refine((value) => !value || isHttpUrl(value), {
-    message: "Informe um link HTTP ou HTTPS válido",
-  })
+  .union([
+    z
+      .string()
+      .trim()
+      .refine((value) => !value || isHttpUrl(value), {
+        message: "Informe um link HTTP ou HTTPS válido",
+      }),
+    z.null(),
+  ])
   .transform((value) => value || null)
 
 const skillSchema = z
   .string()
   .trim()
-  .min(1, "A habilidade não pode estar vazia")
+  .refine(isValidSkillSlug, "Selecione uma habilidade válida")
+
+const selectedSkillsSchema = z
+  .array(skillSchema)
+  .min(3, "Selecione pelo menos 3 habilidades")
+  .max(5, "Selecione no máximo 5 habilidades")
+  .refine(
+    (selectedSkills) => new Set(selectedSkills).size === selectedSkills.length,
+    "Não selecione a mesma habilidade mais de uma vez"
+  )
+
+const storedSkillsSchema = z
+  .array(skillSchema)
+  .max(5)
+  .refine(
+    (selectedSkills) =>
+      selectedSkills.length === 0 || selectedSkills.length >= 3,
+    "Stored profile must have no skills or at least 3 skills"
+  )
+  .refine(
+    (selectedSkills) => new Set(selectedSkills).size === selectedSkills.length,
+    "Stored profile contains duplicated skills"
+  )
 
 export const profileUpdateSchema = z
   .object({
@@ -52,26 +93,25 @@ export const profileUpdateSchema = z
       .trim()
       .min(3, "O nome deve ter no mínimo 3 caracteres"),
     bio: optionalBioSchema,
-    role: optionalTextSchema,
-    company: optionalTextSchema,
+    role: optionalRoleSchema,
+    company: optionalCompanySchema,
     link: optionalLinkSchema,
-    skills: z
-      .array(skillSchema)
-      .min(1, "Informe pelo menos uma habilidade")
-      .max(5, "Informe no máximo 5 habilidades"),
+    skills: selectedSkillsSchema,
   })
   .strict()
 
 export const storedProfileFieldsSchema = z.object({
   bio: z.string().trim().max(200).nullable().default(null),
-  role: z.string().trim().nullable().default(null),
-  company: z.string().trim().nullable().default(null),
+  role: z.string().trim().max(80).nullable().default(null),
+  company: z.string().trim().max(100).nullable().default(null),
   link: httpUrlSchema.nullable().default(null),
-  skills: z.array(skillSchema).max(5).default([]),
+  skills: storedSkillsSchema.default([]),
 })
 
 export type StoredProfileFields = z.infer<typeof storedProfileFieldsSchema>
 
 export type ProfileUpdate = z.infer<typeof profileUpdateSchema>
+
+export type ProfileUpdateInput = z.input<typeof profileUpdateSchema>
 
 export type ProfileIdentity = z.infer<typeof profileIdentitySchema>

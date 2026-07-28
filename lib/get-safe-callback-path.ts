@@ -3,7 +3,7 @@ import "server-only"
 const DEFAULT_CALLBACK_PATH = "/home"
 const URL_PARSING_BASE = "http://internal"
 
-const ALLOWED_CALLBACK_PATHS = ["/home", "/profile"] as const
+const ALLOWED_CALLBACK_PATHS = ["/home", "/profile", "/qr"] as const
 
 export function getSafeCallbackPath(callbackUrl: string | undefined) {
   if (!callbackUrl) {

@@ -7,6 +7,7 @@ import { env } from "@/env"
 import {
   ensureProfileExists,
   type EnsureProfileResult,
+  findProfileByQrId,
   findProfileByUserId,
   updateProfileByUserId,
 } from "./profile.repository"
@@ -84,6 +85,10 @@ export async function requireProfileForSession(
   }
 
   return createdProfile
+}
+
+export async function getProfileByPublicQrId(eventId: string, qrId: string) {
+  return findProfileByQrId(eventId, qrId)
 }
 
 export async function updateProfileForSession(
