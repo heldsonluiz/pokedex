@@ -1,8 +1,9 @@
 import { AlertCircle, CheckCircle2 } from "lucide-react"
 import type { Metadata } from "next"
+import Link from "next/link"
 import { redirect } from "next/navigation"
 
-import { Button, buttonVariants } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import { env } from "@/env"
 import { auth } from "@/lib/auth"
 import { cn } from "@/lib/utils"
@@ -162,13 +163,9 @@ function QrResult({
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
 
-      <Button
-        render={
-          <a href="/home" className={buttonVariants({ variant: "default" })} />
-        }
-      >
+      <Link href="/home" className={buttonVariants({ variant: "default" })}>
         Voltar para o início
-      </Button>
+      </Link>
     </main>
   )
 }
