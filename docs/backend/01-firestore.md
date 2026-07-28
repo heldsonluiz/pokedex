@@ -26,6 +26,8 @@ O contrato inicial de `profiles` possui `userId`, `eventId`, `displayName`, `ema
 
 A edição em `/profile/edit` envia somente esses campos editáveis para uma Server Action autenticada. O serviço valida novamente o contrato e o repositório atualiza o documento existente em transação, preservando identidade, evento, QR Code e datas de criação.
 
+No setup obrigatório, a mesma transação persiste os campos validados e define `onboardingCompleted: true`. Cancelar o setup não altera o documento; voltar apenas reinicia as etapas introdutórias.
+
 Campos de progressão e regras de exposição pública serão acrescentados somente quando seus contratos forem definidos nas fases correspondentes.
 
 ## Relacionamentos e IDs

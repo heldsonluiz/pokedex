@@ -6,7 +6,10 @@ import { ZodError } from "zod"
 import { requireAuth } from "@/lib/require-auth"
 
 import type { ProfileUpdateInput } from "./profile.schema"
-import { updateProfileForSession } from "./profile.service"
+import {
+  completeProfileForSession,
+  updateProfileForSession,
+} from "./profile.service"
 
 type ProfileField = keyof ProfileUpdateInput
 type ProfileFieldErrors = Partial<Record<ProfileField, string>>
@@ -70,6 +73,37 @@ export async function updateProfileAction(
     return {
       success: false,
       message: "Não foi possível salvar o perfil. Tente novamente.",
+    }
+  }
+}
+
+export async function completeProfileOnboardingAction(
+  input: unknown
+): Promise<UpdateProfileActionResult> {
+  const session = await requireAuth()
+
+  try {
+    await completeProfileForSession(session, input)
+    revalidatePath("/home")
+    revalidatePath("/profile")
+
+    return {
+      success: true,
+    }
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return {
+        success: false,
+        message: "Revise os campos destacados.",
+        fieldErrors: getFieldErrors(error),
+      }
+    }
+
+    console.error("Failed to complete authenticated profile onboarding", error)
+
+    return {
+      success: false,
+      message: "Não foi possível concluir seu perfil. Tente novamente.",
     }
   }
 }

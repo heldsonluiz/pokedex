@@ -158,3 +158,28 @@ export async function updateProfileByUserId(
     })
   })
 }
+
+export async function completeProfileByUserId(
+  userId: string,
+  input: ProfileUpdate
+): Promise<void> {
+  const validatedUserId = profileIdentitySchema.shape.userId.parse(userId)
+  const validatedInput = profileUpdateSchema.parse(input)
+  const profileRef = firestore
+    .collection(PROFILES_COLLECTION)
+    .doc(validatedUserId)
+
+  await firestore.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(profileRef)
+
+    if (!snapshot.exists) {
+      throw new Error("Profile not found")
+    }
+
+    transaction.update(profileRef, {
+      ...validatedInput,
+      onboardingCompleted: true,
+      updatedAt: Timestamp.now(),
+    })
+  })
+}

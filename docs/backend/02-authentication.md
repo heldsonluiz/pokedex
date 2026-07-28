@@ -12,7 +12,7 @@ No Next.js 16, `proxy.ts` protege antecipadamente as rotas configuradas e preser
 
 Login e logout são executados pelas Server Actions de `modules/auth/auth.actions.ts`. Destinos recebidos por formulário são validados e convertidos em caminhos internos permitidos antes do redirecionamento.
 
-A página `/login` trata separadamente erros OAuth esperados, falhas inesperadas de renderização, carregamento e estado pendente das ações.
+A página `/login` trata separadamente erros OAuth esperados, falhas inesperadas de renderização, carregamento e estado pendente das ações. Ela também funciona como splash: mantém logo e ilustração estáveis durante a consulta inicial da sessão e revela o formulário com fade-in somente quando não existe usuário autenticado.
 
 As credenciais `AUTH_GOOGLE_ID` e `AUTH_GOOGLE_SECRET` seguem a inferência de ambiente do Auth.js. A versão exata da dependência continua definida por `package.json` e `pnpm-lock.yaml`.
 
@@ -25,7 +25,7 @@ Google OAuth → Auth.js → sessão → localizar/criar profile
 
 Não há cadastro manual, senha ou recuperação de senha.
 
-Após o retorno do provedor, `/auth/complete` valida a sessão e garante a existência do documento de perfil antes de encaminhar o participante ao destino seguro.
+Após o retorno do provedor, `/auth/complete` valida a sessão e garante a existência do documento de perfil. Perfis incompletos seguem para `/onboarding`; perfis concluídos seguem para o destino seguro solicitado.
 
 ## Sessão e perfil
 
@@ -36,8 +36,8 @@ No primeiro acesso, o servidor cria o profile de forma idempotente. A conclusão
 ## Rotas
 
 - `/` e `/login` são públicas;
+- `/onboarding` e `/onboarding/profile` exigem sessão e perfil incompleto;
 - `/profile` exige sessão e carrega o perfil persistido;
-- `/onboarding` exige sessão;
 - páginas funcionais exigem sessão e onboarding concluído;
 - `/qr/...` pode ser aberto sem sessão, mas qualquer ação exige autenticação e validação.
 
@@ -70,7 +70,7 @@ Administradores e revisores de missão são definidos pela organização. Neste 
 ### Integrações
 
 - [x] Criação do profile é idempotente na Fase 4.
-- [ ] Onboarding direciona corretamente na Fase 5.
+- [x] Onboarding direciona corretamente na Fase 5.
 - [ ] Operações de domínio validam autorização além da sessão nas fases correspondentes.
 
 ## Próximo documento
