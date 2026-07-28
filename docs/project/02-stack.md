@@ -44,7 +44,16 @@ Dados de formulários, rotas, Server Actions, QR Codes e variáveis de ambiente 
 - Vitest: testes automatizados de contratos e regras de domínio;
 - Lucide React: ícones.
 
-A biblioteca de leitura de QR Code deve ser escolhida por compatibilidade com navegadores móveis, câmera traseira, TypeScript e manutenção ativa. A escolha deve ser registrada quando implementada.
+O scanner usa `@zxing/browser` para controlar a câmera e decodificar QR Codes
+continuamente no navegador. A biblioteca foi escolhida por oferecer API em
+TypeScript, seleção da câmera traseira por constraints e encerramento explícito
+do stream. Ela é carregada dinamicamente somente quando o participante ativa a
+câmera, evitando incluí-la no carregamento inicial das páginas autenticadas.
+
+O build de produção usa `next build --webpack`. O Turbopack permaneceu bloqueado
+na otimização sem apresentar erro neste projeto, enquanto o mesmo código
+concluiu compilação, tipagem, geração de páginas e coleta de traces com Webpack.
+O servidor de desenvolvimento continua usando `next dev`.
 
 ## Critérios para novas dependências
 

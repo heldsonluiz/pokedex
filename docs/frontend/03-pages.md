@@ -33,7 +33,21 @@ O fluxo de perfil já permite consultar os dados persistidos em `/profile` e edi
 
 `/home` usa somente dados reais do perfil para apresentar saudação e avatar. O scanner é a ação principal; o QR Code do participante e os destinos de Missões, Passaporte e Perfil aparecem como atalhos. Ao abrir o QR Code pela Home, a origem controlada `source=home` faz o retorno levar novamente ao início; acessos sem essa origem retornam ao Perfil. Progresso, XP, ranking e atividades recentes não são simulados e serão incorporados quando seus contratos de domínio existirem. A página possui skeleton estrutural e erro recuperável para a leitura do perfil. A ação de logout fica em `/profile`, junto às demais ações de conta.
 
-`/missions`, `/scan` e `/passport` já participam da navegação autenticada, mas exibem estados informativos até que suas respectivas regras de negócio sejam implementadas. Esses estados tornam os destinos navegáveis sem simular dados ou comportamentos ainda inexistentes.
+`/scan` inicia a câmera automaticamente, aceita tanto a webcam quanto as câmeras
+do smartphone e prioriza a câmera traseira quando ela estiver disponível. O
+stream é encerrado ao sair da página, ocultar a aplicação ou obter a primeira
+leitura, antes da validação e da navegação. O valor lido passa pelo contrato
+central de QR Code. Códigos externos, inválidos, de outro evento ou sem suporte
+recebem mensagens específicas; falta de permissão, câmera ocupada, contexto sem
+HTTPS e ausência de conexão também possuem estados recuperáveis. Nesta etapa,
+somente o tipo `user` possui deep link funcional. Empresas, palestras e missões
+são reconhecidas pelo contrato, mas informam que o destino ainda será
+habilitado.
+
+`/missions` e `/passport` já participam da navegação autenticada, mas exibem
+estados informativos até que suas respectivas regras de negócio sejam
+implementadas. Esses estados tornam os destinos navegáveis sem simular dados ou
+comportamentos ainda inexistentes.
 
 ## Composição
 

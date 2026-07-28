@@ -20,7 +20,17 @@ QR Codes de empresas, palestras e missões permanecem válidos durante o evento.
 /qr/{eventId}/user/{qrId}?token={signedToken}
 ```
 
-O token contém versão, `eventId`, tipo, `qrId`, emissão, expiração e nonce. O servidor assina o payload com HMAC-SHA-256 usando `QR_SIGNING_SECRET`. A validade é de 60 segundos, com tolerância máxima de cinco segundos para diferenças de relógio. A interface solicita um novo token dez segundos antes da expiração.
+Para reduzir a densidade do QR Code, o token v3 usa uma representação binária de
+33 bytes: um byte de versão, quatro de emissão, doze de nonce e dezesseis de
+assinatura. O resultado possui 44 caracteres em Base64 URL-safe. A expiração é
+derivada da emissão e da duração fixa de 60 segundos.
+
+O servidor calcula HMAC-SHA-256 sobre o payload binário e o contexto formado por
+`eventId`, tipo e `qrId`, usando `QR_SIGNING_SECRET`, e conserva 128 bits da
+assinatura. Assim, os dados já presentes na URL não são repetidos no token, mas
+continuam protegidos contra alteração ou reutilização em outro alvo. Existe
+tolerância máxima de cinco segundos para diferenças de relógio. A interface
+solicita um novo token dez segundos antes da expiração.
 
 ## Fluxo
 
@@ -29,7 +39,10 @@ leitura → página interna → validação no servidor → transação/idempot�
 → resultado amigável
 ```
 
-O scanner apenas controla câmera e leitura. Regras de networking, visita, presença, missão, XP ou tickets pertencem ao serviço correspondente.
+O scanner apenas controla câmera e leitura. Antes de navegar, ele aplica o
+contrato central ao texto lido, bloqueia leituras repetidas enquanto processa o
+resultado e exige conexão. Regras de networking, visita, presença, missão, XP
+ou tickets pertencem ao serviço correspondente.
 
 ## Validação
 

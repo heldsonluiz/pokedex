@@ -35,6 +35,7 @@ describe("participant QR Code token", () => {
     ).toMatchObject({
       valid: true,
       payload: {
+        version: 3,
         eventId: EVENT_ID,
         type: "user",
         qrId: QR_ID,
@@ -48,9 +49,9 @@ describe("participant QR Code token", () => {
       qrId: QR_ID,
       now: NOW,
     })
-    const [payload, signature] = token.split(".")
-    const replacement = signature.startsWith("a") ? "b" : "a"
-    const alteredToken = `${payload}.${replacement}${signature.slice(1)}`
+    const decodedToken = Buffer.from(token, "base64url")
+    decodedToken[decodedToken.length - 1] ^= 1
+    const alteredToken = decodedToken.toString("base64url")
 
     expect(
       validateUserQrToken({
@@ -68,12 +69,13 @@ describe("participant QR Code token", () => {
       qrId: QR_ID,
       now: NOW,
     })
-    const [, signature] = token.split(".")
-    const alteredPayload = Buffer.from('{"version":1}').toString("base64url")
+    const decodedToken = Buffer.from(token, "base64url")
+    decodedToken[1] ^= 1
+    const alteredToken = decodedToken.toString("base64url")
 
     expect(
       validateUserQrToken({
-        token: `${alteredPayload}.${signature}`,
+        token: alteredToken,
         eventId: EVENT_ID,
         qrId: QR_ID,
         now: NOW,
@@ -115,7 +117,7 @@ describe("participant QR Code token", () => {
     ).toEqual({ valid: false, code: "INVALID_QR" })
   })
 
-  it("distinguishes another event from an invalid QR identifier", () => {
+  it("binds the signature to the event and QR identifier in the URL", () => {
     const { token } = createUserQrToken({
       eventId: EVENT_ID,
       qrId: QR_ID,
@@ -129,7 +131,7 @@ describe("participant QR Code token", () => {
         qrId: QR_ID,
         now: NOW,
       })
-    ).toEqual({ valid: false, code: "INVALID_EVENT" })
+    ).toEqual({ valid: false, code: "INVALID_QR" })
 
     expect(
       validateUserQrToken({
@@ -140,4 +142,29 @@ describe("participant QR Code token", () => {
       })
     ).toEqual({ valid: false, code: "INVALID_QR" })
   })
+
+  it("keeps the temporary token compact", () => {
+    const { token } = createUserQrToken({
+      eventId: EVENT_ID,
+      qrId: QR_ID,
+      now: NOW,
+    })
+
+    expect(token).toHaveLength(44)
+    expect(token).toMatch(/^[A-Za-z0-9_-]+$/)
+  })
+
+  it.each(["short-token", `${"a".repeat(43)}!`])(
+    "rejects malformed binary token %s",
+    (token) => {
+      expect(
+        validateUserQrToken({
+          token,
+          eventId: EVENT_ID,
+          qrId: QR_ID,
+          now: NOW,
+        })
+      ).toEqual({ valid: false, code: "INVALID_QR" })
+    }
+  )
 })
