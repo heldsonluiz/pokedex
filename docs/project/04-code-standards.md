@@ -78,7 +78,13 @@ Os arquivos em `components/ui` são gerados e mantidos pelo Shadcn/UI. Essa past
 
 Branches seguem `tipo/descricao-curta`, por exemplo `feat/profile-form`.
 
-Commits usam Conventional Commits em inglês:
+Commits usam Conventional Commits em inglês, com o formato:
+
+```text
+tipo(escopo): descrição curta no imperativo
+```
+
+Exemplos:
 
 ```text
 feat(profile): add skill selector
@@ -88,7 +94,42 @@ docs(firestore): clarify scan model
 
 Tipos aceitos: `feat`, `fix`, `refactor`, `style`, `docs`, `test`, `chore`, `build`, `ci`, `perf` e `revert`.
 
-Cada commit deve representar uma alteração coesa. Não inclua formatação ou refatorações sem relação com a tarefa.
+O escopo identifica a área principal afetada, como `auth`, `onboarding`, `profile` ou `missions`. A descrição deve ser curta, objetiva, escrita no imperativo, iniciada com letra minúscula e não deve terminar com ponto.
+
+Cada commit deve representar uma alteração coesa. Não inclua formatação ou refatorações sem relação com a tarefa. Quando uma mudança exigir contexto adicional, use o corpo do commit para explicar a motivação e o impacto, sem repetir o diff.
+
+## Pull requests
+
+O título do pull request segue o mesmo formato de Conventional Commits usado no commit principal.
+
+A descrição deve explicar o resultado entregue, as mudanças relevantes e como revisar o comportamento. Use a seguinte estrutura:
+
+```markdown
+## Resumo
+
+Explique brevemente o objetivo e o resultado da alteração.
+
+## Alterações
+
+- liste as principais mudanças;
+- descreva comportamentos, não apenas arquivos;
+- mencione contratos, rotas ou persistência afetados.
+
+## Como testar
+
+1. descreva o estado inicial;
+2. informe as ações necessárias;
+3. indique o resultado esperado.
+
+## Validações executadas
+
+- TypeScript
+- ESLint
+- Prettier
+- testes automatizados ou manuais aplicáveis
+```
+
+Quando forem relevantes, acrescente as seções `Decisões técnicas`, `Evidências visuais` e `Observações`. Decisões técnicas registram escolhas que não sejam evidentes pelo código; evidências visuais mostram alterações de interface; observações registram limitações, dependências ou trabalhos futuros.
 
 ## Validação
 
