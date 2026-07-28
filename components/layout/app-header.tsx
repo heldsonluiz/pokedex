@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowLeft } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { ReactNode } from "react"
 
@@ -37,7 +37,7 @@ export function AppHeader({
           aria-label="Voltar"
           onClick={() => router.back()}
         >
-          <ArrowLeft className="size-5" aria-hidden="true" />
+          <ChevronLeft className="size-5" aria-hidden="true" />
         </button>
       )}
 

@@ -35,6 +35,8 @@ Componentes específicos de uma funcionalidade ficam no módulo correspondente. 
 
 Esses nomes representam responsabilidades previstas, não obrigação de criar um arquivo antes de existir necessidade.
 
+O `SkillSelector` pesquisa o catálogo estático pelo nome ou por aliases, persiste o slug selecionado e apresenta as escolhas como tags removíveis. O seletor impede duplicatas e limita a seleção a cinco habilidades; o formulário exige pelo menos três.
+
 ## Regras
 
 - prefira componentes pequenos, nomeados e com props tipadas;

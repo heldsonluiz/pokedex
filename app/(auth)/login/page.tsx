@@ -25,11 +25,11 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = getAuthErrorMessage(authError)
 
   if (session?.user) {
-    redirect(redirectTo)
+    redirect(`/auth/complete?callbackUrl=${encodeURIComponent(redirectTo)}`)
   }
 
   return (
-    <div className="grid min-h-full grid-rows-[60px_minmax(14rem,0.9fr)_auto] gap-4 px-6 pt-12 pb-[calc(2rem+env(safe-area-inset-bottom))]">
+    <div className="grid min-h-full grid-rows-[60px_minmax(14rem,0.9fr)_auto] gap-4 px-8 pt-12 pb-[calc(2rem+env(safe-area-inset-bottom))]">
       <header className="flex justify-center">
         <Image
           src="/images/brand/devfest-logo.png"
@@ -42,12 +42,20 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
       <div aria-hidden="true" className="relative mx-auto w-full max-w-sm">
         <Image
-          src="/images/assets/auth/login-hero.png"
+          src="/images/assets/login/crystals.png"
           alt=""
           fill
           priority
-          sizes="(max-width: 430px) 100vw, 382px"
-          className="object-contain px-4"
+          sizes="(max-width: 420px) 90vw, 362px"
+          className="object-contain px-1 opacity-10"
+        />
+        <Image
+          src="/images/assets/login/login-hero.png"
+          alt=""
+          fill
+          priority
+          sizes="(max-width: 420px) 90vw, 362px"
+          className="object-contain pr-10 pl-8"
         />
       </div>
 
@@ -55,8 +63,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         aria-labelledby="login-title"
         className="flex flex-col items-center text-center"
       >
-        <h1 id="login-title" className="text-3xl font-bold tracking-tight">
-          Sua jornada começa aqui
+        <h1 id="login-title" className="text-2xl font-bold tracking-tight">
+          Olá! Sua jornada começa aqui
         </h1>
 
         <p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground">

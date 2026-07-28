@@ -18,8 +18,9 @@ export async function signInWithGoogle(formData: FormData) {
 
   const redirectTo = getSafeCallbackPath(callbackUrl)
 
+  const completeAuthenticationPath = `/auth/complete?callbackUrl=${encodeURIComponent(redirectTo)}`
   await signIn("google", {
-    redirectTo,
+    redirectTo: completeAuthenticationPath,
   })
 }
 

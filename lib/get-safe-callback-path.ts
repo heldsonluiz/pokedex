@@ -3,6 +3,8 @@ import "server-only"
 const DEFAULT_CALLBACK_PATH = "/home"
 const URL_PARSING_BASE = "http://internal"
 
+const ALLOWED_CALLBACK_PATHS = ["/home", "/profile", "/qr"] as const
+
 export function getSafeCallbackPath(callbackUrl: string | undefined) {
   if (!callbackUrl) {
     return DEFAULT_CALLBACK_PATH
@@ -11,11 +13,13 @@ export function getSafeCallbackPath(callbackUrl: string | undefined) {
   try {
     const destination = new URL(callbackUrl, URL_PARSING_BASE)
 
-    const isProtectedPath =
-      destination.pathname === "/home" ||
-      destination.pathname.startsWith("/home/")
+    const isAllowedPath = ALLOWED_CALLBACK_PATHS.some(
+      (path) =>
+        destination.pathname === path ||
+        destination.pathname.startsWith(`${path}/`)
+    )
 
-    if (!isProtectedPath) {
+    if (!isAllowedPath) {
       return DEFAULT_CALLBACK_PATH
     }
 

@@ -6,7 +6,7 @@ O projeto utiliza Auth.js v5 com Google OAuth como único método de login.
 
 A configuração principal fica em `lib/auth.ts` e exporta `auth`, `handlers`, `signIn` e `signOut`. O Route Handler em `app/api/auth/[...nextauth]/route.ts` reexporta `GET` e `POST` a partir de `handlers`.
 
-A aplicação utiliza sessões JWT. O callback de sessão disponibiliza `token.sub` como `session.user.id`, permitindo associar a identidade autenticada ao perfil sem usar o e-mail como chave.
+A aplicação utiliza sessões JWT sem adapter de usuários do Auth.js. No login Google, o callback JWT substitui o `token.sub` pelo `account.providerAccountId`, que corresponde ao identificador estável da conta no provedor. O callback de sessão disponibiliza esse valor como `session.user.id`, permitindo associar a identidade autenticada ao perfil sem usar o e-mail como chave. O UUID temporário gerado pelo Auth.js para `user.id` não deve ser usado como chave de domínio.
 
 No Next.js 16, `proxy.ts` protege antecipadamente as rotas configuradas e preserva o destino original. O layout do grupo `(app)` também valida a sessão no servidor por meio de `requireAuth()`. O proxy coordena navegação, mas não substitui a validação de sessão e autorização nas operações sensíveis.
 
@@ -25,7 +25,7 @@ Google OAuth → Auth.js → sessão → localizar/criar profile
 
 Não há cadastro manual, senha ou recuperação de senha.
 
-A criação idempotente do documento de perfil será integrada na Fase 4. Nesta fase, a sessão já fornece o identificador necessário para essa associação.
+Após o retorno do provedor, `/auth/complete` valida a sessão e garante a existência do documento de perfil antes de encaminhar o participante ao destino seguro.
 
 ## Sessão e perfil
 
@@ -36,6 +36,7 @@ No primeiro acesso, o servidor cria o profile de forma idempotente. A conclusão
 ## Rotas
 
 - `/` e `/login` são públicas;
+- `/profile` exige sessão e carrega o perfil persistido;
 - `/onboarding` exige sessão;
 - páginas funcionais exigem sessão e onboarding concluído;
 - `/qr/...` pode ser aberto sem sessão, mas qualquer ação exige autenticação e validação.
@@ -66,9 +67,9 @@ Administradores e revisores de missão são definidos pela organização. Neste 
 - [x] Callbacks aceitam apenas destinos internos permitidos.
 - [x] Loading, erros esperados, falhas inesperadas e ações pendentes são tratados.
 
-### Integrações futuras
+### Integrações
 
-- [ ] Criação do profile é idempotente na Fase 4.
+- [x] Criação do profile é idempotente na Fase 4.
 - [ ] Onboarding direciona corretamente na Fase 5.
 - [ ] Operações de domínio validam autorização além da sessão nas fases correspondentes.
 

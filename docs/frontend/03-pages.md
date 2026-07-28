@@ -23,6 +23,10 @@
 | `/talks/[talkId]`             | detalhar palestra       | descrição, presença e avaliação identificada        |
 | `/qr/[eventId]/[type]/[qrId]` | tratar deep link de QR  | validação e redirecionamento seguro                 |
 
+O fluxo de perfil já permite consultar os dados persistidos em `/profile` e editar nome, biografia, atuação, empresa, link e de três a cinco habilidades em `/profile/edit`. Somente nome e skills são obrigatórios. Habilidades são pesquisadas por nome ou alias no catálogo estático e persistidas pelo slug. O formulário valida no cliente para feedback imediato e repete a validação na Server Action antes da persistência; erros esperados são apresentados junto ao campo correspondente.
+
+`/profile/qr-code` emite e apresenta o QR temporário do participante, informa a validade restante e renova o token automaticamente. O deep link valida sessão, assinatura, evento, UUID, expiração, existência do perfil e tentativa de auto-scan, mas não executa mutação de networking.
+
 ## Composição
 
 Páginas são Server Components por padrão e coordenam carregamento, metadata e composição. Interações como formulários, câmera e filtros locais devem ser isoladas em Client Components.
