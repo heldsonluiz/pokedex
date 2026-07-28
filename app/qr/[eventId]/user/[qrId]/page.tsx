@@ -3,9 +3,11 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 
 import { Button, buttonVariants } from "@/components/ui/button"
+import { env } from "@/env"
 import { auth } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 import { getProfileByPublicQrId } from "@/modules/profile/profile.service"
+import { parseQrCodeUrl } from "@/modules/qr-code/qr-code.contract"
 import { validateUserQrToken } from "@/modules/qr-code/user-qr-token"
 
 export const metadata: Metadata = {
@@ -32,16 +34,53 @@ export default async function UserQrCodePage({
     auth(),
   ])
   const token = typeof query.token === "string" ? query.token : ""
-  const callbackPath = `/qr/${encodeURIComponent(eventId)}/user/${encodeURIComponent(qrId)}?token=${encodeURIComponent(token)}`
+  const requestedUrl = new URL(
+    `/qr/${encodeURIComponent(eventId)}/user/${encodeURIComponent(qrId)}`,
+    env.NEXT_PUBLIC_APP_URL
+  )
+  requestedUrl.searchParams.set("token", token)
+  const callbackPath = `${requestedUrl.pathname}${requestedUrl.search}`
+  const parsedQrCode = parseQrCodeUrl(requestedUrl.toString(), {
+    appUrl: env.NEXT_PUBLIC_APP_URL,
+    eventId: env.EVENT_ID,
+  })
+
+  if (!parsedQrCode.valid) {
+    const isDifferentEvent = parsedQrCode.code === "INVALID_EVENT"
+
+    return (
+      <QrResult
+        valid={false}
+        title={
+          isDifferentEvent ? "QR Code de outro evento" : "QR Code inválido"
+        }
+        description={
+          isDifferentEvent
+            ? "Este código não pertence à edição atual do evento."
+            : "Não foi possível reconhecer este código."
+        }
+      />
+    )
+  }
+
+  if (parsedQrCode.target.type !== "user") {
+    return (
+      <QrResult
+        valid={false}
+        title="QR Code inválido"
+        description="O tipo deste código não corresponde a um participante."
+      />
+    )
+  }
 
   if (!session?.user) {
     redirect(`/login?callbackUrl=${encodeURIComponent(callbackPath)}`)
   }
 
   const validation = validateUserQrToken({
-    token,
-    eventId,
-    qrId,
+    token: parsedQrCode.target.token,
+    eventId: parsedQrCode.target.eventId,
+    qrId: parsedQrCode.target.qrId,
   })
 
   if (!validation.valid) {
@@ -60,7 +99,10 @@ export default async function UserQrCodePage({
     )
   }
 
-  const targetProfile = await getProfileByPublicQrId(eventId, qrId)
+  const targetProfile = await getProfileByPublicQrId(
+    parsedQrCode.target.eventId,
+    parsedQrCode.target.qrId
+  )
 
   if (!targetProfile) {
     return (

@@ -14,6 +14,8 @@ Login e logout são executados pelas Server Actions de `modules/auth/auth.action
 
 A página `/login` trata separadamente erros OAuth esperados, falhas inesperadas de renderização, carregamento e estado pendente das ações. Ela também funciona como splash: mantém logo e ilustração estáveis durante a consulta inicial da sessão e revela o formulário com fade-in somente quando não existe usuário autenticado.
 
+O provedor Google envia `prompt=select_account` em toda nova autenticação. Assim, após encerrar a sessão da aplicação, o participante pode escolher outra conta Google em vez de reutilizar silenciosamente a conta ativa no navegador. Esse parâmetro solicita seleção de conta, mas não força novamente a tela de consentimento.
+
 As credenciais `AUTH_GOOGLE_ID` e `AUTH_GOOGLE_SECRET` seguem a inferência de ambiente do Auth.js. A versão exata da dependência continua definida por `package.json` e `pnpm-lock.yaml`.
 
 ## Fluxo

@@ -41,6 +41,7 @@ Dados de formulários, rotas, Server Actions, QR Codes e variáveis de ambiente 
 - Prettier: formatação e ordenação de classes Tailwind;
 - Husky e lint-staged: validação de arquivos staged;
 - Commitlint: Conventional Commits;
+- Vitest: testes automatizados de contratos e regras de domínio;
 - Lucide React: ícones.
 
 A biblioteca de leitura de QR Code deve ser escolhida por compatibilidade com navegadores móveis, câmera traseira, TypeScript e manutenção ativa. A escolha deve ser registrada quando implementada.

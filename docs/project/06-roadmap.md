@@ -2,7 +2,7 @@
 
 O desenvolvimento é incremental. Cada fase deve entregar uma parte utilizável, manter o projeto validável e atualizar a documentação afetada.
 
-Status atual: Fases 1 (Fundação), 2 (Design System), 3 (Autenticação), 4 (Perfil), 5 (Onboarding), 6 (Navegação) e 7 (Home) concluídas. A Home apresenta o participante e os atalhos disponíveis sem simular progressão de fases futuras. A rota temporária `/design-system` permanece disponível durante o desenvolvimento e deve ser removida na conclusão do MVP.
+Status atual: Fases 1 (Fundação), 2 (Design System), 3 (Autenticação), 4 (Perfil), 5 (Onboarding), 6 (Navegação), 7 (Home) e 8 (QR Code) concluídas. O contrato central de QR Code constrói e interpreta URLs dos quatro tipos iniciais, enquanto assinatura, expiração e deep link de participante são validados no servidor. A rota temporária `/design-system` permanece disponível durante o desenvolvimento e deve ser removida na conclusão do MVP.
 
 ## MVP
 
