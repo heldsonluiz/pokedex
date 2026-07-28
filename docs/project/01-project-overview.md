@@ -7,7 +7,7 @@ A referência de capacidade é de aproximadamente 2.000 pessoas, 10 a 20 empresa
 ## Objetivos
 
 - facilitar conexões entre participantes;
-- incentivar visitas a patrocinadores e participação em atividades;
+- incentivar visitas a patrocinadores, descoberta de tags e participação em atividades;
 - registrar missões, presença e avaliações;
 - distribuir pontos, níveis, badges e tickets de sorteio com regras verificáveis;
 - fornecer métricas agregadas à organização.
@@ -33,7 +33,7 @@ Login com Google → perfil/onboarding → home → ação ou leitura de QR Code
 - home e navegação mobile;
 - QR Code do participante e scanner;
 - networking;
-- empresas, missões e passaporte;
+- empresas, tags, missões e passaporte;
 - palestras e avaliações;
 - ranking, níveis, badges e tickets para sorteios;
 - validação de operações críticas no servidor.

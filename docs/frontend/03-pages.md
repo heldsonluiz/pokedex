@@ -9,6 +9,7 @@
 | `/home`                       | resumir o evento        | progresso, atalhos e atividades                     |
 | `/companies`                  | listar patrocinadores   | categorias, busca e cards                           |
 | `/companies/[companyId]`      | detalhar empresa        | descrição, links e status de visita                 |
+| `/tags`                       | acompanhar descobertas  | progresso, slots bloqueados e tags reveladas        |
 | `/missions`                   | acompanhar missões      | filtros, progresso e estado                         |
 | `/scan`                       | ler QR Code             | câmera, permissão, leitura e resultado              |
 | `/passport`                   | exibir progresso        | visitas, missões e selos                            |
@@ -48,8 +49,9 @@ leitura, antes da validação e da navegação. O valor lido passa pelo contrato
 central de QR Code. Códigos externos, inválidos, de outro evento ou sem suporte
 recebem mensagens específicas; falta de permissão, câmera ocupada, contexto sem
 HTTPS e ausência de conexão também possuem estados recuperáveis. Participantes
-criam conexões e empresas abrem seu deep link de visita. Missões e tags já são
-reconhecidas pelo contrato, mas informam que o destino ainda será habilitado.
+criam conexões; empresas abrem seu deep link de visita; tags abrem seu fluxo de
+descoberta. Missões já são reconhecidas pelo contrato, mas informam que o
+destino ainda será habilitado.
 
 Ao reconhecer um QR Code válido de participante, o scanner chama a Server
 Action que repete a validação de evento, assinatura e expiração e cria a
@@ -64,6 +66,14 @@ releituras informam que a empresa já pertence ao passaporte sem pontuar
 novamente. Empresa inexistente, inativa, evento inválido, perfil incompleto e
 falha inesperada possuem resultados específicos. Visitas e carimbos não podem
 ser removidos pelo participante.
+
+`/tags` apresenta o total encontrado e uma grade da coleção. Tags bloqueadas
+usam slots anônimos e não expõem nome, imagem, descrição ou localização. Depois
+do scan, o slot revela esses dados e o XP concedido. O deep link
+`/qr/[eventId]/tag/[qrId]` funciona pelo scanner interno ou pela câmera externa,
+preserva o destino no login e trata descoberta nova, releitura, tag inativa,
+tag inexistente, outro evento, perfil incompleto e erro inesperado. Descobertas
+não podem ser removidas.
 
 `/connections` apresenta as conexões ativas e o e-mail do outro participante.
 Qualquer uma das partes pode remover uma conexão após confirmação; os dois

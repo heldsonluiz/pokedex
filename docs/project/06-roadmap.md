@@ -2,11 +2,11 @@
 
 O desenvolvimento é incremental. Cada fase deve entregar uma parte utilizável, manter o projeto validável e atualizar a documentação afetada.
 
-Status atual: Fases 1 (Fundação), 2 (Design System), 3 (Autenticação), 4 (Perfil), 5 (Onboarding), 6 (Navegação), 7 (Home), 8 (QR Code), 9 (Scanner), 10 (Networking) e 11 (Empresas) concluídas. O networking cria a conexão automaticamente após uma leitura válida, concede 5 XP a cada participante e permite que qualquer uma das partes remova a conexão, revogando a pontuação de ambas. Empresas ativas possuem um QR Code fixo; a primeira leitura registra permanentemente visita, carimbo e XP em uma transação idempotente. O catálogo e os detalhes exibem o progresso real do participante. Os valores padrão de XP ficam centralizados em `config/scores.ts`, e cada conclusão preserva o valor efetivamente concedido. O contrato central aceita QR Codes de participante, empresa, missão e tag; palestras não possuem QR Code e terão avaliações liberadas pelo horário de encerramento. A rota temporária `/design-system` permanece disponível durante o desenvolvimento e deve ser removida na conclusão do MVP.
+Status atual: Fases 1 (Fundação), 2 (Design System), 3 (Autenticação), 4 (Perfil), 5 (Onboarding), 6 (Navegação), 7 (Home), 8 (QR Code), 9 (Scanner), 10 (Networking), 11 (Empresas) e 12 (Tags) concluídas. O networking cria a conexão automaticamente após uma leitura válida, concede 5 XP a cada participante e permite que qualquer uma das partes remova a conexão, revogando a pontuação de ambas. Empresas ativas possuem um QR Code fixo; a primeira leitura registra permanentemente visita, carimbo e XP em uma transação idempotente. O catálogo e os detalhes exibem o progresso real do participante. Tags ativas usam QR Codes fixos e concedem XP uma única vez; a coleção mantém itens ainda não encontrados anônimos e revela seus dados após a descoberta permanente. Os valores padrão de XP ficam centralizados em `config/scores.ts`, e cada conclusão preserva o valor efetivamente concedido. O contrato central aceita QR Codes de participante, empresa, missão e tag; palestras não possuem QR Code e terão avaliações liberadas pelo horário de encerramento. A rota temporária `/design-system` permanece disponível durante o desenvolvimento e deve ser removida na conclusão do MVP.
 
 ## MVP
 
-O MVP inclui autenticação, perfil, onboarding, navegação, empresas, missões, passaporte, QR Code, scanner, networking, palestras, ranking, badges e tickets para sorteios. Operações de pontuação, scans e tickets são validadas no servidor.
+O MVP inclui autenticação, perfil, onboarding, navegação, empresas, tags, missões, passaporte, QR Code, scanner, networking, palestras, ranking, badges e tickets para sorteios. Operações de pontuação, scans e tickets são validadas no servidor.
 
 ## Fases
 
@@ -23,29 +23,30 @@ O MVP inclui autenticação, perfil, onboarding, navegação, empresas, missões
 | 9. Scanner                    | câmera, leitura e estados de resposta              | QR Code                       |
 | 10. Networking                | criação automática, XP e remoção de conexões       | Scanner e perfil              |
 | 11. Empresas                  | catálogo, detalhes e registro de visita            | Scanner                       |
-| 12. Missões                   | catálogo, critérios e conclusão                    | Perfil                        |
-| 13. Passaporte                | progresso de visitas e missões                     | Empresas e missões            |
-| 14. Palestras                 | agenda e missão de avaliação após encerramento     | Perfil                        |
-| 15. Ranking                   | XP, níveis e classificação                         | Interações anteriores         |
-| 16. Badges                    | critérios e atribuição                             | Ranking e missões             |
-| 17. Tickets                   | concessão de um ticket por nível para sorteios     | XP e níveis                   |
-| 18. Polimento                 | acessibilidade, desempenho e estados de UI         | MVP funcional                 |
-| 19. Integração administrativa | contratos com o painel externo                     | Funcionalidades configuráveis |
-| 20. Lançamento                | observabilidade, segurança e deploy                | Todas as fases necessárias    |
+| 12. Tags                      | QR fixo, descoberta única e XP                     | Scanner e perfil              |
+| 13. Missões                   | catálogo, critérios e conclusão                    | Empresas e perfil             |
+| 14. Passaporte                | progresso de empresas, tags e missões              | Empresas, tags e missões      |
+| 15. Palestras                 | agenda e missão de avaliação após encerramento     | Perfil                        |
+| 16. Ranking                   | XP, níveis e classificação                         | Interações anteriores         |
+| 17. Badges                    | critérios individuais e compostos                  | Ranking, tags e missões       |
+| 18. Tickets                   | concessão de um ticket por nível para sorteios     | XP e níveis                   |
+| 19. Polimento                 | acessibilidade, desempenho e estados de UI         | MVP funcional                 |
+| 20. Integração administrativa | contratos com o painel externo                     | Funcionalidades configuráveis |
+| 21. Lançamento                | observabilidade, segurança e deploy                | Todas as fases necessárias    |
 
 ## Marcos
 
 1. **Base técnica:** fundação, Design System e autenticação.
 2. **Participante pronto:** perfil, onboarding, navegação e home.
 3. **Interações reais:** QR Code, scanner, networking, empresas e palestras.
-4. **Gamificação:** missões, passaporte, ranking e badges.
+4. **Gamificação:** tags, missões, passaporte, ranking e badges.
 5. **Sorteios:** tickets concedidos de forma idempotente por nível.
 6. **Produção:** polimento, observabilidade e deploy.
 
 ## Prioridades
 
 - **Crítica:** autenticação, perfil, segurança, QR Code e scanner.
-- **Alta:** empresas, missões, passaporte e networking.
+- **Alta:** empresas, tags, missões, passaporte e networking.
 - **Média:** palestras, ranking, badges e tickets.
 - **Posterior:** integrações adicionais com o painel administrativo externo e expansões não essenciais.
 

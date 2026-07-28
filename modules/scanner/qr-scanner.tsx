@@ -93,9 +93,12 @@ export function QrScanner({ appUrl, eventId }: QrScannerProps) {
         return
       }
 
-      if (parsedQrCode.target.type === "company") {
+      if (
+        parsedQrCode.target.type === "company" ||
+        parsedQrCode.target.type === "tag"
+      ) {
         router.push(
-          `/qr/${encodeURIComponent(parsedQrCode.target.eventId)}/company/${encodeURIComponent(parsedQrCode.target.qrId)}`
+          `/qr/${encodeURIComponent(parsedQrCode.target.eventId)}/${parsedQrCode.target.type}/${encodeURIComponent(parsedQrCode.target.qrId)}`
         )
         return
       }
