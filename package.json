@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -28,6 +28,7 @@
     "@base-ui/react": "^1.6.0",
     "@hookform/resolvers": "^5.4.0",
     "@t3-oss/env-nextjs": "^0.13.11",
+    "@zxing/browser": "^0.2.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^12.16.0",
