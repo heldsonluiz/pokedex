@@ -2,12 +2,14 @@ import { ExternalLink, Pencil, QrCode } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { SignOutButton } from "@/components/auth/sign-out-button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
+import { signOutCurrentUser } from "@/modules/auth/auth.actions"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
 import { findSkillBySlug } from "@/modules/profile/profile-skills"
 
@@ -117,6 +119,10 @@ export default async function ProfilePage() {
         <QrCode data-icon="inline-start" aria-hidden="true" />
         Mostrar meu QR Code
       </Link>
+
+      <form action={signOutCurrentUser}>
+        <SignOutButton className="w-full" />
+      </form>
     </div>
   )
 }

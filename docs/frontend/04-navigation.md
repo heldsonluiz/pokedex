@@ -53,6 +53,8 @@ Preserve o destino original quando seguro para permitir retorno após o login. N
 
 Use histórico quando houver origem conhecida; caso contrário, forneça destino seguro. Preserve filtros e posição de scroll quando isso melhorar o retorno a listas. Loading e transições não devem permitir ações duplicadas.
 
+Telas compartilhadas podem receber uma origem enumerada para definir o retorno contextual. `/profile/qr-code` aceita somente `source=home`; esse valor retorna para `/home`, enquanto qualquer valor ausente ou desconhecido mantém `/profile` como destino seguro. Não use URLs arbitrárias recebidas por query string como destino de retorno.
+
 O documento usa `viewport-fit=cover` para que navegadores móveis exponham corretamente as safe areas. O header considera a safe area superior, e a navegação inferior soma a safe area inferior ao espaçamento visual do componente. Somente o conteúdo central deve rolar, preservando os controles principais em telas pequenas.
 
 ## Checklist

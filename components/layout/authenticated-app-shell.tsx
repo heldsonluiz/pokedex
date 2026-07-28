@@ -1,6 +1,6 @@
 "use client"
 
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import type { ReactNode } from "react"
 
 import { AppHeader } from "./app-header"
@@ -64,7 +64,12 @@ export function AuthenticatedAppShell({
   children,
 }: Readonly<{ children: ReactNode }>) {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const routeLayout = routeLayouts[pathname] ?? fallbackLayout
+  const backHref =
+    pathname === "/profile/qr-code" && searchParams.get("source") === "home"
+      ? "/home"
+      : routeLayout.backHref
 
   return (
     <AppShell
@@ -72,8 +77,8 @@ export function AuthenticatedAppShell({
         routeLayout.showHeader ? (
           <AppHeader
             title={routeLayout.title}
-            showBack={Boolean(routeLayout.backHref)}
-            backHref={routeLayout.backHref}
+            showBack={Boolean(backHref)}
+            backHref={backHref}
           />
         ) : undefined
       }
