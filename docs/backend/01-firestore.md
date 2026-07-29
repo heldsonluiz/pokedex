@@ -26,6 +26,14 @@
 
 Schemas completos devem existir no código e ser validados com Zod. Este documento registra o modelo conceitual, não substitui os contratos tipados.
 
+Os catálogos ativos de empresas, tags e missões usam cache compartilhado de
+15 minutos por evento. Brindes usam cache de 30 segundos porque o estoque é
+mutável; um resgate concluído invalida esse cache imediatamente. Dados
+individuais, conclusões, saldos, resgates e operações permanecem fora do cache.
+Os prazos também limitam a defasagem de alterações feitas pelo painel
+administrativo externo. Administradores podem invalidar imediatamente os
+quatro catálogos pela Central de Operações após uma alteração no painel.
+
 ### Perfil implementado
 
 O contrato inicial de `profiles` possui `userId`, `eventId`, `displayName`, `email`, `avatarUrl`, `bio`, `role`, `company`, `link`, `skills`, `qrId`, `onboardingCompleted`, `createdAt` e `updatedAt`. `qrId` é um UUID v4 público e estável, diferente do ID interno do documento. A criação usa uma transação em `profiles/{userId}`: se o documento já existir, nenhuma nova gravação é feita. O repositório valida documentos lidos com Zod e converte `Timestamp` para `Date` antes de devolvê-los ao domínio.

@@ -17,6 +17,7 @@ import { notFound } from "next/navigation"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
+import { CatalogCacheButton } from "@/modules/catalog/catalog-cache-button"
 import { getRaffleOperationsForSession } from "@/modules/raffles/raffle.service"
 import { RaffleAutoProcessor } from "@/modules/raffles/raffle-auto-processor"
 import {
@@ -208,6 +209,8 @@ export default async function OperationsPage() {
             </form>
           )}
         </div>
+
+        {operations.canManage && <CatalogCacheButton />}
       </section>
 
       {raffleOperations && (

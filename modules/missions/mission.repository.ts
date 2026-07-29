@@ -3,8 +3,10 @@ import "server-only"
 import { createHash } from "node:crypto"
 
 import { Timestamp } from "firebase-admin/firestore"
+import { unstable_cache } from "next/cache"
 import * as z from "zod"
 
+import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
 import { firestore } from "@/lib/firebase/admin"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
@@ -67,6 +69,9 @@ export type CompleteMissionResult =
         | "profile-unavailable"
     }>
 
+type CachedMission = Omit<Mission, "createdAt" | "updatedAt"> &
+  Readonly<{ createdAt: number; updatedAt: number }>
+
 function getCompletionId(
   eventId: string,
   participantId: string,
@@ -100,7 +105,7 @@ function parseCompletion(id: string, value: unknown): MissionCompletion {
   })
 }
 
-export async function findActiveMissions(eventId: string): Promise<Mission[]> {
+async function loadActiveMissions(eventId: string): Promise<CachedMission[]> {
   const validatedEventId =
     completeQrMissionInputSchema.shape.eventId.parse(eventId)
   const snapshots = await firestore
@@ -116,6 +121,30 @@ export async function findActiveMissions(eventId: string): Promise<Mission[]> {
         first.order - second.order ||
         first.title.localeCompare(second.title, "pt-BR")
     )
+    .map((mission) => ({
+      ...mission,
+      createdAt: mission.createdAt.getTime(),
+      updatedAt: mission.updatedAt.getTime(),
+    }))
+}
+
+const loadCachedActiveMissions = unstable_cache(
+  loadActiveMissions,
+  ["active-missions"],
+  {
+    revalidate: CACHE_SECONDS.EVENT_CATALOG,
+    tags: [CACHE_TAGS.MISSIONS],
+  }
+)
+
+export async function findActiveMissions(eventId: string): Promise<Mission[]> {
+  const missions = await loadCachedActiveMissions(eventId)
+
+  return missions.map((mission) => ({
+    ...mission,
+    createdAt: new Date(mission.createdAt),
+    updatedAt: new Date(mission.updatedAt),
+  }))
 }
 
 export async function findMissionCompletionsByParticipant(

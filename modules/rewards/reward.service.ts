@@ -11,6 +11,7 @@ import {
 import {
   findActiveRewards,
   findParticipantRewardRedemptions,
+  invalidateRewardsCache,
   redeemReward,
 } from "./reward.repository"
 import { redeemRewardInputSchema } from "./reward.schema"
@@ -90,6 +91,10 @@ export async function redeemRewardForSession(session: Session, input: unknown) {
     rewardId: validatedInput.rewardId,
     idempotencyKey: validatedInput.idempotencyKey,
   })
+
+  if (result.status === "redeemed") {
+    invalidateRewardsCache()
+  }
 
   return result.status === "redeemed" || result.status === "already-redeemed"
     ? {

@@ -3,8 +3,10 @@ import "server-only"
 import { createHash } from "node:crypto"
 
 import { Timestamp } from "firebase-admin/firestore"
+import { revalidateTag, unstable_cache } from "next/cache"
 import * as z from "zod"
 
+import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
 import { firestore } from "@/lib/firebase/admin"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 import { ticketTransactionFieldsSchema } from "@/modules/tickets/ticket.schema"
@@ -75,7 +77,10 @@ function parseRedemption(id: string, value: unknown): RewardRedemption {
   })
 }
 
-export async function findActiveRewards(eventId: string): Promise<Reward[]> {
+type CachedReward = Omit<Reward, "createdAt" | "updatedAt"> &
+  Readonly<{ createdAt: number; updatedAt: number }>
+
+async function loadActiveRewards(eventId: string): Promise<CachedReward[]> {
   const validatedEventId = rewardFieldsSchema.shape.eventId.parse(eventId)
   const snapshots = await firestore
     .collection(REWARDS_COLLECTION)
@@ -90,6 +95,34 @@ export async function findActiveRewards(eventId: string): Promise<Reward[]> {
         first.order - second.order ||
         first.name.localeCompare(second.name, "pt-BR")
     )
+    .map((reward) => ({
+      ...reward,
+      createdAt: reward.createdAt.getTime(),
+      updatedAt: reward.updatedAt.getTime(),
+    }))
+}
+
+const loadCachedActiveRewards = unstable_cache(
+  loadActiveRewards,
+  ["active-rewards"],
+  {
+    revalidate: CACHE_SECONDS.REWARD_CATALOG,
+    tags: [CACHE_TAGS.REWARDS],
+  }
+)
+
+export async function findActiveRewards(eventId: string): Promise<Reward[]> {
+  const rewards = await loadCachedActiveRewards(eventId)
+
+  return rewards.map((reward) => ({
+    ...reward,
+    createdAt: new Date(reward.createdAt),
+    updatedAt: new Date(reward.updatedAt),
+  }))
+}
+
+export function invalidateRewardsCache() {
+  revalidateTag(CACHE_TAGS.REWARDS, { expire: 0 })
 }
 
 export async function findParticipantRewardRedemptions(
