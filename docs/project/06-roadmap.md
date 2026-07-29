@@ -2,7 +2,7 @@
 
 O desenvolvimento é incremental. Cada fase deve entregar uma parte utilizável, manter o projeto validável e atualizar a documentação afetada.
 
-Status atual: Fases 1 (Fundação), 2 (Design System), 3 (Autenticação), 4 (Perfil), 5 (Onboarding), 6 (Navegação), 7 (Home), 8 (QR Code), 9 (Scanner), 10 (Networking), 11 (Empresas), 12 (Tags), 13 (Missões) e 14 (Passaporte) concluídas. A próxima etapa é a Fase 15 (Ranking). O networking cria a conexão automaticamente após uma leitura válida, concede 5 XP a cada participante e permite que qualquer uma das partes remova a conexão, revogando a pontuação de ambas. Empresas ativas possuem um QR Code fixo; a primeira leitura registra permanentemente visita, carimbo e XP em uma transação idempotente. O catálogo e os detalhes exibem o progresso real do participante. Tags ativas usam QR Codes fixos e concedem XP uma única vez; a coleção mantém itens ainda não encontrados anônimos e revela seus dados após a descoberta permanente. Os valores padrão de XP ficam centralizados em `config/scores.ts`, e cada conclusão preserva o valor efetivamente concedido. O contrato central aceita QR Codes de participante, empresa, missão e tag; palestras não possuem QR Code e terão avaliações liberadas pelo horário de encerramento. O passaporte agrega as conclusões existentes sem criar uma nova fonte de verdade. A rota temporária `/design-system` permanece disponível durante o desenvolvimento e deve ser removida na conclusão do MVP.
+Status atual: Fases 1 (Fundação), 2 (Design System), 3 (Autenticação), 4 (Perfil), 5 (Onboarding), 6 (Navegação), 7 (Home), 8 (QR Code), 9 (Scanner), 10 (Networking), 11 (Empresas), 12 (Tags), 13 (Missões), 14 (Passaporte) e 15 (Ranking) concluídas. A próxima etapa é a Fase 16 (Badges). O networking cria a conexão automaticamente após uma leitura válida, concede 5 XP a cada participante e permite que qualquer uma das partes remova a conexão, revogando a pontuação de ambas. Empresas ativas possuem um QR Code fixo; a primeira leitura registra permanentemente visita, carimbo e XP em uma transação idempotente. O catálogo e os detalhes exibem o progresso real do participante. Tags ativas usam QR Codes fixos e concedem XP uma única vez; a coleção mantém itens ainda não encontrados anônimos e revela seus dados após a descoberta permanente. Os valores padrão de XP ficam centralizados em `config/scores.ts`, e cada conclusão preserva o valor efetivamente concedido. O contrato central aceita QR Codes de participante, empresa, missão e tag; palestras não possuem QR Code e terão avaliações liberadas pelo horário de encerramento. O passaporte agrega as conclusões existentes sem criar uma nova fonte de verdade. Os dez níveis são derivados do XP; o ranking exibe Top 3 ou Top 10 e uma janela contextual com até três posições de cada lado do participante. A rota temporária `/design-system` permanece disponível durante o desenvolvimento e deve ser removida na conclusão do MVP.
 
 ## MVP
 
@@ -33,6 +33,7 @@ O MVP inclui autenticação, perfil, onboarding, navegação, empresas, tags, mi
 | 19. Polimento                 | acessibilidade, desempenho e estados de UI         | MVP funcional                 |
 | 20. Integração administrativa | contratos com o painel externo                     | Funcionalidades configuráveis |
 | 21. Lançamento                | observabilidade, segurança e deploy                | Todas as fases necessárias    |
+| 22. Escalabilidade do ranking | consulta indexada, paginação e redução de leituras | MVP entregue                  |
 
 ## Marcos
 
@@ -42,13 +43,14 @@ O MVP inclui autenticação, perfil, onboarding, navegação, empresas, tags, mi
 4. **Gamificação:** tags, missões, passaporte, ranking e badges.
 5. **Sorteios:** tickets concedidos de forma idempotente por nível.
 6. **Produção:** polimento, observabilidade e deploy.
+7. **Pós-MVP:** ranking preparado para a escala real do evento.
 
 ## Prioridades
 
 - **Crítica:** autenticação, perfil, segurança, QR Code e scanner.
 - **Alta:** empresas, tags, missões, passaporte e networking.
 - **Média:** palestras, ranking, badges e tickets.
-- **Posterior:** integrações adicionais com o painel administrativo externo e expansões não essenciais.
+- **Posterior:** escalabilidade do ranking, integrações adicionais com o painel administrativo externo e expansões não essenciais.
 
 ## Critérios comuns de aceite
 

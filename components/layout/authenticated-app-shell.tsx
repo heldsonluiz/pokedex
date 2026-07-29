@@ -35,6 +35,12 @@ const routeLayouts: Record<string, RouteLayout> = {
     title: "Passaporte",
     showNavigation: true,
   },
+  "/ranking": {
+    title: "Ranking",
+    showHeader: true,
+    showNavigation: false,
+    backHref: "/home",
+  },
   "/profile": {
     title: "Perfil",
     showNavigation: true,
@@ -57,7 +63,7 @@ const routeLayouts: Record<string, RouteLayout> = {
     title: "Conexões",
     showHeader: true,
     showNavigation: false,
-    backHref: "/home",
+    backHref: "/profile",
   },
   "/companies": {
     title: "Empresas",

@@ -92,6 +92,11 @@
   --info-foreground: #083344;
   --surface-glass: rgb(255 255 255 / 72%);
   --gradient-primary: linear-gradient(135deg, #7c3aed, #f6f118);
+  --gradient-primary-card: linear-gradient(
+    135deg,
+    var(--primary),
+    color-mix(in srgb, var(--primary) 68%, #020617)
+  );
   --gradient-gamification: linear-gradient(90deg, #f97316, #fb923c);
   --gradient-immersive: linear-gradient(180deg, #020617, #2e1065);
   --gradient-page-backdrop:

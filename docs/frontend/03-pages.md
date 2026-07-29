@@ -105,6 +105,18 @@ resumo ativam a aba relacionada e navegam até a seção de coleções; a seleç
 permanece no parâmetro `collection` após refresh. A rolagem usa transição suave
 quando o dispositivo não solicita redução de movimento.
 
+`/ranking` apresenta o nível, XP, progresso total até os 4.000 XP do nível
+máximo e posição do participante. O indicador funciona como um termômetro da
+jornada completa, acompanhado pelos valores atual e máximo. Quem
+está no Top 3 vê as dez primeiras posições; os demais veem o Top 3 e uma
+janela contextual com até três posições acima e três abaixo da própria
+colocação. Ouro, prata e bronze
+diferenciam o pódio, enquanto a linha do participante usa marcador, borda e
+fundo próprios. A projeção pública contém apenas nome, avatar, XP, nível e
+posição. Contas sem papel `participant` recebem um estado informativo. Durante
+o MVP, a classificação pode levar até 60 segundos para refletir uma mudança de
+XP por causa do cache compartilhado do servidor.
+
 ## Composição
 
 Páginas são Server Components por padrão e coordenam carregamento, metadata e composição. Interações como formulários, câmera e filtros locais devem ser isoladas em Client Components.

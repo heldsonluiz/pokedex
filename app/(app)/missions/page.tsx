@@ -52,12 +52,12 @@ export default async function MissionsPage({
   if (reviewableMissions) {
     return (
       <div className="space-y-6 p-6">
-        <section className="space-y-2">
+        <section className="space-y-1">
           <Badge variant="secondary">
             <ShieldCheck aria-hidden="true" />
             Área da organização
           </Badge>
-          <h1 className="text-2xl font-semibold">Validar missões</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Validar missões</h1>
           <p className="text-sm leading-6 text-muted-foreground">
             Escolha a missão realizada e depois leia o QR Code do participante.
           </p>
@@ -88,8 +88,8 @@ export default async function MissionsPage({
 
   return (
     <div className="space-y-6 p-6">
-      <section className="space-y-2">
-        <h1 className="text-2xl font-semibold">Missões</h1>
+      <section className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight">Missões</h1>
         <p className="text-sm leading-6 text-muted-foreground">
           Complete os desafios do evento para acumular XP.
         </p>

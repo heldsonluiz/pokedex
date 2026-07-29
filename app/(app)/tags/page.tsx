@@ -40,8 +40,8 @@ export default async function TagsPage() {
   return (
     <div className="space-y-6 p-6">
       <section className="space-y-4">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">Tags escondidas</h1>
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight">Tags escondidas</h1>
           <p className="text-sm leading-6 text-muted-foreground">
             Procure os QR Codes espalhados pelo evento e revele toda a coleção.
           </p>
