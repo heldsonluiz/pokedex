@@ -1,4 +1,11 @@
-import { ExternalLink, Pencil, QrCode, UsersRound } from "lucide-react"
+import {
+  Award,
+  ChevronRight,
+  ExternalLink,
+  Pencil,
+  QrCode,
+  UsersRound,
+} from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 
@@ -10,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
 import { signOutCurrentUser } from "@/modules/auth/auth.actions"
+import { getBadgesForSession } from "@/modules/badges/badge.service"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
 import { findSkillBySlug } from "@/modules/profile/profile-skills"
 
@@ -29,6 +37,7 @@ function getInitials(displayName: string) {
 export default async function ProfilePage() {
   const session = await requireAuth()
   const profile = await requireProfileForSession(session)
+  const badges = await getBadgesForSession(session)
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6 p-6">
@@ -99,6 +108,27 @@ export default async function ProfilePage() {
           )}
         </CardContent>
       </Card>
+
+      {badges.available && badges.totalCount > 0 && (
+        <Link
+          href="/badges"
+          className="flex items-center gap-4 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        >
+          <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Award className="size-6" aria-hidden="true" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold">Minhas badges</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {badges.earnedCount} de {badges.totalCount} conquistadas
+            </p>
+          </div>
+          <ChevronRight
+            className="size-5 text-muted-foreground"
+            aria-hidden="true"
+          />
+        </Link>
+      )}
 
       {profile.link && (
         <a

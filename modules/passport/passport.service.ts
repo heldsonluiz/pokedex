@@ -3,6 +3,10 @@ import "server-only"
 import type { Session } from "next-auth"
 
 import { SCORES } from "@/config/scores"
+import {
+  evaluateParticipantBadges,
+  getBadgeProgress,
+} from "@/modules/badges/badge.service"
 import { findActiveCompanies } from "@/modules/companies/company.repository"
 import { findActiveMissions } from "@/modules/missions/mission.repository"
 import { hasPermission } from "@/modules/profile/profile.authorization"
@@ -69,6 +73,10 @@ export type ParticipantPassport = Readonly<{
     totalCount: number
     items: PassportMissionItem[]
   }>
+  badges: Readonly<{
+    earnedCount: number
+    totalCount: number
+  }>
   recentAchievements: PassportAchievement[]
 }>
 
@@ -82,10 +90,12 @@ export function buildParticipantPassport({
   companies,
   tags,
   missions,
+  badges = { earnedCount: 0, totalCount: 0 },
 }: {
   companies: PassportCompanyItem[]
   tags: ParticipantPassport["tags"]
   missions: PassportMissionItem[]
+  badges?: ParticipantPassport["badges"]
 }): ParticipantPassport {
   const visitedCompanies = companies.filter(
     (company) => company.visitedAt !== null
@@ -146,6 +156,7 @@ export function buildParticipantPassport({
       totalCount: missions.length,
       items: missions,
     },
+    badges,
     recentAchievements: recentAchievements.slice(0, 5),
   }
 }
@@ -159,11 +170,14 @@ export async function getPassportForSession(
     return { available: false }
   }
 
-  const [companies, tags, missions, completions] = await Promise.all([
+  await evaluateParticipantBadges(profile.eventId, profile.userId)
+
+  const [companies, tags, missions, completions, badges] = await Promise.all([
     findActiveCompanies(profile.eventId),
     findActiveTags(profile.eventId),
     findActiveMissions(profile.eventId),
     findPassportCompletions(profile.eventId, profile.userId),
+    getBadgeProgress(profile.eventId, profile.userId),
   ])
   const completionByActivity = new Map(
     completions.map((completion) => [
@@ -222,5 +236,6 @@ export async function getPassportForSession(
       items: tagItems,
     },
     missions: missionItems,
+    badges,
   })
 }

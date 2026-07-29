@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest"
 
 vi.mock("server-only", () => ({}))
 vi.mock("@/config/scores", () => ({ SCORES: {} }))
+vi.mock("@/modules/badges/badge.service", () => ({}))
 vi.mock("@/modules/companies/company.repository", () => ({}))
 vi.mock("@/modules/missions/mission.repository", () => ({}))
 vi.mock("@/modules/passport/passport.repository", () => ({}))
