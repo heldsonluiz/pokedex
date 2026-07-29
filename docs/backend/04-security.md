@@ -25,7 +25,7 @@
 ### Dados e mutações
 
 - valide formulários, params, QR Codes, Actions e Handlers com Zod;
-- cliente não altera XP, ranking, badges, scans ou tickets;
+- cliente não altera XP, ranking, scans ou tickets;
 - use transações em operações concorrentes;
 - aplique idempotência em scans, conexões e concessão de tickets;
 - Firestore Rules continuam necessárias mesmo com validação na aplicação.

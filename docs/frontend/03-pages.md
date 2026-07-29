@@ -19,7 +19,6 @@
 | `/profile`                    | exibir o próprio perfil | dados públicos, progresso e ações                   |
 | `/profile/edit`               | editar perfil           | formulário validado e feedback                      |
 | `/profile/qr-code`            | compartilhar QR         | código, instrução e alternativa de compartilhamento |
-| `/badges`                     | listar conquistas       | obtidas, bloqueadas e critérios públicos            |
 | `/tickets`                    | gerenciar tickets       | saldo, XP conversível, conversão e histórico        |
 | `/operations`                 | operar o evento         | atendimento, bloqueios, brindes e sorteios          |
 | `/raffles/live`               | projetar os sorteios    | candidato, vencedor e andamento sem controles       |
@@ -118,14 +117,6 @@ fundo próprios. A projeção pública contém apenas nome, avatar, XP, nível e
 posição. Contas sem papel `participant` recebem um estado informativo. Durante
 o MVP, a classificação pode levar até 60 segundos para refletir uma mudança de
 XP por causa do cache compartilhado do servidor.
-
-`/badges` apresenta o progresso da coleção em uma grade de três colunas. Os
-cards exibem somente o ícone, sem fundo ou borda; descrição, nome, critério e
-data da conquista ficam no Dialog aberto ao tocar em qualquer badge. Conquistas
-obtidas permanecem coloridas, enquanto badges bloqueadas usam dessaturação e
-contraste reduzido. Badges secretas podem abrir o Dialog, mas ocultam nome,
-imagem, descrição e condição até a conquista. A abertura da página também
-executa a avaliação retroativa das atividades permanentes do participante.
 
 `/tickets` concede retroativamente o ticket inicial do onboarding e apresenta
 saldo, XP conversível, quantidade de tickets possíveis e histórico auditável.

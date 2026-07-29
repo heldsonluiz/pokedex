@@ -10,7 +10,7 @@ O layout autenticado usa Bottom Navigation com destinos estáveis:
 - Passaporte (`/passport`);
 - Perfil (`/profile`).
 
-Empresas, ranking, conexões, palestras, badges e tickets são acessados por atalhos e navegação contextual. Todos os itens principais exibem ícone e texto; o scanner usa um botão central elevado e destacado.
+Empresas, ranking, conexões, palestras e tickets são acessados por atalhos e navegação contextual. Todos os itens principais exibem ícone e texto; o scanner usa um botão central elevado e destacado.
 
 Para participantes, a navegação inferior mantém o Passaporte. Contas
 `reviewer` e `admin` veem Operações no mesmo espaço; acessar `/passport` com

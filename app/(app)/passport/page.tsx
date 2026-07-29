@@ -1,5 +1,4 @@
 import {
-  Award,
   BookOpen,
   Building2,
   CheckCircle2,
@@ -182,13 +181,6 @@ function ProgressSummary({
       total: passport.tags.totalCount,
     },
     {
-      value: "badges" as const,
-      label: "Badges",
-      icon: Award,
-      completed: passport.badges.earnedCount,
-      total: passport.badges.totalCount,
-    },
-    {
       value: "missions" as const,
       label: "Missões",
       icon: Target,
@@ -202,11 +194,7 @@ function ProgressSummary({
       {summaries.map(({ value, label, icon: Icon, completed, total }) => (
         <Link
           key={value}
-          href={
-            value === "badges"
-              ? "/badges"
-              : `/passport?collection=${value}#passport-collections`
-          }
+          href={`/passport?collection=${value}#passport-collections`}
           className="flex min-w-0 flex-col items-center gap-2 rounded-xl bg-card p-3 text-center ring-1 ring-foreground/10 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           aria-label={`Ver coleção de ${label}: ${completed} de ${total}`}
         >
