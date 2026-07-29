@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
+import { redirect } from "next/navigation"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -25,6 +26,8 @@ import {
   type PassportCollection,
   PassportTabs,
 } from "@/modules/passport/passport-tabs"
+import { hasPermission } from "@/modules/profile/profile.authorization"
+import { requireProfileForSession } from "@/modules/profile/profile.service"
 
 export const metadata: Metadata = { title: "Passaporte" }
 export const dynamic = "force-dynamic"
@@ -44,6 +47,12 @@ export default async function PassportPage({
   searchParams,
 }: PassportPageProps) {
   const [session, params] = await Promise.all([requireAuth(), searchParams])
+  const profile = await requireProfileForSession(session)
+
+  if (hasPermission(profile, "serve-participants")) {
+    redirect("/operations")
+  }
+
   const passport = await getPassportForSession(session)
   const initialCollection: PassportCollection =
     params.collection === "tags" || params.collection === "missions"

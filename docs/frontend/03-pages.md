@@ -20,7 +20,8 @@
 | `/profile/edit`               | editar perfil           | formulário validado e feedback                      |
 | `/profile/qr-code`            | compartilhar QR         | código, instrução e alternativa de compartilhamento |
 | `/badges`                     | listar conquistas       | obtidas, bloqueadas e critérios públicos            |
-| `/tickets`                    | consultar tickets       | nível de origem e sorteio relacionado               |
+| `/tickets`                    | gerenciar tickets       | saldo, XP conversível, conversão e histórico        |
+| `/operations`                 | operar o evento         | atendimento, bloqueios, brindes e sorteios          |
 | `/talks`                      | mostrar agenda          | horários, palestrantes e status                     |
 | `/talks/[talkId]`             | detalhar palestra       | descrição, horário e avaliação identificada         |
 | `/qr/[eventId]/[type]/[qrId]` | tratar deep link de QR  | validação e redirecionamento seguro                 |
@@ -124,6 +125,20 @@ obtidas permanecem coloridas, enquanto badges bloqueadas usam dessaturação e
 contraste reduzido. Badges secretas podem abrir o Dialog, mas ocultam nome,
 imagem, descrição e condição até a conquista. A abertura da página também
 executa a avaliação retroativa das atividades permanentes do participante.
+
+`/tickets` concede retroativamente o ticket inicial do onboarding e apresenta
+saldo, XP conversível, quantidade de tickets possíveis e histórico auditável.
+O participante escolhe quantos tickets deseja gerar; cada unidade consome 200
+XP do saldo conversível sem alterar XP, nível ou ranking. A interface informa
+quando a organização bloqueia temporariamente novas conversões.
+
+`/operations` substitui o acesso ao Passaporte para contas `reviewer` e
+`admin`. Ambos podem abrir um scanner dedicado ao QR pessoal, consultar saldo e
+XP conversível, realizar a conversão assistida e resgatar brindes. A tela de
+atendimento mostra custo, estoque, limite e disponibilidade de cada item, e
+exige confirmação antes da entrega. Somente `admin` pode bloquear ou liberar
+conversões e resgates. O QR temporário é validado novamente no servidor antes
+da operação; códigos expirados exigem uma nova leitura.
 
 ## Composição
 

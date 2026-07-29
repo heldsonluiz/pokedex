@@ -12,7 +12,11 @@
 | `missions`            | missões                  | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
 | `badges`              | definições de conquistas | evento, conteúdo, imagem, visibilidade, critério, estado, ordem e timestamps             |
 | `participantBadges`   | badges conquistadas      | evento, participante, badge e data da conquista                                          |
-| `tickets`             | entradas para sorteios   | `eventId`, `profileId`, nível de origem, sorteio e timestamp                             |
+| `ticketTransactions`  | movimentações de tickets | evento, participante, tipo, quantidade, XP convertido, operador, referência e timestamp  |
+| `eventOperations`     | controles operacionais   | evento, conversões, resgates, fechamento e responsável                                   |
+| `rewards`             | catálogo de brindes      | evento, conteúdo, custo, estoque, limites e estado                                       |
+| `rewardRedemptions`   | resgates de brindes      | evento, participante, brinde, quantidade, custo, operador e timestamp                    |
+| `raffles`             | sorteios ponderados      | evento, prêmio, estado, fotografia, universo elegível e vencedor                         |
 | `connections`         | networking               | `eventId`, perfis, status, criação, remoção e XP concedida                               |
 | `activityCompletions` | progresso e carimbos     | evento, participante, tipo, entidade, QR, XP concedida e conclusão                       |
 | `scans`               | histórico de leituras    | `eventId`, perfil, tipo, alvo, QR e timestamp                                            |
@@ -191,6 +195,43 @@ posições anteriores e três posteriores, sem repetir o pódio. Depois do MVP, 
 ranking deverá migrar para
 consulta indexada e paginada ou para uma projeção própria de leaderboard.
 
+### Tickets, brindes e sorteios
+
+Concluir o onboarding concede um ticket inicial. A concessão também é
+retroativa para participantes existentes. Depois disso, cada 200 XP ainda não
+convertidos pode gerar um ticket. A conversão manual permanece disponível
+enquanto `eventOperations.ticketConversionEnabled` estiver ativo.
+
+O perfil mantém `ticketBalance` e `convertedXp` como projeções controladas pelo
+servidor. Converter XP incrementa `convertedXp` sem reduzir `xp`; assim, nível e
+ranking continuam representando a participação. Se uma conexão removida fizer
+o XP ficar abaixo do total já convertido, novas conversões permanecem
+indisponíveis até que o participante recupere a diferença.
+
+`ticketTransactions` é o histórico auditável. Concessões, conversões, resgates
+e ajustes nunca são representados somente por uma alteração de saldo. O ticket
+inicial usa ID determinístico; conversões usam uma chave de idempotência
+validada pelo servidor.
+
+Brindes possuem custo e estoque. Reviewer e admin podem escanear o QR pessoal
+do participante para converter XP ou resgatar brindes. Somente admin pode
+bloquear conversões e resgates, liberar avaliações, fechar o evento e realizar
+sorteios.
+
+Cada documento de `rewards` possui nome, descrição, imagem, custo em tickets,
+estoque, limite opcional por participante, estado e ordem. O agregado
+determinístico em `rewardRedemptions` registra quantidade e custo total daquele
+brinde para o participante. Cada entrega também cria uma movimentação negativa
+em `ticketTransactions`.
+
+Saldo, estoque, limite, agregado e movimentação são validados e atualizados na
+mesma transação. Uma chave de idempotência impede que a repetição da confirmação
+consuma tickets ou estoque novamente.
+
+No fechamento, todo XP restante conversível é transformado em tickets e os
+saldos elegíveis são congelados. O sorteio é ponderado pelo saldo: cada ticket
+representa uma chance. Todo vencedor é excluído dos sorteios seguintes.
+
 ## Relacionamentos e IDs
 
 - documentos relacionados ao evento carregam `eventId`;
@@ -226,7 +267,7 @@ Use paginação em listas potencialmente grandes e selecione somente os dados ne
 
 - pontuação, badges, scans, conexões e tickets são escritos pelo servidor;
 - criar uma conexão concede XP uma única vez; removê-la revoga a XP na mesma operação, sem apagar o histórico;
-- cada nível concede no máximo um ticket por participante, usando chave idempotente;
+- o onboarding e as movimentações de tickets usam chaves idempotentes e histórico auditável;
 - avaliações são liberadas após o encerramento configurado, concluem sua missão e são únicas por participante e palestra;
 - operações concorrentes usam transações ou atualizações atômicas;
 - regras de segurança seguem menor privilégio;

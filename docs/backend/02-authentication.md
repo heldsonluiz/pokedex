@@ -47,7 +47,7 @@ Redirecionamentos devem ocorrer no servidor sempre que possível e aceitar apena
 
 ## Autorização
 
-Auth.js comprova identidade, não permissão. Cada operação deve verificar se o usuário pode acessar ou alterar o recurso. Participantes podem editar apenas campos permitidos do próprio perfil e não podem alterar XP, badges, scans, tickets ou dados administrativos.
+Auth.js comprova identidade, não permissão. Cada operação deve verificar se o usuário pode acessar ou alterar o recurso. Participantes podem editar apenas campos permitidos do próprio perfil e não podem alterar XP, `convertedXp`, `ticketBalance`, badges, scans, tickets ou dados administrativos.
 
 Autorizações internas ficam em `profiles.accessRoles`, separadas do campo
 público `role`. Contas novas começam como `participant`; a organização pode

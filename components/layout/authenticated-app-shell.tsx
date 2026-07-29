@@ -4,6 +4,7 @@ import { usePathname, useSearchParams } from "next/navigation"
 import type { ReactNode } from "react"
 
 import { Toaster } from "@/components/ui/sonner"
+import type { AccessRole } from "@/modules/profile/profile.schema"
 
 import { AppHeader } from "./app-header"
 import { AppShell } from "./app-shell"
@@ -46,6 +47,16 @@ const routeLayouts: Record<string, RouteLayout> = {
     showHeader: true,
     showNavigation: false,
     backHref: "/home",
+  },
+  "/tickets": {
+    title: "Tickets",
+    showHeader: true,
+    showNavigation: false,
+    backHref: "/home",
+  },
+  "/operations": {
+    title: "Operações",
+    showNavigation: true,
   },
   "/profile": {
     title: "Perfil",
@@ -94,27 +105,43 @@ const fallbackLayout: RouteLayout = {
 
 export function AuthenticatedAppShell({
   children,
-}: Readonly<{ children: ReactNode }>) {
+  accessRoles,
+}: Readonly<{ children: ReactNode; accessRoles: AccessRole[] }>) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const routeLayout =
     routeLayouts[pathname] ??
-    (pathname.startsWith("/missions/review/")
+    (pathname === "/operations/scan"
       ? {
-          title: "Validar missão",
+          title: "Atender participante",
           showHeader: true,
           showNavigation: false,
-          backHref: "/missions",
+          backHref: "/operations",
           theme: "dark" as const,
         }
-      : pathname.startsWith("/companies/")
+      : pathname.startsWith("/operations/participant/")
         ? {
-            title: "Empresa",
+            title: "Atendimento",
             showHeader: true,
             showNavigation: false,
-            backHref: "/companies",
+            backHref: "/operations",
           }
-        : fallbackLayout)
+        : pathname.startsWith("/missions/review/")
+          ? {
+              title: "Validar missão",
+              showHeader: true,
+              showNavigation: false,
+              backHref: "/missions",
+              theme: "dark" as const,
+            }
+          : pathname.startsWith("/companies/")
+            ? {
+                title: "Empresa",
+                showHeader: true,
+                showNavigation: false,
+                backHref: "/companies",
+              }
+            : fallbackLayout)
   const qrCodeSource =
     pathname === "/profile/qr-code" ? searchParams.get("source") : null
   const backHref =
@@ -138,7 +165,9 @@ export function AuthenticatedAppShell({
           ) : undefined
         }
         navigation={
-          routeLayout.showNavigation ? <BottomNavigation /> : undefined
+          routeLayout.showNavigation ? (
+            <BottomNavigation accessRoles={accessRoles} />
+          ) : undefined
         }
         theme={routeLayout.theme}
       >

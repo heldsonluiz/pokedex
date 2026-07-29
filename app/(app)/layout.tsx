@@ -19,5 +19,9 @@ export default async function AuthenticatedLayout({
     redirect("/onboarding")
   }
 
-  return <AuthenticatedAppShell>{children}</AuthenticatedAppShell>
+  return (
+    <AuthenticatedAppShell accessRoles={profile.accessRoles}>
+      {children}
+    </AuthenticatedAppShell>
+  )
 }

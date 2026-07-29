@@ -121,8 +121,16 @@ scan → conexão automática → concessão de XP
 - concessões são retroativas, idempotentes e persistidas em
   `participantBadges`;
 - badges secretas ocultam seus dados até serem conquistadas;
-- cada nível concede no máximo um ticket por participante;
-- tickets devem ser concedidos de forma idempotente.
+- concluir o onboarding concede um ticket inicial, inclusive retroativamente;
+- cada 200 XP ainda não convertidos pode gerar um ticket;
+- converter XP não reduz XP, nível ou posição no ranking;
+- tickets gastos em brindes deixam de participar do sorteio;
+- resgates atualizam saldo, estoque, agregado do participante e ledger na mesma
+  transação;
+- `reviewer` e `admin` realizam resgates; somente `admin` controla bloqueios;
+- vencedores são excluídos dos sorteios seguintes;
+- concessões, conversões, resgates e sorteios devem ser idempotentes e
+  auditáveis.
 
 ### Missões e palestras
 

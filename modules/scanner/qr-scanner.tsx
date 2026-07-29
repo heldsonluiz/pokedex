@@ -30,11 +30,16 @@ type ScannerStatus =
 type QrScannerProps = Readonly<{
   appUrl: string
   eventId: string
-  mode?: Readonly<{
-    type: "mission-review"
-    missionId: string
-    title: string
-  }>
+  mode?:
+    | Readonly<{
+        type: "mission-review"
+        missionId: string
+        title: string
+      }>
+    | Readonly<{
+        type: "participant-service"
+        title: string
+      }>
 }>
 
 export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
@@ -138,6 +143,17 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
         }
 
         router.push(`/missions?${query.toString()}`)
+        return
+      }
+
+      if (mode?.type === "participant-service") {
+        const query = new URLSearchParams({
+          token: parsedQrCode.target.token,
+        })
+
+        router.push(
+          `/operations/participant/${encodeURIComponent(parsedQrCode.target.qrId)}?${query.toString()}`
+        )
         return
       }
 
