@@ -114,9 +114,9 @@ janela contextual com até três posições acima e três abaixo da própria
 colocação. Ouro, prata e bronze
 diferenciam o pódio, enquanto a linha do participante usa marcador, borda e
 fundo próprios. A projeção pública contém apenas nome, avatar, XP, nível e
-posição. Contas sem papel `participant` recebem um estado informativo. Durante
-o MVP, a classificação pode levar até 60 segundos para refletir uma mudança de
-XP por causa do cache compartilhado do servidor.
+posição. Contas sem papel `participant` recebem um estado informativo. A
+classificação usa posição agregada e cursores indexados para carregar somente o
+Top 3 ou Top 10 e a janela contextual necessária.
 
 `/tickets` concede retroativamente o ticket inicial do onboarding e apresenta
 saldo, XP conversível, quantidade de tickets possíveis e histórico auditável.

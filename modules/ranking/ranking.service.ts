@@ -65,7 +65,17 @@ export async function getRankingForSession(session: Session): Promise<Ranking> {
     return { available: false }
   }
 
-  const window = await findRankingWindow(profile.eventId, profile.userId)
+  if (!profile.xpReachedAt) {
+    return { available: false }
+  }
+
+  const window = await findRankingWindow(profile.eventId, {
+    userId: profile.userId,
+    displayName: profile.displayName,
+    avatarUrl: profile.avatarUrl,
+    xp: profile.xp,
+    xpReachedAtMs: profile.xpReachedAt.getTime(),
+  })
 
   if (!window) {
     return { available: false }

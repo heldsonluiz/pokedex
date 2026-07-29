@@ -176,20 +176,56 @@ participantes no ranking.
 
 O ranking consulta somente perfis concluídos do evento com `accessRoles`
 contendo `participant`. A ordem usa `xp` decrescente, `xpReachedAt` crescente e
-ID do documento crescente. O ID resolve o caso raro de XP e timestamp
+`userId` crescente. O identificador resolve o caso raro de XP e timestamp
 idênticos.
-
-Durante o MVP, o servidor busca os perfis do evento, filtra os participantes e
-ordena o resultado em memória. A classificação completa usa cache compartilhado
-de 60 segundos; por isso, atualizações de XP podem levar até esse intervalo para
-aparecer. Essa solução temporária elimina a dependência imediata de um índice
-composto, mas seu custo cresce linearmente com o número de perfis.
 
 Participantes entre os três primeiros recebem a lista das dez primeiras
 posições. Os demais recebem o Top 3 e uma janela contextual com até três
-posições anteriores e três posteriores, sem repetir o pódio. Depois do MVP, o
-ranking deverá migrar para
-consulta indexada e paginada ou para uma projeção própria de leaderboard.
+posições anteriores e três posteriores, sem repetir o pódio.
+
+O ranking usa uma consulta composta ordenada e `count()` até o cursor do
+participante para calcular a posição sem carregar os perfis anteriores. Em
+seguida, busca somente o Top 10 para participantes no pódio ou o Top 3 e os
+vizinhos necessários para os demais. O perfil autenticado já fornece o cursor
+atual e não é lido novamente pelo repositório.
+
+A consulta completa anterior permanece temporariamente em cache por 60
+segundos como fallback exclusivo para o erro `failed-precondition`, permitindo
+que a aplicação continue funcionando enquanto o índice ainda estiver
+indisponível. Outros erros não acionam o fallback e continuam visíveis para
+diagnóstico.
+
+#### Índice composto do ranking
+
+A consulta paginada do ranking exige um índice estruturado composto na coleção
+`profiles`. No Firebase Console em português:
+
+1. abra **Build → Firestore Database → Índices**;
+2. selecione a aba de índices compostos e clique em **Criar índice**;
+3. escolha **Estruturado**, não **Vetorial**;
+4. informe `profiles` como ID da coleção;
+5. selecione **Coleção** como escopo da consulta;
+6. adicione os campos na ordem abaixo;
+7. crie o índice e aguarde o estado mudar de **Criando** para **Ativado**.
+
+| Campo                 | Configuração no Console |
+| --------------------- | ----------------------- |
+| `accessRoles`         | Matrizes                |
+| `eventId`             | Crescente               |
+| `onboardingCompleted` | Crescente               |
+| `xp`                  | Decrescente             |
+| `xpReachedAt`         | Crescente               |
+| `userId`              | Crescente               |
+
+Nesse formulário, **Matrizes** corresponde ao modo `array-contains` utilizado
+para selecionar somente perfis cujo `accessRoles` contém `participant`.
+`eventId` limita a consulta ao evento atual e `onboardingCompleted` exclui
+perfis incompletos. Os três últimos campos reproduzem a ordem e o desempate do
+ranking.
+
+O índice pode ser criado no plano Spark. A definição versionada fica em
+`firestore.indexes.json`; antes de implantações pela CLI, ela deve ser comparada
+com os demais índices remotos para evitar remoções não intencionais.
 
 ### Tickets, brindes e sorteios
 
