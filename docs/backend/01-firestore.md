@@ -2,22 +2,48 @@
 
 ## Coleções
 
-| Coleção               | Finalidade              | Campos essenciais                                                                        |
-| --------------------- | ----------------------- | ---------------------------------------------------------------------------------------- |
-| `events`              | configuração do evento  | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                         |
-| `profiles`            | participante            | `userId`, `eventId`, dados públicos, `qrId`, `xp`, `xpReachedAt`, onboarding, timestamps |
-| `companies`           | patrocinadores          | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                        |
-| `tags`                | itens escondidos        | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
-| `talks`               | palestras               | `eventId`, título, palestrante, horários, sala e liberação da avaliação                  |
-| `missions`            | missões                 | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
-| `badges`              | conquistas              | `eventId`, nome, descrição, ícone e visibilidade                                         |
-| `tickets`             | entradas para sorteios  | `eventId`, `profileId`, nível de origem, sorteio e timestamp                             |
-| `connections`         | networking              | `eventId`, perfis, status, criação, remoção e XP concedida                               |
-| `activityCompletions` | progresso e carimbos    | evento, participante, tipo, entidade, QR, XP concedida e conclusão                       |
-| `scans`               | histórico de leituras   | `eventId`, perfil, tipo, alvo, QR e timestamp                                            |
-| `talk-ratings`        | avaliações de palestras | `eventId`, palestra, avaliador, respostas e timestamp                                    |
+| Coleção               | Finalidade               | Campos essenciais                                                                        |
+| --------------------- | ------------------------ | ---------------------------------------------------------------------------------------- |
+| `events`              | configuração do evento   | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                         |
+| `profiles`            | participante             | `userId`, `eventId`, dados públicos, `qrId`, `xp`, `xpReachedAt`, onboarding, timestamps |
+| `companies`           | patrocinadores           | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                        |
+| `tags`                | itens escondidos         | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
+| `talks`               | palestras                | `eventId`, título, palestrante, horários, sala e liberação da avaliação                  |
+| `missions`            | missões                  | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
+| `badges`              | definições de conquistas | evento, conteúdo, imagem, visibilidade, critério, estado, ordem e timestamps             |
+| `participantBadges`   | badges conquistadas      | evento, participante, badge e data da conquista                                          |
+| `tickets`             | entradas para sorteios   | `eventId`, `profileId`, nível de origem, sorteio e timestamp                             |
+| `connections`         | networking               | `eventId`, perfis, status, criação, remoção e XP concedida                               |
+| `activityCompletions` | progresso e carimbos     | evento, participante, tipo, entidade, QR, XP concedida e conclusão                       |
+| `scans`               | histórico de leituras    | `eventId`, perfil, tipo, alvo, QR e timestamp                                            |
+| `talk-ratings`        | avaliações de palestras  | `eventId`, palestra, avaliador, respostas e timestamp                                    |
 
 Schemas completos devem existir no código e ser validados com Zod. Este documento registra o modelo conceitual, não substitui os contratos tipados.
+
+### Badges
+
+Cada documento de `badges` pertence a um evento e possui `name`,
+`description`, `imageUrl`, `visibility`, `criterion`, `active`, `order`,
+`createdAt` e `updatedAt`. A visibilidade pode ser `public` ou `secret`;
+conquistas secretas ocultam conteúdo e critério até serem obtidas.
+
+Os critérios aceitos são:
+
+- `activity`: exige uma empresa, tag ou missão específica;
+- `activityCount`: exige uma quantidade mínima de um tipo de atividade;
+- `allOf`: exige todos os critérios internos;
+- `anyOf`: exige pelo menos um dos critérios internos.
+
+Conexões não participam dos critérios porque podem ser removidas. A avaliação
+usa as conclusões permanentes de `activityCompletions`, não concede XP e também
+considera atividades anteriores à criação da badge.
+
+Cada conquista é registrada uma única vez em `participantBadges`. O ID é um
+hash determinístico de `eventId + participantId + badgeId`, tornando a
+concessão idempotente. Badges inativas deixam de gerar conquistas, mas
+conquistas já registradas continuam visíveis. A avaliação acontece após novas
+conclusões e novamente ao abrir a coleção, corrigindo eventuais falhas sem
+reverter a atividade principal.
 
 ### Perfil implementado
 

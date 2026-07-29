@@ -117,6 +117,14 @@ posição. Contas sem papel `participant` recebem um estado informativo. Durante
 o MVP, a classificação pode levar até 60 segundos para refletir uma mudança de
 XP por causa do cache compartilhado do servidor.
 
+`/badges` apresenta o progresso da coleção em uma grade de três colunas. Os
+cards exibem somente o ícone, sem fundo ou borda; descrição, nome, critério e
+data da conquista ficam no Dialog aberto ao tocar em qualquer badge. Conquistas
+obtidas permanecem coloridas, enquanto badges bloqueadas usam dessaturação e
+contraste reduzido. Badges secretas podem abrir o Dialog, mas ocultam nome,
+imagem, descrição e condição até a conquista. A abertura da página também
+executa a avaliação retroativa das atividades permanentes do participante.
+
 ## Composição
 
 Páginas são Server Components por padrão e coordenam carregamento, metadata e composição. Interações como formulários, câmera e filtros locais devem ser isoladas em Client Components.

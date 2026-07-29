@@ -12,6 +12,7 @@ As regras seguem menor privilégio. O Firebase Admin ignora Firestore Rules, por
 | `profiles`                                         | próprio perfil e projeção pública permitida     | próprio usuário, somente campos editáveis |
 | `connections`                                      | conexões do próprio participante                | servidor                                  |
 | `activityCompletions`                              | próprias conclusões e carimbos                  | servidor                                  |
+| `participantBadges`                                | próprias badges conquistadas                    | servidor                                  |
 | `scans`                                            | scans do próprio participante quando necessário | servidor                                  |
 | `talk-ratings`                                     | própria avaliação quando necessária             | servidor                                  |
 | ranking                                            | projeção pública mínima de participantes        | servidor                                  |

@@ -116,6 +116,11 @@ scan → conexão automática → concessão de XP
   compartilhado de 60 segundos;
 - a consulta indexada e paginada fica registrada como melhoria pós-MVP;
 - badges são conquistas visuais e não concedem XP;
+- badges usam critérios `activity`, `activityCount`, `allOf` e `anyOf`;
+- somente empresas, tags e missões permanentes participam desses critérios;
+- concessões são retroativas, idempotentes e persistidas em
+  `participantBadges`;
+- badges secretas ocultam seus dados até serem conquistadas;
 - cada nível concede no máximo um ticket por participante;
 - tickets devem ser concedidos de forma idempotente.
 

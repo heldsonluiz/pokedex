@@ -4,6 +4,7 @@ import type { Session } from "next-auth"
 
 import { SCORES } from "@/config/scores"
 import { env } from "@/env"
+import { evaluateParticipantBadges } from "@/modules/badges/badge.service"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
 
 import {
@@ -124,6 +125,8 @@ export async function visitCompanyForSession(
 
   switch (result.status) {
     case "visited":
+      await evaluateParticipantBadges(target.eventId, profile.userId)
+
       return {
         success: true,
         code: "COMPANY_VISITED",
