@@ -172,3 +172,24 @@
     @apply font-sans;
   }
 }
+
+.raffle-prizes-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--primary) 75%, transparent)
+    transparent;
+}
+
+.raffle-prizes-scroll::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+.raffle-prizes-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.raffle-prizes-scroll::-webkit-scrollbar-thumb {
+  border: 0.125rem solid transparent;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--primary) 75%, transparent);
+  background-clip: padding-box;
+}

@@ -122,7 +122,9 @@ export default async function TicketsPage() {
                       ? "Conversão de XP"
                       : transaction.type === "reward_redemption"
                         ? "Resgate de brinde"
-                        : "Ajuste de tickets"}
+                        : transaction.referenceType === "raffle_winner"
+                          ? "Tickets consumidos no sorteio"
+                          : "Ajuste de tickets"}
                 </p>
                 <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                   <Clock3 className="size-3" aria-hidden="true" />

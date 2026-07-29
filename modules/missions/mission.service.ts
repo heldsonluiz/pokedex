@@ -170,7 +170,10 @@ export async function completeQrMissionForSession(
   })
 
   if (result.status === "completed") {
-    await evaluateParticipantBadges(target.eventId, participant.userId)
+    await evaluateParticipantBadges(target.eventId, participant.userId, {
+      type: "mission",
+      id: result.mission.id,
+    })
   }
 
   return mapCompletionResult(result)
@@ -223,7 +226,10 @@ export async function reviewMissionForSession(
   })
 
   if (result.status === "completed") {
-    await evaluateParticipantBadges(target.eventId, participant.userId)
+    await evaluateParticipantBadges(target.eventId, participant.userId, {
+      type: "mission",
+      id: result.mission.id,
+    })
   }
 
   const mapped = mapCompletionResult(result)

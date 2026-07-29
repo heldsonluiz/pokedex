@@ -55,6 +55,7 @@ export async function ensureProfileExists(
       ...INITIAL_PROFILE_FIELDS,
       qrId: randomUUID(),
       onboardingCompleted: false,
+      onboardingTicketGranted: false,
       xp: 0,
       xpReachedAt: now,
       createdAt: now,

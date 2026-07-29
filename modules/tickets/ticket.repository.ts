@@ -30,6 +30,7 @@ const ticketProfileSchema = z.object({
   xp: z.number().int().nonnegative().default(0),
   ticketBalance: z.number().int().nonnegative().default(0),
   convertedXp: z.number().int().nonnegative().default(0),
+  onboardingTicketGranted: z.boolean().nullable().default(null),
 })
 
 const transactionDocumentSchema = ticketTransactionFieldsSchema
@@ -40,6 +41,8 @@ const eventOperationsSchema = z.object({
   eventId: z.string().trim().min(1).max(128),
   ticketConversionEnabled: z.boolean().default(true),
   rewardRedemptionEnabled: z.boolean().default(true),
+  raffleClosureStatus: z.enum(["open", "processing", "closed"]).default("open"),
+  raffleSimulationRunId: z.string().uuid().nullable().default(null),
 })
 
 function getTransactionId(parts: readonly string[]) {
@@ -99,6 +102,13 @@ export async function ensureOnboardingTicket(
     if (ticketSnapshot.exists) {
       parseTransaction(ticketSnapshot.id, ticketSnapshot.data())
 
+      if (profile.onboardingTicketGranted !== true) {
+        transaction.update(profileRef, {
+          onboardingTicketGranted: true,
+          updatedAt: Timestamp.now(),
+        })
+      }
+
       return "already-granted"
     }
 
@@ -117,6 +127,7 @@ export async function ensureOnboardingTicket(
     })
     transaction.update(profileRef, {
       ticketBalance: profile.ticketBalance + ONBOARDING_TICKET_AMOUNT,
+      onboardingTicketGranted: true,
       updatedAt: now,
     })
 
@@ -214,11 +225,18 @@ export async function convertXpToTickets({
 
     const operations = operationsSnapshot.exists
       ? eventOperationsSchema.parse(operationsSnapshot.data())
-      : { eventId: validatedEventId, ticketConversionEnabled: true }
+      : {
+          eventId: validatedEventId,
+          ticketConversionEnabled: true,
+          rewardRedemptionEnabled: true,
+          raffleClosureStatus: "open" as const,
+          raffleSimulationRunId: null,
+        }
 
     if (
       operations.eventId !== validatedEventId ||
-      !operations.ticketConversionEnabled
+      !operations.ticketConversionEnabled ||
+      operations.raffleClosureStatus !== "open"
     ) {
       return { status: "conversion-disabled" }
     }
@@ -310,6 +328,8 @@ export async function findEventOperations(eventId: string) {
     return {
       ticketConversionEnabled: true,
       rewardRedemptionEnabled: true,
+      raffleClosureStatus: "open" as const,
+      raffleSimulationRunId: null,
     }
   }
 
@@ -322,6 +342,8 @@ export async function findEventOperations(eventId: string) {
   return {
     ticketConversionEnabled: operations.ticketConversionEnabled,
     rewardRedemptionEnabled: operations.rewardRedemptionEnabled,
+    raffleClosureStatus: operations.raffleClosureStatus,
+    raffleSimulationRunId: operations.raffleSimulationRunId,
   }
 }
 
@@ -334,10 +356,26 @@ export async function setRewardRedemptionEnabled(
   const validatedOperatorId = ticketProfileSchema.shape.userId.parse(operatorId)
   const validatedEnabled = z.boolean().parse(enabled)
 
-  await firestore
+  const reference = firestore
     .collection(EVENT_OPERATIONS_COLLECTION)
     .doc(validatedEventId)
-    .set(
+
+  return firestore.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(reference)
+    const operations = snapshot.exists
+      ? eventOperationsSchema.parse(snapshot.data())
+      : null
+
+    if (
+      operations &&
+      (operations.raffleClosureStatus !== "open" ||
+        operations.raffleSimulationRunId)
+    ) {
+      return false
+    }
+
+    transaction.set(
+      reference,
       {
         eventId: validatedEventId,
         rewardRedemptionEnabled: validatedEnabled,
@@ -346,6 +384,9 @@ export async function setRewardRedemptionEnabled(
       },
       { merge: true }
     )
+
+    return true
+  })
 }
 
 export async function setTicketConversionEnabled(
@@ -360,13 +401,31 @@ export async function setTicketConversionEnabled(
     .collection(EVENT_OPERATIONS_COLLECTION)
     .doc(validatedEventId)
 
-  await reference.set(
-    {
-      eventId: validatedEventId,
-      ticketConversionEnabled: validatedEnabled,
-      updatedAt: Timestamp.now(),
-      updatedBy: validatedOperatorId,
-    },
-    { merge: true }
-  )
+  return firestore.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(reference)
+    const operations = snapshot.exists
+      ? eventOperationsSchema.parse(snapshot.data())
+      : null
+
+    if (
+      operations &&
+      (operations.raffleClosureStatus !== "open" ||
+        operations.raffleSimulationRunId)
+    ) {
+      return false
+    }
+
+    transaction.set(
+      reference,
+      {
+        eventId: validatedEventId,
+        ticketConversionEnabled: validatedEnabled,
+        updatedAt: Timestamp.now(),
+        updatedBy: validatedOperatorId,
+      },
+      { merge: true }
+    )
+
+    return true
+  })
 }
