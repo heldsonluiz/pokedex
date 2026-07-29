@@ -31,7 +31,7 @@ export function AppShell({
         {header}
         <main
           className={cn(
-            "min-h-0 flex-1 overflow-y-auto overscroll-y-contain",
+            "min-h-0 flex-1 overflow-y-auto overscroll-y-contain motion-safe:scroll-smooth",
             contentClassName
           )}
         >

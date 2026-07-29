@@ -128,6 +128,18 @@ Perfil, autorização, estado da missão, pré-requisitos e duplicidade são
 validados no servidor. A conclusão e o crédito de XP ocorrem na mesma
 transação. Somente perfis com `participant` recebem a conclusão e os pontos.
 
+### Passaporte
+
+O passaporte não possui coleção própria. Ele combina as entidades ativas e as
+conclusões de `company`, `tag` e `mission` já armazenadas em
+`activityCompletions`. Essa projeção calcula totais, progresso, XP conquistado
+nessas atividades e conquistas recentes sem duplicar dados ou executar
+gravações.
+
+Somente perfis com `participant` recebem a projeção. Os valores de XP são
+obtidos das conclusões persistidas, preservando a recompensa efetivamente
+concedida. Tags bloqueadas continuam anônimas.
+
 ## Relacionamentos e IDs
 
 - documentos relacionados ao evento carregam `eventId`;

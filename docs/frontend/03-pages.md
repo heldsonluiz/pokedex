@@ -13,7 +13,7 @@
 | `/missions`                   | missões ou revisão      | catálogo do participante ou seleção do reviewer     |
 | `/missions/review/{id}`       | validar missão          | scanner restrito ao QR temporário do participante   |
 | `/scan`                       | ler QR Code             | câmera, permissão, leitura e resultado              |
-| `/passport`                   | exibir progresso        | visitas, missões e selos                            |
+| `/passport`                   | exibir progresso        | resumo, conquistas e coleções da jornada            |
 | `/ranking`                    | mostrar classificação   | posição atual, lista e nível                        |
 | `/connections`                | gerenciar networking    | conexões criadas pelo scanner e remoção             |
 | `/profile`                    | exibir o próprio perfil | dados públicos, progresso e ações                   |
@@ -88,10 +88,22 @@ Participantes veem disponibilidade, pré-requisitos, conclusão e XP.
 Reviewers/admins escolhem uma missão presencial e escaneiam o QR temporário do
 participante. Cards bloqueados, disponíveis e concluídos usam tratamentos
 visuais distintos; o estado disponível recebe somente borda, ícone e degradê
-discreto no verde neon `#8BFF3D`, sem preencher todo o card. Bloqueios apresentam
-nominalmente as visitas ou missões pendentes. Missões presenciais disponíveis oferecem um atalho para o QR do
-participante, preservando `/missions` como destino de retorno. `/passport`
-permanece informativo até sua fase correspondente.
+discreto no verde neon `#8BFF3D`, sem preencher todo o card. Bloqueios
+apresentam nominalmente as visitas ou missões pendentes. Missões presenciais
+disponíveis oferecem um atalho para o QR do participante, preservando
+`/missions` como destino de retorno.
+
+`/passport` agrega empresas visitadas, Tags descobertas e missões concluídas.
+O cabeçalho apresenta progresso geral e XP registrado nessas atividades; o
+resumo separa os totais por categoria e as últimas conquistas são ordenadas
+pela data real de conclusão. As abas exibem carimbos de empresas, slots de Tags
+e o estado das missões sem revelar Tags bloqueadas. Empresas visitadas recebem
+borda, brilho e um selo visual com ícone de carimbo; as pendentes permanecem em
+escala de cinza e com menor contraste. A página é somente leitura e fica
+disponível exclusivamente para contas com papel `participant`. Os cards do
+resumo ativam a aba relacionada e navegam até a seção de coleções; a seleção
+permanece no parâmetro `collection` após refresh. A rolagem usa transição suave
+quando o dispositivo não solicita redução de movimento.
 
 ## Composição
 
