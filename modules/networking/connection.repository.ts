@@ -6,6 +6,7 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore"
 import * as z from "zod"
 
 import { firestore } from "@/lib/firebase/admin"
+import { incrementParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
 
 import {
   type Connection,
@@ -175,6 +176,20 @@ export async function requestConnection({
       xpReachedAt: now,
       updatedAt: now,
     })
+    incrementParticipantSummary(transaction, {
+      eventId,
+      participantId: requesterId,
+      counter: "connectionsCount",
+      amount: 1,
+      now,
+    })
+    incrementParticipantSummary(transaction, {
+      eventId,
+      participantId: recipientId,
+      counter: "connectionsCount",
+      amount: 1,
+      now,
+    })
 
     return "connected"
   })
@@ -269,6 +284,15 @@ export async function removeConnection({
       xpReachedAt: now,
       updatedAt: now,
     })
+    for (const connectedParticipantId of connection.participantIds) {
+      incrementParticipantSummary(transaction, {
+        eventId,
+        participantId: connectedParticipantId,
+        counter: "connectionsCount",
+        amount: -1,
+        now,
+      })
+    }
 
     return "removed"
   })

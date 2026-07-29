@@ -2,27 +2,28 @@
 
 ## Coleções
 
-| Coleção               | Finalidade                 | Campos essenciais                                                                        |
-| --------------------- | -------------------------- | ---------------------------------------------------------------------------------------- |
-| `events`              | configuração do evento     | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                         |
-| `profiles`            | participante               | `userId`, `eventId`, dados públicos, `qrId`, `xp`, `xpReachedAt`, onboarding, timestamps |
-| `companies`           | patrocinadores             | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                        |
-| `tags`                | itens escondidos           | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
-| `talks`               | palestras                  | `eventId`, título, palestrante, horários, sala e liberação da avaliação                  |
-| `missions`            | missões                    | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
-| `ticketTransactions`  | movimentações de tickets   | evento, participante, tipo, quantidade, XP convertido, operador, referência e timestamp  |
-| `eventOperations`     | controles operacionais     | evento, conversões, resgates, fechamento e responsável                                   |
-| `rewards`             | catálogo de brindes        | evento, conteúdo, custo, estoque, limites e estado                                       |
-| `rewardRedemptions`   | resgates de brindes        | evento, participante, brinde, quantidade, custo, operador e timestamp                    |
-| `raffleEntryChunks`   | fotografia das chances     | evento, snapshot e blocos de até 100 participantes                                       |
-| `raffleWinners`       | exclusões entre sorteios   | evento, participante, prêmio, confirmação e operador                                     |
-| `raffleAttempts`      | tentativas dos sorteios    | prêmio, candidato, peso, universo, resultado, operador e timestamps                      |
-| `raffles`             | sorteios ponderados        | evento, prêmio, estado, fotografia, universo elegível e vencedor                         |
-| `raffleTestRuns`      | simulações administrativas | fotografia isolada, progresso, prêmios, tentativas e resultados                          |
-| `connections`         | networking                 | `eventId`, perfis, status, criação, remoção e XP concedida                               |
-| `activityCompletions` | progresso e carimbos       | evento, participante, tipo, entidade, QR, XP concedida e conclusão                       |
-| `scans`               | histórico de leituras      | `eventId`, perfil, tipo, alvo, QR e timestamp                                            |
-| `talk-ratings`        | avaliações de palestras    | `eventId`, palestra, avaliador, respostas e timestamp                                    |
+| Coleção                | Finalidade                 | Campos essenciais                                                                        |
+| ---------------------- | -------------------------- | ---------------------------------------------------------------------------------------- |
+| `events`               | configuração do evento     | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                         |
+| `profiles`             | participante               | `userId`, `eventId`, dados públicos, `qrId`, `xp`, `xpReachedAt`, onboarding, timestamps |
+| `companies`            | patrocinadores             | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                        |
+| `tags`                 | itens escondidos           | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
+| `talks`                | palestras                  | `eventId`, título, palestrante, horários, sala e liberação da avaliação                  |
+| `missions`             | missões                    | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
+| `ticketTransactions`   | movimentações de tickets   | evento, participante, tipo, quantidade, XP convertido, operador, referência e timestamp  |
+| `eventOperations`      | controles operacionais     | evento, conversões, resgates, fechamento e responsável                                   |
+| `rewards`              | catálogo de brindes        | evento, conteúdo, custo, estoque, limites e estado                                       |
+| `rewardRedemptions`    | resgates de brindes        | evento, participante, brinde, quantidade, custo, operador e timestamp                    |
+| `raffleEntryChunks`    | fotografia das chances     | evento, snapshot e blocos de até 100 participantes                                       |
+| `raffleWinners`        | exclusões entre sorteios   | evento, participante, prêmio, confirmação e operador                                     |
+| `raffleAttempts`       | tentativas dos sorteios    | prêmio, candidato, peso, universo, resultado, operador e timestamps                      |
+| `raffles`              | sorteios ponderados        | evento, prêmio, estado, fotografia, universo elegível e vencedor                         |
+| `raffleTestRuns`       | simulações administrativas | fotografia isolada, progresso, prêmios, tentativas e resultados                          |
+| `connections`          | networking                 | `eventId`, perfis, status, criação, remoção e XP concedida                               |
+| `activityCompletions`  | progresso e carimbos       | evento, participante, tipo, entidade, QR, XP concedida e conclusão                       |
+| `participantSummaries` | resumo individual leve     | evento, participante, contadores de conexões e atividades, inicialização e atualização   |
+| `scans`                | histórico de leituras      | `eventId`, perfil, tipo, alvo, QR e timestamp                                            |
+| `talk-ratings`         | avaliações de palestras    | `eventId`, palestra, avaliador, respostas e timestamp                                    |
 
 Schemas completos devem existir no código e ser validados com Zod. Este documento registra o modelo conceitual, não substitui os contratos tipados.
 
@@ -165,6 +166,26 @@ gravações.
 Somente perfis com `participant` recebem a projeção. Os valores de XP são
 obtidos das conclusões persistidas, preservando a recompensa efetivamente
 concedida. Tags bloqueadas continuam anônimas.
+
+### Resumo individual
+
+`participantSummaries` é uma projeção leve usada por telas que precisam apenas
+dos totais do participante. Ela armazena `connectionsCount`,
+`companiesVisitedCount`, `tagsDiscoveredCount` e
+`missionsCompletedCount`. XP, nível, tickets e posição no ranking não são
+duplicados: continuam sendo obtidos de suas fontes de verdade.
+
+Novos perfis recebem o resumo zerado na mesma transação de criação. Para
+participantes anteriores à projeção, a primeira leitura reconstrói os
+contadores a partir de `activityCompletions` e `connections` e persiste o
+resultado. Essa inicialização também é transacional: uma conclusão ou conexão
+concorrente provoca uma nova tentativa, evitando perda ou duplicação.
+
+Depois da inicialização, a Home lê somente um documento de resumo. Visitas,
+tags, missões e conexões atualizam seus contadores na mesma transação da
+operação principal. A remoção de uma conexão decrementa as duas partes. As
+coleções detalhadas continuam sendo a fonte auditável e alimentam as páginas
+que precisam de IDs, datas ou conteúdo completo.
 
 ### Níveis e ranking
 

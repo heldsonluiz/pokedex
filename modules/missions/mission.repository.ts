@@ -8,6 +8,7 @@ import * as z from "zod"
 
 import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
 import { firestore } from "@/lib/firebase/admin"
+import { incrementParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
 import {
@@ -361,6 +362,13 @@ export async function completeMission({
       xp: profile.xp + xpAwarded,
       xpReachedAt: now,
       updatedAt: now,
+    })
+    incrementParticipantSummary(transaction, {
+      eventId: validatedEventId,
+      participantId: validatedParticipantId,
+      counter: "missionsCompletedCount",
+      amount: 1,
+      now,
     })
 
     return {

@@ -12,6 +12,7 @@ As regras seguem menor privilégio. O Firebase Admin ignora Firestore Rules, por
 | `profiles`                                          | próprio perfil e projeção pública permitida     | próprio usuário, somente campos editáveis |
 | `connections`                                       | conexões do próprio participante                | servidor                                  |
 | `activityCompletions`                               | próprias conclusões e carimbos                  | servidor                                  |
+| `participantSummaries`                              | próprio resumo individual                       | servidor                                  |
 | `rewardRedemptions`                                 | próprios resgates                               | servidor                                  |
 | `scans`                                             | scans do próprio participante quando necessário | servidor                                  |
 | `talk-ratings`                                      | própria avaliação quando necessária             | servidor                                  |
@@ -40,6 +41,10 @@ As Rules devem comparar campos alterados e validar tipos/limites básicos. Regra
 ## Operações críticas
 
 Visitas, descobertas de tags, conclusões de missões, avaliações, scans, conexões, ranking e tickets são persistidos somente pelo backend. `accessRoles` não é gravável pela edição de perfil e toda permissão é validada novamente no servidor. O painel administrativo pertence a outro projeto e acessa os dados por uma integração de servidor autorizada.
+
+Os resumos individuais também são gravados somente pelo backend. Eles são uma
+projeção derivada e nunca substituem `activityCompletions`, `connections` ou
+`profiles` na validação de uma operação.
 
 O ranking é carregado pelo servidor e expõe somente posição, nome, avatar, XP e
 nível derivado. E-mail, empresa, link, skills e papéis internos não fazem parte

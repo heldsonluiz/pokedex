@@ -17,6 +17,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
+import { findOrInitializeParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
+import { ParticipantSummaryCard } from "@/modules/participant-summary/participant-summary-card"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
 
 export const metadata: Metadata = {
@@ -84,6 +86,10 @@ function getInitials(displayName: string) {
 export default async function HomePage() {
   const session = await requireAuth()
   const profile = await requireProfileForSession(session)
+  const summary = await findOrInitializeParticipantSummary(
+    profile.eventId,
+    profile.userId
+  )
 
   return (
     <div className="space-y-8 px-6 py-6">
@@ -149,6 +155,8 @@ export default async function HomePage() {
         <QrCode data-icon="inline-start" aria-hidden="true" />
         Mostrar meu QR Code
       </Link>
+
+      <ParticipantSummaryCard summary={summary} />
 
       <section className="space-y-4" aria-labelledby="home-shortcuts-title">
         <h2 id="home-shortcuts-title" className="text-lg font-semibold">

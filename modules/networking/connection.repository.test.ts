@@ -3,9 +3,10 @@ import { describe, expect, it, vi } from "vitest"
 const mocks = vi.hoisted(() => {
   const create = vi.fn()
   const get = vi.fn().mockResolvedValue({ exists: false })
+  const set = vi.fn()
   const update = vi.fn()
   const increment = vi.fn((amount: number) => ({ increment: amount }))
-  const transaction = { create, get, update }
+  const transaction = { create, get, set, update }
   const firestore = {
     collection: vi.fn((collection: string) => ({
       doc: vi.fn((id: string) => ({ collection, id })),
@@ -16,7 +17,7 @@ const mocks = vi.hoisted(() => {
     ),
   }
 
-  return { create, firestore, get, increment, transaction, update }
+  return { create, firestore, get, increment, set, transaction, update }
 })
 
 vi.mock("server-only", () => ({}))
@@ -57,7 +58,10 @@ describe("connection repository", () => {
     expect(mocks.create).toHaveBeenCalledTimes(1)
     expect(mocks.increment).toHaveBeenNthCalledWith(1, 5)
     expect(mocks.increment).toHaveBeenNthCalledWith(2, 5)
+    expect(mocks.increment).toHaveBeenNthCalledWith(3, 1)
+    expect(mocks.increment).toHaveBeenNthCalledWith(4, 1)
     expect(mocks.update).toHaveBeenCalledTimes(2)
+    expect(mocks.set).toHaveBeenCalledTimes(2)
     expect(mocks.update).toHaveBeenCalledWith(
       expect.objectContaining({ id: "participant-a" }),
       expect.objectContaining({ xp: { increment: 5 } })

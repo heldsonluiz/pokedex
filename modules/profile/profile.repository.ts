@@ -6,6 +6,7 @@ import { Timestamp } from "firebase-admin/firestore"
 import * as z from "zod"
 
 import { firestore } from "@/lib/firebase/admin"
+import { createInitialParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
 
 import {
   type ProfileIdentity,
@@ -61,6 +62,12 @@ export async function ensureProfileExists(
       createdAt: now,
       updatedAt: now,
     })
+    createInitialParticipantSummary(
+      transaction,
+      identity.eventId,
+      identity.userId,
+      now
+    )
 
     return {
       created: true,

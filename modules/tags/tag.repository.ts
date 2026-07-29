@@ -8,6 +8,7 @@ import * as z from "zod"
 
 import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
 import { firestore } from "@/lib/firebase/admin"
+import { incrementParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
 import { discoverTagInputSchema, type Tag, tagFieldsSchema } from "./tag.schema"
@@ -278,6 +279,13 @@ export async function completeTagDiscovery({
       xp: profile.xp + xpAwarded,
       xpReachedAt: now,
       updatedAt: now,
+    })
+    incrementParticipantSummary(transaction, {
+      eventId: target.eventId,
+      participantId: validatedParticipantId,
+      counter: "tagsDiscoveredCount",
+      amount: 1,
+      now,
     })
 
     return {
