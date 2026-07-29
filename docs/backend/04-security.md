@@ -16,7 +16,11 @@
 - não trate autenticação como autorização;
 - participantes editam apenas campos permitidos do próprio perfil;
 - privilégios administrativos existem somente via Firebase Admin e ambiente confiável;
-- revisores podem decidir apenas submissões de missões atribuídas ao seu escopo.
+- `profiles.accessRoles` não pode ser alterado pela edição comum do perfil;
+- somente `reviewer` e `admin` validam missões presenciais;
+- a autorização é relida no servidor em cada validação;
+- o QR temporário comprova o participante presente, mas não substitui a
+  autorização do reviewer nem os pré-requisitos.
 
 ### Dados e mutações
 

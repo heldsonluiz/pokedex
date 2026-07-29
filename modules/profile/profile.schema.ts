@@ -2,6 +2,24 @@ import * as z from "zod"
 
 import { isValidSkillSlug } from "./profile-skills"
 
+export const ACCESS_ROLES = [
+  "participant",
+  "staff",
+  "reviewer",
+  "editor",
+  "admin",
+] as const
+
+export const accessRoleSchema = z.enum(ACCESS_ROLES)
+
+export const accessRolesSchema = z
+  .array(accessRoleSchema)
+  .min(1)
+  .refine(
+    (roles) => new Set(roles).size === roles.length,
+    "Stored profile contains duplicated access roles"
+  )
+
 export const profileIdentitySchema = z.object({
   userId: z.string().trim().min(1),
   eventId: z.string().trim().min(1),
@@ -106,6 +124,7 @@ export const storedProfileFieldsSchema = z.object({
   company: z.string().trim().max(100).nullable().default(null),
   link: httpUrlSchema.nullable().default(null),
   skills: storedSkillsSchema.default([]),
+  accessRoles: accessRolesSchema.default(["participant"]),
 })
 
 export type StoredProfileFields = z.infer<typeof storedProfileFieldsSchema>
@@ -115,3 +134,4 @@ export type ProfileUpdate = z.infer<typeof profileUpdateSchema>
 export type ProfileUpdateInput = z.input<typeof profileUpdateSchema>
 
 export type ProfileIdentity = z.infer<typeof profileIdentitySchema>
+export type AccessRole = z.infer<typeof accessRoleSchema>

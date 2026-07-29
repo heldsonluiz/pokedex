@@ -49,7 +49,12 @@ Redirecionamentos devem ocorrer no servidor sempre que possível e aceitar apena
 
 Auth.js comprova identidade, não permissão. Cada operação deve verificar se o usuário pode acessar ou alterar o recurso. Participantes podem editar apenas campos permitidos do próprio perfil e não podem alterar XP, badges, scans, tickets ou dados administrativos.
 
-Administradores e revisores de missão são definidos pela organização. Neste projeto, esses papéis servem apenas para autorizar operações integradas ou fluxos de revisão previstos; a gestão administrativa completa permanece no painel externo.
+Autorizações internas ficam em `profiles.accessRoles`, separadas do campo
+público `role`. Contas novas começam como `participant`; a organização pode
+atribuir manualmente `staff`, `reviewer`, `editor` ou `admin` no Firestore até
+que exista integração administrativa. O campo nunca é aceito pela edição do
+perfil. Reviewers e admins podem validar missões; demais permissões são
+derivadas no servidor por operação.
 
 ## Segurança
 

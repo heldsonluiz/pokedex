@@ -59,6 +59,16 @@ participante da sessão; o repository valida tag, perfil e conclusão na
 transação. A resposta revela os dados da tag somente após uma descoberta válida
 ou já existente.
 
+## Missões
+
+- `completeQrMissionAction` recebe somente evento e QR público da missão;
+- `reviewMissionAction` recebe a missão escolhida e o QR temporário do
+  participante;
+- o servidor carrega o perfil autenticado e autoriza `reviewer` ou `admin`;
+- a pontuação vem da missão ou de `SCORES.MISSION_COMPLETION`;
+- conclusão, auditoria do reviewer e XP são persistidos em transação
+  idempotente.
+
 ## Evite
 
 - Firestore em componentes;

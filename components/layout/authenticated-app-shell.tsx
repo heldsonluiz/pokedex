@@ -87,18 +87,30 @@ export function AuthenticatedAppShell({
   const searchParams = useSearchParams()
   const routeLayout =
     routeLayouts[pathname] ??
-    (pathname.startsWith("/companies/")
+    (pathname.startsWith("/missions/review/")
       ? {
-          title: "Empresa",
+          title: "Validar missão",
           showHeader: true,
           showNavigation: false,
-          backHref: "/companies",
+          backHref: "/missions",
+          theme: "dark" as const,
         }
-      : fallbackLayout)
+      : pathname.startsWith("/companies/")
+        ? {
+            title: "Empresa",
+            showHeader: true,
+            showNavigation: false,
+            backHref: "/companies",
+          }
+        : fallbackLayout)
+  const qrCodeSource =
+    pathname === "/profile/qr-code" ? searchParams.get("source") : null
   const backHref =
-    pathname === "/profile/qr-code" && searchParams.get("source") === "home"
+    qrCodeSource === "home"
       ? "/home"
-      : routeLayout.backHref
+      : qrCodeSource === "missions"
+        ? "/missions"
+        : routeLayout.backHref
 
   return (
     <>

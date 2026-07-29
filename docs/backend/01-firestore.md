@@ -9,8 +9,7 @@
 | `companies`           | patrocinadores          | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                                 |
 | `tags`                | itens escondidos        | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                           |
 | `talks`               | palestras               | `eventId`, título, palestrante, horários, sala e liberação da avaliação                           |
-| `missions`            | missões                 | `eventId`, título, tipo, XP, estado e ordem                                                       |
-| `mission-submissions` | validações de missões   | `eventId`, missão, perfil, status, revisor e timestamps                                           |
+| `missions`            | missões                 | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem                      |
 | `badges`              | conquistas              | `eventId`, nome, descrição, ícone e visibilidade                                                  |
 | `tickets`             | entradas para sorteios  | `eventId`, `profileId`, nível de origem, sorteio e timestamp                                      |
 | `connections`         | networking              | `eventId`, perfis, status, criação, remoção e XP concedida                                        |
@@ -27,6 +26,13 @@ O contrato inicial de `profiles` possui `userId`, `eventId`, `displayName`, `ema
 `displayName` e `skills` são obrigatórios para concluir o perfil. O nome possui no mínimo 3 caracteres; `skills` armazena de 3 a 5 slugs únicos existentes no catálogo estático `data/skills.ts`; `bio` é opcional e aceita no máximo 200 caracteres; `role` é opcional e aceita no máximo 80 caracteres; `company` é opcional e aceita no máximo 100 caracteres; `link` é opcional e aceita uma única URL válida. Antes da conclusão, o documento pode manter `skills` vazio e os campos opcionais nulos.
 
 A edição em `/profile/edit` envia somente esses campos editáveis para uma Server Action autenticada. O serviço valida novamente o contrato e o repositório atualiza o documento existente em transação, preservando identidade, evento, QR Code e datas de criação.
+
+`accessRoles` armazena uma ou mais autorizações internas entre `participant`,
+`staff`, `reviewer`, `editor` e `admin`. Novos perfis recebem
+`["participant"]`; o campo não participa da edição do perfil. `role` continua
+representando somente o cargo público. Todas as contas concluem normalmente o
+onboarding. Apenas `participant` participa das atividades e recebe XP;
+`reviewer` e `admin` podem validar missões presenciais.
 
 No setup obrigatório, a mesma transação persiste os campos validados e define `onboardingCompleted: true`. Cancelar o setup não altera o documento; voltar apenas reinicia as etapas introdutórias.
 
@@ -105,6 +111,22 @@ A coleção consulta somente tags ativas. Para itens ainda bloqueados, o service
 projeta apenas um número de slot, sem enviar ID, nome, descrição ou imagem ao
 cliente. Depois da descoberta, esses dados são revelados junto ao XP realmente
 concedido.
+
+### Missões
+
+Cada missão possui `validationType` igual a `qr` ou `reviewer`. Missões `qr`
+possuem um `qrId` fixo; missões `reviewer` não possuem QR próprio. Ambas podem
+declarar pré-requisitos de visita a empresa ou conclusão de outra missão.
+
+Na validação presencial, um usuário `reviewer` ou `admin` escolhe a missão e
+escaneia o QR temporário do participante. Não existe submissão pendente: a
+aprovação cria diretamente uma conclusão de tipo `mission`, registrando
+`validationType`, `validatedBy`, `validatedAt`, `xpAwarded` e `completedAt`.
+
+O ID determinístico combina evento, participante, tipo `mission` e missão.
+Perfil, autorização, estado da missão, pré-requisitos e duplicidade são
+validados no servidor. A conclusão e o crédito de XP ocorrem na mesma
+transação. Somente perfis com `participant` recebem a conclusão e os pontos.
 
 ## Relacionamentos e IDs
 

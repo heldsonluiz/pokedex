@@ -41,6 +41,7 @@ export async function connectFromScanAction(
 
     const messages: Record<string, string> = {
       INVALID_EVENT: "Este QR Code pertence a outro evento.",
+      FORBIDDEN: "Esta conta não participa das atividades do evento.",
       INVALID_QR: "Não foi possível validar este QR Code.",
       PROFILE_NOT_FOUND: "O perfil deste participante não está disponível.",
       QR_EXPIRED:

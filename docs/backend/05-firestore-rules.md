@@ -4,18 +4,17 @@ As regras seguem menor privilégio. O Firebase Admin ignora Firestore Rules, por
 
 ## Matriz de acesso do cliente
 
-| Recurso                                            | Leitura                                              | Escrita                                   |
-| -------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------- |
-| `events`                                           | dados públicos do evento ativo                       | servidor                                  |
-| `companies`, `tags`, `missions`, `talks`, `badges` | usuários autorizados conforme produto                | servidor                                  |
-| `tickets`                                          | próprios tickets                                     | servidor                                  |
-| `profiles`                                         | próprio perfil e projeção pública permitida          | próprio usuário, somente campos editáveis |
-| `connections`                                      | conexões do próprio participante                     | servidor                                  |
-| `activityCompletions`                              | próprias conclusões e carimbos                       | servidor                                  |
-| `scans`                                            | scans do próprio participante quando necessário      | servidor                                  |
-| `mission-submissions`                              | próprias submissões; revisão autorizada via servidor | servidor                                  |
-| `talk-ratings`                                     | própria avaliação quando necessária                  | servidor                                  |
-| ranking                                            | leitura permitida conforme produto                   | servidor                                  |
+| Recurso                                            | Leitura                                         | Escrita                                   |
+| -------------------------------------------------- | ----------------------------------------------- | ----------------------------------------- |
+| `events`                                           | dados públicos do evento ativo                  | servidor                                  |
+| `companies`, `tags`, `missions`, `talks`, `badges` | usuários autorizados conforme produto           | servidor                                  |
+| `tickets`                                          | próprios tickets                                | servidor                                  |
+| `profiles`                                         | próprio perfil e projeção pública permitida     | próprio usuário, somente campos editáveis |
+| `connections`                                      | conexões do próprio participante                | servidor                                  |
+| `activityCompletions`                              | próprias conclusões e carimbos                  | servidor                                  |
+| `scans`                                            | scans do próprio participante quando necessário | servidor                                  |
+| `talk-ratings`                                     | própria avaliação quando necessária             | servidor                                  |
+| ranking                                            | leitura permitida conforme produto              | servidor                                  |
 
 ## Perfil
 
@@ -30,13 +29,14 @@ userId
 eventId
 createdAt
 updatedAt
+accessRoles
 ```
 
 As Rules devem comparar campos alterados e validar tipos/limites básicos. Regras de domínio complexas permanecem no servidor.
 
 ## Operações críticas
 
-Visitas, descobertas de tags, conclusões de missões, avaliações, scans, conexões, badges, ranking e tickets são persistidos somente pelo backend. O painel administrativo pertence a outro projeto e acessa os dados por uma integração de servidor autorizada; não existe papel administrativo confiável no cliente desta aplicação.
+Visitas, descobertas de tags, conclusões de missões, avaliações, scans, conexões, badges, ranking e tickets são persistidos somente pelo backend. `accessRoles` não é gravável pela edição de perfil e toda permissão é validada novamente no servidor. O painel administrativo pertence a outro projeto e acessa os dados por uma integração de servidor autorizada.
 
 ## Testes obrigatórios
 
