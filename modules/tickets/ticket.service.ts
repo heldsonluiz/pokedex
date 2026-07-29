@@ -119,6 +119,10 @@ export async function findParticipantServiceContext(
     return null
   }
 
+  if ((await findEventOperations(operator.eventId)).raffleSimulationRunId) {
+    return null
+  }
+
   const validation = validateUserQrToken({
     token: participantToken,
     eventId: operator.eventId,
@@ -250,9 +254,7 @@ export async function updateRedemptionAvailabilityForSession(
     return false
   }
 
-  await setRewardRedemptionEnabled(profile.eventId, enabled, profile.userId)
-
-  return true
+  return setRewardRedemptionEnabled(profile.eventId, enabled, profile.userId)
 }
 
 export async function updateConversionAvailabilityForSession(
@@ -265,7 +267,5 @@ export async function updateConversionAvailabilityForSession(
     return false
   }
 
-  await setTicketConversionEnabled(profile.eventId, enabled, profile.userId)
-
-  return true
+  return setTicketConversionEnabled(profile.eventId, enabled, profile.userId)
 }

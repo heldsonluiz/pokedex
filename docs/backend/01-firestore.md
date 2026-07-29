@@ -2,25 +2,29 @@
 
 ## Coleções
 
-| Coleção               | Finalidade               | Campos essenciais                                                                        |
-| --------------------- | ------------------------ | ---------------------------------------------------------------------------------------- |
-| `events`              | configuração do evento   | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                         |
-| `profiles`            | participante             | `userId`, `eventId`, dados públicos, `qrId`, `xp`, `xpReachedAt`, onboarding, timestamps |
-| `companies`           | patrocinadores           | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                        |
-| `tags`                | itens escondidos         | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
-| `talks`               | palestras                | `eventId`, título, palestrante, horários, sala e liberação da avaliação                  |
-| `missions`            | missões                  | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
-| `badges`              | definições de conquistas | evento, conteúdo, imagem, visibilidade, critério, estado, ordem e timestamps             |
-| `participantBadges`   | badges conquistadas      | evento, participante, badge e data da conquista                                          |
-| `ticketTransactions`  | movimentações de tickets | evento, participante, tipo, quantidade, XP convertido, operador, referência e timestamp  |
-| `eventOperations`     | controles operacionais   | evento, conversões, resgates, fechamento e responsável                                   |
-| `rewards`             | catálogo de brindes      | evento, conteúdo, custo, estoque, limites e estado                                       |
-| `rewardRedemptions`   | resgates de brindes      | evento, participante, brinde, quantidade, custo, operador e timestamp                    |
-| `raffles`             | sorteios ponderados      | evento, prêmio, estado, fotografia, universo elegível e vencedor                         |
-| `connections`         | networking               | `eventId`, perfis, status, criação, remoção e XP concedida                               |
-| `activityCompletions` | progresso e carimbos     | evento, participante, tipo, entidade, QR, XP concedida e conclusão                       |
-| `scans`               | histórico de leituras    | `eventId`, perfil, tipo, alvo, QR e timestamp                                            |
-| `talk-ratings`        | avaliações de palestras  | `eventId`, palestra, avaliador, respostas e timestamp                                    |
+| Coleção               | Finalidade                 | Campos essenciais                                                                        |
+| --------------------- | -------------------------- | ---------------------------------------------------------------------------------------- |
+| `events`              | configuração do evento     | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                         |
+| `profiles`            | participante               | `userId`, `eventId`, dados públicos, `qrId`, `xp`, `xpReachedAt`, onboarding, timestamps |
+| `companies`           | patrocinadores             | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                        |
+| `tags`                | itens escondidos           | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
+| `talks`               | palestras                  | `eventId`, título, palestrante, horários, sala e liberação da avaliação                  |
+| `missions`            | missões                    | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
+| `badges`              | definições de conquistas   | evento, conteúdo, imagem, visibilidade, critério, estado, ordem e timestamps             |
+| `participantBadges`   | badges conquistadas        | evento, participante, badge e data da conquista                                          |
+| `ticketTransactions`  | movimentações de tickets   | evento, participante, tipo, quantidade, XP convertido, operador, referência e timestamp  |
+| `eventOperations`     | controles operacionais     | evento, conversões, resgates, fechamento e responsável                                   |
+| `rewards`             | catálogo de brindes        | evento, conteúdo, custo, estoque, limites e estado                                       |
+| `rewardRedemptions`   | resgates de brindes        | evento, participante, brinde, quantidade, custo, operador e timestamp                    |
+| `raffleEntryChunks`   | fotografia das chances     | evento, snapshot e blocos de até 100 participantes                                       |
+| `raffleWinners`       | exclusões entre sorteios   | evento, participante, prêmio, confirmação e operador                                     |
+| `raffleAttempts`      | tentativas dos sorteios    | prêmio, candidato, peso, universo, resultado, operador e timestamps                      |
+| `raffles`             | sorteios ponderados        | evento, prêmio, estado, fotografia, universo elegível e vencedor                         |
+| `raffleTestRuns`      | simulações administrativas | fotografia isolada, progresso, prêmios, tentativas e resultados                          |
+| `connections`         | networking                 | `eventId`, perfis, status, criação, remoção e XP concedida                               |
+| `activityCompletions` | progresso e carimbos       | evento, participante, tipo, entidade, QR, XP concedida e conclusão                       |
+| `scans`               | histórico de leituras      | `eventId`, perfil, tipo, alvo, QR e timestamp                                            |
+| `talk-ratings`        | avaliações de palestras    | `eventId`, palestra, avaliador, respostas e timestamp                                    |
 
 Schemas completos devem existir no código e ser validados com Zod. Este documento registra o modelo conceitual, não substitui os contratos tipados.
 
@@ -202,11 +206,14 @@ retroativa para participantes existentes. Depois disso, cada 200 XP ainda não
 convertidos pode gerar um ticket. A conversão manual permanece disponível
 enquanto `eventOperations.ticketConversionEnabled` estiver ativo.
 
-O perfil mantém `ticketBalance` e `convertedXp` como projeções controladas pelo
-servidor. Converter XP incrementa `convertedXp` sem reduzir `xp`; assim, nível e
-ranking continuam representando a participação. Se uma conexão removida fizer
-o XP ficar abaixo do total já convertido, novas conversões permanecem
-indisponíveis até que o participante recupere a diferença.
+O perfil mantém `ticketBalance`, `convertedXp` e
+`onboardingTicketGranted` como projeções controladas pelo servidor. O último
+campo começa em `false` e muda para `true` na mesma transação que concede o
+ticket inicial. Documentos legados podem manter `null` até sua primeira
+verificação. Converter XP incrementa `convertedXp` sem reduzir `xp`; assim,
+nível e ranking continuam representando a participação. Se uma conexão
+removida fizer o XP ficar abaixo do total já convertido, novas conversões
+permanecem indisponíveis até que o participante recupere a diferença.
 
 `ticketTransactions` é o histórico auditável. Concessões, conversões, resgates
 e ajustes nunca são representados somente por uma alteração de saldo. O ticket
@@ -228,9 +235,80 @@ Saldo, estoque, limite, agregado e movimentação são validados e atualizados n
 mesma transação. Uma chave de idempotência impede que a repetição da confirmação
 consuma tickets ou estoque novamente.
 
-No fechamento, todo XP restante conversível é transformado em tickets e os
-saldos elegíveis são congelados. O sorteio é ponderado pelo saldo: cada ticket
-representa uma chance. Todo vencedor é excluído dos sorteios seguintes.
+O fechamento é uma operação administrativa irreversível pela interface. Ao
+iniciá-lo, o servidor bloqueia conversões e resgates e define
+`raffleClosureStatus` como `processing`. Os participantes são processados em
+lotes retomáveis de até 100 documentos, evitando depender de uma única
+requisição longa para um evento com milhares de pessoas. O cursor e as
+gravações do lote avançam juntos; se a requisição falhar antes do commit, o
+mesmo lote pode ser tentado novamente sem duplicar tickets.
+
+Cada participante concluído recebe retroativamente o ticket de onboarding caso
+a movimentação determinística ainda não exista. Todo XP restante conversível é
+transformado em tickets, e `raffleEntryChunks` congela nome, saldo final e peso
+do participante no instante do fechamento. Cada lote gera um documento com até
+100 entradas. Pesos zero permanecem auditáveis, mas não participam do universo
+elegível.
+
+Somente quando todos os lotes terminam o estado muda para `closed`. Cada
+documento ativo em `raffles` representa um prêmio. O sorteio gera
+criptograficamente uma posição inteira entre zero e o total de tickets
+elegíveis menos um e percorre os intervalos cumulativos das entradas; portanto,
+cada ticket representa exatamente uma chance.
+
+A primeira seleção deixa o prêmio em `awaiting_confirmation` e cria uma
+`raffleAttempt` pendente com candidato, peso, universo, posição aleatória,
+operador e horário. Se a pessoa estiver ausente, a tentativa recebe `absent` e
+ela é retirada apenas das novas tentativas daquele prêmio; permanece elegível
+para outros prêmios. A próxima seleção acontece sobre os participantes ainda
+disponíveis.
+
+Somente a confirmação de presença transforma a tentativa em `confirmed`, o
+prêmio em `drawn` e o candidato em vencedor. A exclusão é criada em
+`raffleWinners` na mesma transação e vale para todos os sorteios seguintes. Os formulários
+carregam o ID da tentativa exibida, impedindo que uma ação repetida ou uma tela
+desatualizada resolva acidentalmente uma tentativa posterior.
+
+`config/raffles.ts` centraliza `CONSUME_RAFFLE_WINNER_TICKETS`. Quando a chave
+está ativa, o sorteio também zera atomicamente o saldo atual do vencedor e cria
+uma movimentação de ajuste negativa em `ticketTransactions`; a fotografia do
+sorteio não é alterada. Quando está desativada, o vencedor mantém o saldo.
+Depois que todos os sorteios ativos terminam, o administrador pode reabrir
+somente os resgates de brindes. Conversões continuam encerradas e os resultados
+permanecem congelados.
+
+### Simulação dos sorteios
+
+`raffleTestRuns` permite ensaiar o fluxo sem alterar o evento. Ativar o modo de
+teste cria uma execução identificada por UUID e registra sua referência em
+`eventOperations.raffleSimulationRunId`. A preparação lê os dados reais, mas
+grava a fotografia calculada nas subcoleções `entryChunks`, `raffles`,
+`winners` e `attempts`
+da execução. Para suportar milhares de participantes, essa preparação também é
+retomável em lotes de até 100 perfis.
+
+Os lotes usam `eventId`, ordenação pelo ID do documento, `startAfter` e
+`limit`; portanto, não releem toda a coleção a cada avanço. Para 2.000
+participantes, a preparação consome aproximadamente 2.000 leituras de perfis.
+O histórico de onboarding só é consultado para documentos legados cujo
+`onboardingTicketGranted` ainda seja `null`, em vez de executar uma leitura
+adicional para cada participante.
+
+Cada sorteio lê apenas os cerca de 20 blocos gerados para 2.000 participantes,
+mais os poucos vencedores e tentativas existentes. Os cálculos ponderados
+acontecem em memória dentro daquela requisição; somente tentativas e resultados
+são mutáveis.
+
+Enquanto a referência estiver ativa, as ações administrativas de sorteio,
+re-rolagem, confirmação, consumo de saldo e liberação de resgates são
+direcionadas exclusivamente à simulação. O scanner de atendimento, os controles
+reais e as respectivas operações diretas ficam indisponíveis para evitar
+gravações acidentais. Perfis, movimentações, prêmios, estoques, sorteios e
+operações reais permanecem inalterados.
+
+Encerrar o modo marca a execução como `archived` e remove somente a referência
+ativa. As subcoleções são preservadas para auditoria e uma nova simulação parte
+de uma fotografia atualizada.
 
 ## Relacionamentos e IDs
 

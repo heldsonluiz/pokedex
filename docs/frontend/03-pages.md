@@ -22,6 +22,7 @@
 | `/badges`                     | listar conquistas       | obtidas, bloqueadas e critérios públicos            |
 | `/tickets`                    | gerenciar tickets       | saldo, XP conversível, conversão e histórico        |
 | `/operations`                 | operar o evento         | atendimento, bloqueios, brindes e sorteios          |
+| `/raffles/live`               | projetar os sorteios    | candidato, vencedor e andamento sem controles       |
 | `/talks`                      | mostrar agenda          | horários, palestrantes e status                     |
 | `/talks/[talkId]`             | detalhar palestra       | descrição, horário e avaliação identificada         |
 | `/qr/[eventId]/[type]/[qrId]` | tratar deep link de QR  | validação e redirecionamento seguro                 |
@@ -139,6 +140,50 @@ atendimento mostra custo, estoque, limite e disponibilidade de cada item, e
 exige confirmação antes da entrega. Somente `admin` pode bloquear ou liberar
 conversões e resgates. O QR temporário é validado novamente no servidor antes
 da operação; códigos expirados exigem uma nova leitura.
+
+O administrador também inicia o fechamento definitivo do evento pela mesma
+tela. A confirmação explica que conversões e resgates serão bloqueados. Durante
+o processamento, o cliente envia sequencialmente lotes de até 100 participantes
+e apresenta a quantidade já congelada. Não existe polling: uma nova requisição
+só começa quando a anterior termina. Falhas interrompem a sequência e oferecem
+uma ação de retomada a partir do último cursor confirmado.
+Quando o fechamento termina, a lista de prêmios é liberada. Cada sorteio exige
+nova confirmação e apresenta primeiro um candidato. O administrador confirma
+que a pessoa está presente ou informa a ausência para sortear novamente. Uma
+pessoa ausente é ignorada somente nas próximas tentativas daquele prêmio. Ao
+confirmar a presença, a interface exibe o vencedor registrado e o remove dos
+próximos sorteios. Reviewers não visualizam nem executam essas ações.
+
+Depois do último sorteio ativo, a tela permite liberar novamente o resgate dos
+tickets restantes e encerrá-lo mais tarde. Essa reabertura não libera novas
+conversões nem recalcula chances. Conforme a configuração do evento, o vencedor
+pode ter todo o seu saldo consumido no momento em que recebe o prêmio.
+
+Antes do fechamento real, o administrador pode iniciar um modo de teste. Um
+banner persistente diferencia a simulação da operação definitiva; o scanner,
+os bloqueios reais e o fechamento real ficam indisponíveis. A preparação
+isolada avança em lotes e, quando concluída, permite testar seleção ponderada,
+ausência, re-rolagem, confirmação, consumo configurável dos tickets e liberação
+de resgates. Encerrar a simulação restaura imediatamente a visualização real
+sem aplicar seus resultados.
+
+`/raffles/live` é uma apresentação widescreen autenticada e exclusiva para
+administradores. Ela não usa o shell móvel nem expõe controles, saldo,
+operações ou dados privados. A tela destaca o prêmio atual, o candidato
+aguardando presença, o vencedor confirmado, os próximos prêmios e o modo de
+simulação quando ativo.
+
+Ao iniciar uma seleção ou re-rolagem, a Central publica o estado transitório
+`raffle-drawing`. O telão substitui o conteúdo central por uma animação de
+carregamento até a ação terminar. Em caso de sucesso, atualiza os dados antes
+de revelar o candidato; em caso de erro, remove o carregamento sem apresentar
+um resultado inexistente.
+
+Quando a Central de operações e o telão estão em abas ou janelas do mesmo
+navegador, um `BroadcastChannel` solicita uma nova renderização somente após
+uma ação administrativa concluída. Não existe polling periódico. Em
+navegadores ou dispositivos diferentes, a atualização automática local não é
+compartilhada e a página deve ser recarregada manualmente.
 
 ## Composição
 

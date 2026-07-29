@@ -22,16 +22,16 @@ export function AppShell({
   return (
     <div
       className={cn(
-        "min-h-dvh bg-(image:--gradient-page-backdrop)",
+        "min-h-dvh w-full overflow-x-hidden bg-(image:--gradient-page-backdrop)",
         theme === "dark" && "dark",
         className
       )}
     >
-      <div className="mx-auto flex h-dvh w-full max-w-107.5 flex-col overflow-hidden bg-background text-foreground shadow-2xl">
+      <div className="mx-auto flex h-dvh w-full max-w-107.5 min-w-0 flex-col overflow-hidden bg-background text-foreground shadow-2xl">
         {header}
         <main
           className={cn(
-            "min-h-0 flex-1 overflow-y-auto overscroll-y-contain motion-safe:scroll-smooth",
+            "min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain motion-safe:scroll-smooth",
             contentClassName
           )}
         >
