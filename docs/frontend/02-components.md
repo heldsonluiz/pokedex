@@ -31,7 +31,6 @@ Componentes específicos de uma funcionalidade ficam no módulo correspondente. 
 | Passaporte | `PassportProgress`, `PassportStamp`           |
 | Ranking    | `RankingCard`, `CurrentRanking`               |
 | Sorteios   | `TicketCard`                                  |
-| Badges     | `BadgeCard`                                   |
 
 Esses nomes representam responsabilidades previstas, não obrigação de criar um arquivo antes de existir necessidade.
 

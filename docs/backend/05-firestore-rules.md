@@ -4,19 +4,18 @@ As regras seguem menor privilégio. O Firebase Admin ignora Firestore Rules, por
 
 ## Matriz de acesso do cliente
 
-| Recurso                                                       | Leitura                                         | Escrita                                   |
-| ------------------------------------------------------------- | ----------------------------------------------- | ----------------------------------------- |
-| `events`                                                      | dados públicos do evento ativo                  | servidor                                  |
-| `companies`, `tags`, `missions`, `talks`, `badges`, `rewards` | usuários autorizados conforme produto           | servidor                                  |
-| `tickets`                                                     | próprios tickets                                | servidor                                  |
-| `profiles`                                                    | próprio perfil e projeção pública permitida     | próprio usuário, somente campos editáveis |
-| `connections`                                                 | conexões do próprio participante                | servidor                                  |
-| `activityCompletions`                                         | próprias conclusões e carimbos                  | servidor                                  |
-| `participantBadges`                                           | próprias badges conquistadas                    | servidor                                  |
-| `rewardRedemptions`                                           | próprios resgates                               | servidor                                  |
-| `scans`                                                       | scans do próprio participante quando necessário | servidor                                  |
-| `talk-ratings`                                                | própria avaliação quando necessária             | servidor                                  |
-| ranking                                                       | projeção pública mínima de participantes        | servidor                                  |
+| Recurso                                             | Leitura                                         | Escrita                                   |
+| --------------------------------------------------- | ----------------------------------------------- | ----------------------------------------- |
+| `events`                                            | dados públicos do evento ativo                  | servidor                                  |
+| `companies`, `tags`, `missions`, `talks`, `rewards` | usuários autorizados conforme produto           | servidor                                  |
+| `tickets`                                           | próprios tickets                                | servidor                                  |
+| `profiles`                                          | próprio perfil e projeção pública permitida     | próprio usuário, somente campos editáveis |
+| `connections`                                       | conexões do próprio participante                | servidor                                  |
+| `activityCompletions`                               | próprias conclusões e carimbos                  | servidor                                  |
+| `rewardRedemptions`                                 | próprios resgates                               | servidor                                  |
+| `scans`                                             | scans do próprio participante quando necessário | servidor                                  |
+| `talk-ratings`                                      | própria avaliação quando necessária             | servidor                                  |
+| ranking                                             | projeção pública mínima de participantes        | servidor                                  |
 
 ## Perfil
 
@@ -40,7 +39,7 @@ As Rules devem comparar campos alterados e validar tipos/limites básicos. Regra
 
 ## Operações críticas
 
-Visitas, descobertas de tags, conclusões de missões, avaliações, scans, conexões, badges, ranking e tickets são persistidos somente pelo backend. `accessRoles` não é gravável pela edição de perfil e toda permissão é validada novamente no servidor. O painel administrativo pertence a outro projeto e acessa os dados por uma integração de servidor autorizada.
+Visitas, descobertas de tags, conclusões de missões, avaliações, scans, conexões, ranking e tickets são persistidos somente pelo backend. `accessRoles` não é gravável pela edição de perfil e toda permissão é validada novamente no servidor. O painel administrativo pertence a outro projeto e acessa os dados por uma integração de servidor autorizada.
 
 O ranking é carregado pelo servidor e expõe somente posição, nome, avatar, XP e
 nível derivado. E-mail, empresa, link, skills e papéis internos não fazem parte

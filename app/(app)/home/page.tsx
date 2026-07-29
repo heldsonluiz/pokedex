@@ -1,5 +1,4 @@
 import {
-  Award,
   BookOpen,
   Building2,
   ChevronRight,
@@ -54,12 +53,6 @@ const shortcuts = [
     label: "Passaporte",
     description: "Acompanhe sua jornada",
     icon: BookOpen,
-  },
-  {
-    href: "/badges",
-    label: "Badges",
-    description: "Veja suas conquistas",
-    icon: Award,
   },
   {
     href: "/tickets",

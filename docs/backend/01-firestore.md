@@ -10,8 +10,6 @@
 | `tags`                | itens escondidos           | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
 | `talks`               | palestras                  | `eventId`, título, palestrante, horários, sala e liberação da avaliação                  |
 | `missions`            | missões                    | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
-| `badges`              | definições de conquistas   | evento, conteúdo, imagem, visibilidade, critério, estado, ordem e timestamps             |
-| `participantBadges`   | badges conquistadas        | evento, participante, badge e data da conquista                                          |
 | `ticketTransactions`  | movimentações de tickets   | evento, participante, tipo, quantidade, XP convertido, operador, referência e timestamp  |
 | `eventOperations`     | controles operacionais     | evento, conversões, resgates, fechamento e responsável                                   |
 | `rewards`             | catálogo de brindes        | evento, conteúdo, custo, estoque, limites e estado                                       |
@@ -27,35 +25,6 @@
 | `talk-ratings`        | avaliações de palestras    | `eventId`, palestra, avaliador, respostas e timestamp                                    |
 
 Schemas completos devem existir no código e ser validados com Zod. Este documento registra o modelo conceitual, não substitui os contratos tipados.
-
-### Badges
-
-Cada documento de `badges` pertence a um evento e possui `name`,
-`description`, `imageUrl`, `visibility`, `criterion`, `active`, `order`,
-`createdAt` e `updatedAt`. A visibilidade pode ser `public` ou `secret`;
-conquistas secretas ocultam conteúdo e critério até serem obtidas.
-
-Os critérios aceitos são:
-
-- `activity`: exige uma empresa, tag ou missão específica;
-- `activityCount`: exige uma quantidade mínima de um tipo de atividade;
-- `allOf`: exige todos os critérios internos;
-- `anyOf`: exige pelo menos um dos critérios internos.
-
-Conexões não participam dos critérios porque podem ser removidas. A avaliação
-usa as conclusões permanentes de `activityCompletions`, não concede XP e também
-considera atividades anteriores à criação da badge.
-
-Cada conquista é registrada uma única vez em `participantBadges`. O ID é um
-hash determinístico de `eventId + participantId + badgeId`, tornando a
-concessão idempotente. Badges inativas deixam de gerar conquistas, mas
-conquistas já registradas continuam visíveis. A avaliação acontece após novas
-conclusões e novamente ao abrir a coleção, corrigindo eventuais falhas sem
-reverter a atividade principal. Após uma conclusão, a avaliação incremental
-considera apenas critérios afetados pela nova atividade, consulta conclusões
-específicas pelos IDs determinísticos e usa agregação `count()` para critérios
-de quantidade. A abertura da coleção mantém a avaliação completa para conceder
-retroativamente badges criadas depois da atividade.
 
 ### Perfil implementado
 
@@ -171,7 +140,7 @@ transação. Somente perfis com `participant` recebem a conclusão e os pontos.
 O passaporte não possui coleção própria. Ele combina as entidades ativas e as
 conclusões de `company`, `tag` e `mission` já armazenadas em
 `activityCompletions`. Essa projeção calcula totais, progresso, XP conquistado
-nessas atividades e conquistas recentes sem duplicar dados ou executar
+nessas atividades e conclusões recentes sem duplicar dados ou executar
 gravações.
 
 Somente perfis com `participant` recebem a projeção. Os valores de XP são
@@ -347,7 +316,7 @@ Use paginação em listas potencialmente grandes e selecione somente os dados ne
 
 ## Integridade e segurança
 
-- pontuação, badges, scans, conexões e tickets são escritos pelo servidor;
+- pontuação, scans, conexões e tickets são escritos pelo servidor;
 - criar uma conexão concede XP uma única vez; removê-la revoga a XP na mesma operação, sem apagar o histórico;
 - o onboarding e as movimentações de tickets usam chaves idempotentes e histórico auditável;
 - avaliações são liberadas após o encerramento configurado, concluem sua missão e são únicas por participante e palestra;

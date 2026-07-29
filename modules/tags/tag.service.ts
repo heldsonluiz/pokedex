@@ -4,7 +4,6 @@ import type { Session } from "next-auth"
 
 import { SCORES } from "@/config/scores"
 import { env } from "@/env"
-import { evaluateParticipantBadges } from "@/modules/badges/badge.service"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
 
 import {
@@ -114,11 +113,6 @@ export async function discoverTagForSession(
 
   switch (result.status) {
     case "discovered":
-      await evaluateParticipantBadges(target.eventId, profile.userId, {
-        type: "tag",
-        id: result.tag.id,
-      })
-
       return {
         success: true,
         code: "TAG_DISCOVERED",

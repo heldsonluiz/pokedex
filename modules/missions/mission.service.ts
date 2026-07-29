@@ -4,7 +4,6 @@ import type { Session } from "next-auth"
 
 import { SCORES } from "@/config/scores"
 import { env } from "@/env"
-import { evaluateParticipantBadges } from "@/modules/badges/badge.service"
 import { findActiveCompanies } from "@/modules/companies/company.repository"
 import { hasPermission } from "@/modules/profile/profile.authorization"
 import {
@@ -169,13 +168,6 @@ export async function completeQrMissionForSession(
     defaultXpAwarded: SCORES.MISSION_COMPLETION,
   })
 
-  if (result.status === "completed") {
-    await evaluateParticipantBadges(target.eventId, participant.userId, {
-      type: "mission",
-      id: result.mission.id,
-    })
-  }
-
   return mapCompletionResult(result)
 }
 
@@ -224,13 +216,6 @@ export async function reviewMissionForSession(
     validatedBy: reviewer.userId,
     defaultXpAwarded: SCORES.MISSION_COMPLETION,
   })
-
-  if (result.status === "completed") {
-    await evaluateParticipantBadges(target.eventId, participant.userId, {
-      type: "mission",
-      id: result.mission.id,
-    })
-  }
 
   const mapped = mapCompletionResult(result)
 
