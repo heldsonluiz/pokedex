@@ -163,6 +163,20 @@ export async function getParticipantServiceForSession(
     return null
   }
 
+  return getParticipantServiceForContext(
+    context,
+    participantQrId,
+    participantToken
+  )
+}
+
+export async function getParticipantServiceForContext(
+  context: NonNullable<
+    Awaited<ReturnType<typeof findParticipantServiceContext>>
+  >,
+  participantQrId: string,
+  participantToken: string
+) {
   await ensureOnboardingTicket(
     context.participant.eventId,
     context.participant.userId

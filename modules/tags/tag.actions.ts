@@ -35,9 +35,8 @@ export async function discoverTagAction(
     const result = await discoverTagForSession(session, input)
 
     if (result.success) {
-      revalidatePath("/home")
-      revalidatePath("/profile")
       revalidatePath("/tags")
+      revalidatePath("/passport")
     }
 
     return result

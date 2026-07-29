@@ -34,9 +34,7 @@ export async function visitCompanyAction(
     const result = await visitCompanyForSession(session, input)
 
     if (result.success) {
-      revalidatePath("/home")
       revalidatePath("/passport")
-      revalidatePath("/profile")
     }
 
     return result

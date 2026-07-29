@@ -147,10 +147,13 @@ export async function findActiveMissions(eventId: string): Promise<Mission[]> {
   }))
 }
 
-export async function findMissionCompletionsByParticipant(
+export async function findMissionProgressByParticipant(
   eventId: string,
   participantId: string
-): Promise<MissionCompletion[]> {
+): Promise<{
+  completions: MissionCompletion[]
+  activityKeys: Set<string>
+}> {
   const validatedEventId =
     completeQrMissionInputSchema.shape.eventId.parse(eventId)
   const validatedParticipantId =
@@ -160,42 +163,10 @@ export async function findMissionCompletionsByParticipant(
     .where("participantId", "==", validatedParticipantId)
     .get()
   const completions: MissionCompletion[] = []
+  const activityKeys = new Set<string>()
 
   for (const snapshot of snapshots.docs) {
     const value = snapshot.data()
-    const type = z
-      .object({ activityType: z.string() })
-      .parse(value).activityType
-
-    if (type !== "mission") {
-      continue
-    }
-
-    const completion = parseCompletion(snapshot.id, value)
-
-    if (completion.eventId === validatedEventId) {
-      completions.push(completion)
-    }
-  }
-
-  return completions
-}
-
-export async function findCompletedActivityKeys(
-  eventId: string,
-  participantId: string
-): Promise<Set<string>> {
-  const validatedEventId =
-    completeQrMissionInputSchema.shape.eventId.parse(eventId)
-  const validatedParticipantId =
-    profileScoreSchema.shape.userId.parse(participantId)
-  const snapshots = await firestore
-    .collection(COMPLETIONS_COLLECTION)
-    .where("participantId", "==", validatedParticipantId)
-    .get()
-  const keys = new Set<string>()
-
-  for (const snapshot of snapshots.docs) {
     const result = z
       .object({
         eventId: z.string(),
@@ -203,18 +174,24 @@ export async function findCompletedActivityKeys(
         activityType: z.string(),
         activityId: z.string(),
       })
-      .safeParse(snapshot.data())
+      .safeParse(value)
 
     if (
-      result.success &&
-      result.data.eventId === validatedEventId &&
-      result.data.participantId === validatedParticipantId
+      !result.success ||
+      result.data.eventId !== validatedEventId ||
+      result.data.participantId !== validatedParticipantId
     ) {
-      keys.add(`${result.data.activityType}:${result.data.activityId}`)
+      continue
+    }
+
+    activityKeys.add(`${result.data.activityType}:${result.data.activityId}`)
+
+    if (result.data.activityType === "mission") {
+      completions.push(parseCompletion(snapshot.id, value))
     }
   }
 
-  return keys
+  return { completions, activityKeys }
 }
 
 async function findMissionTarget({

@@ -34,6 +34,11 @@ Os prazos também limitam a defasagem de alterações feitas pelo painel
 administrativo externo. Administradores podem invalidar imediatamente os
 quatro catálogos pela Central de Operações após uma alteração no painel.
 
+As ações revalidam somente páginas que consomem os dados alterados. A listagem
+de missões deriva conclusões e pré-requisitos de uma única leitura de
+`activityCompletions`; o atendimento de brindes também reutiliza o mesmo
+contexto autorizado do operador e do participante durante toda a requisição.
+
 ### Perfil implementado
 
 O contrato inicial de `profiles` possui `userId`, `eventId`, `displayName`, `email`, `avatarUrl`, `bio`, `role`, `company`, `link`, `skills`, `qrId`, `onboardingCompleted`, `createdAt` e `updatedAt`. `qrId` é um UUID v4 público e estável, diferente do ID interno do documento. A criação usa uma transação em `profiles/{userId}`: se o documento já existir, nenhuma nova gravação é feita. O repositório valida documentos lidos com Zod e converte `Timestamp` para `Date` antes de devolvê-los ao domínio.

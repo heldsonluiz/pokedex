@@ -32,7 +32,6 @@ export async function convertXpAction(
 
     if (result.success) {
       revalidatePath("/tickets")
-      revalidatePath("/profile")
 
       return {
         success: true,

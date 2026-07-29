@@ -5,7 +5,7 @@ import type { Session } from "next-auth"
 import { findEventOperations } from "@/modules/tickets/ticket.repository"
 import {
   findParticipantServiceContext,
-  getParticipantServiceForSession,
+  getParticipantServiceForContext,
 } from "@/modules/tickets/ticket.service"
 
 import {
@@ -22,12 +22,23 @@ export async function getRewardsForParticipantService(
   participantQrId: string,
   participantToken: string
 ) {
-  const [ticketService, context] = await Promise.all([
-    getParticipantServiceForSession(session, participantQrId, participantToken),
-    findParticipantServiceContext(session, participantQrId, participantToken),
-  ])
+  const context = await findParticipantServiceContext(
+    session,
+    participantQrId,
+    participantToken
+  )
 
-  if (!ticketService || !context) {
+  if (!context) {
+    return null
+  }
+
+  const ticketService = await getParticipantServiceForContext(
+    context,
+    participantQrId,
+    participantToken
+  )
+
+  if (!ticketService) {
     return null
   }
 
