@@ -1,0 +1,2 @@
+export const TICKET_EXCHANGE_RATE_XP = 200
+export const ONBOARDING_TICKET_AMOUNT = 1

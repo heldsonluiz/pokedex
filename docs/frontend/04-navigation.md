@@ -12,6 +12,10 @@ O layout autenticado usa Bottom Navigation com destinos estáveis:
 
 Empresas, ranking, conexões, palestras, badges e tickets são acessados por atalhos e navegação contextual. Todos os itens principais exibem ícone e texto; o scanner usa um botão central elevado e destacado.
 
+Para participantes, a navegação inferior mantém o Passaporte. Contas
+`reviewer` e `admin` veem Operações no mesmo espaço; acessar `/passport` com
+esses papéis redireciona para `/operations`.
+
 O layout autenticado mantém os controles de navegação fora da área rolável. Home, Missões, Scanner, Passaporte e Perfil não exibem header; elas usam somente a navegação inferior, com o item atual identificado visualmente e por `aria-current`. Telas secundárias, como edição de perfil e exibição do QR Code, ocultam a navegação inferior e exibem header com retorno explícito para `/profile`.
 
 O scanner usa o tema dark; as demais rotas principais usam o tema light. Telas secundárias podem escolher o tema adequado ao próprio fluxo sem criar outro shell.

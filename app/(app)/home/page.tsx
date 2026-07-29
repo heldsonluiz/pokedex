@@ -7,6 +7,7 @@ import {
   ScanLine,
   Tags,
   Target,
+  Ticket,
   Trophy,
   UserRound,
 } from "lucide-react"
@@ -59,6 +60,12 @@ const shortcuts = [
     label: "Badges",
     description: "Veja suas conquistas",
     icon: Award,
+  },
+  {
+    href: "/tickets",
+    label: "Tickets",
+    description: "Converta seu XP",
+    icon: Ticket,
   },
   {
     href: "/profile",

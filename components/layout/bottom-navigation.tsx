@@ -2,6 +2,7 @@
 
 import {
   BookOpen,
+  ClipboardList,
   House,
   type LucideIcon,
   ScanLine,
@@ -12,6 +13,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { cn } from "@/lib/utils"
+import type { AccessRole } from "@/modules/profile/profile.schema"
 
 type NavigationItem = {
   href: string
@@ -32,8 +34,22 @@ function isItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
-export function BottomNavigation() {
+export function BottomNavigation({
+  accessRoles = ["participant"],
+}: Readonly<{ accessRoles?: AccessRole[] }>) {
   const pathname = usePathname()
+  const canOperate =
+    accessRoles.includes("reviewer") || accessRoles.includes("admin")
+  const visibleNavigationItems = navigationItems.map((item) =>
+    item.href === "/passport" && canOperate
+      ? {
+          ...item,
+          href: "/operations",
+          label: "Operações",
+          icon: ClipboardList,
+        }
+      : item
+  )
 
   return (
     <nav
@@ -41,37 +57,39 @@ export function BottomNavigation() {
       aria-label="Navegação principal"
     >
       <ul className="grid grid-cols-5 items-end">
-        {navigationItems.map(({ href, label, icon: Icon, isScanner }) => {
-          const isActive = isItemActive(pathname, href)
+        {visibleNavigationItems.map(
+          ({ href, label, icon: Icon, isScanner }) => {
+            const isActive = isItemActive(pathname, href)
 
-          return (
-            <li key={href}>
-              <Link
-                href={href}
-                aria-current={isActive ? "page" : undefined}
-                className={cn(
-                  "flex min-h-12 flex-col items-center justify-end gap-1 rounded-xl px-1 text-[10px] font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-                  isActive && "text-primary",
-                  isScanner && "relative -mt-7"
-                )}
-              >
-                <span
+            return (
+              <li key={href}>
+                <Link
+                  href={href}
+                  aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "flex size-7 items-center justify-center",
-                    isScanner &&
-                      "size-14 rounded-full bg-primary text-primary-foreground shadow-glow-primary ring-4 ring-background"
+                    "flex min-h-12 flex-col items-center justify-end gap-1 rounded-xl px-1 text-[10px] font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                    isActive && "text-primary",
+                    isScanner && "relative -mt-7"
                   )}
                 >
-                  <Icon
-                    className={cn("size-5", isScanner && "size-6")}
-                    aria-hidden="true"
-                  />
-                </span>
-                <span>{label}</span>
-              </Link>
-            </li>
-          )
-        })}
+                  <span
+                    className={cn(
+                      "flex size-7 items-center justify-center",
+                      isScanner &&
+                        "size-14 rounded-full bg-primary text-primary-foreground shadow-glow-primary ring-4 ring-background"
+                    )}
+                  >
+                    <Icon
+                      className={cn("size-5", isScanner && "size-6")}
+                      aria-hidden="true"
+                    />
+                  </span>
+                  <span>{label}</span>
+                </Link>
+              </li>
+            )
+          }
+        )}
       </ul>
     </nav>
   )
