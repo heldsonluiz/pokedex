@@ -3,6 +3,7 @@ import "server-only"
 import type { Session } from "next-auth"
 
 import { env } from "@/env"
+import { ensureOnboardingTicket } from "@/modules/tickets/ticket.repository"
 
 import {
   completeProfileByUserId,
@@ -127,6 +128,18 @@ export async function completeProfileForSession(
 
   if (!completedProfile?.onboardingCompleted) {
     throw new Error("Profile onboarding could not be completed")
+  }
+
+  try {
+    await ensureOnboardingTicket(
+      completedProfile.eventId,
+      completedProfile.userId
+    )
+  } catch (error) {
+    console.error("Failed to grant onboarding ticket", {
+      participantId: completedProfile.userId,
+      error,
+    })
   }
 
   return completedProfile

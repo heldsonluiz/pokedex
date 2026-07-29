@@ -20,4 +20,16 @@ describe("profile authorization", () => {
       false
     )
   })
+
+  it("separates participant service from operation management", () => {
+    expect(
+      hasPermission({ accessRoles: ["reviewer"] }, "serve-participants")
+    ).toBe(true)
+    expect(
+      hasPermission({ accessRoles: ["reviewer"] }, "manage-event-operations")
+    ).toBe(false)
+    expect(
+      hasPermission({ accessRoles: ["admin"] }, "manage-event-operations")
+    ).toBe(true)
+  })
 })

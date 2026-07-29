@@ -125,6 +125,8 @@ export const storedProfileFieldsSchema = z.object({
   link: httpUrlSchema.nullable().default(null),
   skills: storedSkillsSchema.default([]),
   accessRoles: accessRolesSchema.default(["participant"]),
+  ticketBalance: z.number().int().nonnegative().default(0),
+  convertedXp: z.number().int().nonnegative().default(0),
 })
 
 export type StoredProfileFields = z.infer<typeof storedProfileFieldsSchema>
