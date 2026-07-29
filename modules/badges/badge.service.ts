@@ -7,10 +7,12 @@ import { requireProfileForSession } from "@/modules/profile/profile.service"
 
 import {
   awardEligibleBadges,
+  awardEligibleBadgesAfterActivity,
   findBadges,
   findParticipantBadges,
 } from "./badge.repository"
 import type { BadgeCriterion } from "./badge.schema"
+import type { CompletedActivity } from "./badge-evaluator"
 
 export type BadgeCollectionItem =
   | Readonly<{
@@ -64,10 +66,13 @@ export function formatBadgeCriterion(criterion: BadgeCriterion): string {
 
 export async function evaluateParticipantBadges(
   eventId: string,
-  participantId: string
+  participantId: string,
+  activity?: CompletedActivity
 ) {
   try {
-    return await awardEligibleBadges(eventId, participantId)
+    return activity
+      ? await awardEligibleBadgesAfterActivity(eventId, participantId, activity)
+      : await awardEligibleBadges(eventId, participantId)
   } catch (error) {
     console.error("Failed to evaluate participant badges", {
       eventId,

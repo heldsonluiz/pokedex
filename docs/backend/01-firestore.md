@@ -51,7 +51,11 @@ hash determinístico de `eventId + participantId + badgeId`, tornando a
 concessão idempotente. Badges inativas deixam de gerar conquistas, mas
 conquistas já registradas continuam visíveis. A avaliação acontece após novas
 conclusões e novamente ao abrir a coleção, corrigindo eventuais falhas sem
-reverter a atividade principal.
+reverter a atividade principal. Após uma conclusão, a avaliação incremental
+considera apenas critérios afetados pela nova atividade, consulta conclusões
+específicas pelos IDs determinísticos e usa agregação `count()` para critérios
+de quantidade. A abertura da coleção mantém a avaliação completa para conceder
+retroativamente badges criadas depois da atividade.
 
 ### Perfil implementado
 

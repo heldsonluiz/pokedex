@@ -125,7 +125,10 @@ export async function visitCompanyForSession(
 
   switch (result.status) {
     case "visited":
-      await evaluateParticipantBadges(target.eventId, profile.userId)
+      await evaluateParticipantBadges(target.eventId, profile.userId, {
+        type: "company",
+        id: result.company.id,
+      })
 
       return {
         success: true,

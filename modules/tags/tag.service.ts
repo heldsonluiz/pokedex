@@ -114,7 +114,10 @@ export async function discoverTagForSession(
 
   switch (result.status) {
     case "discovered":
-      await evaluateParticipantBadges(target.eventId, profile.userId)
+      await evaluateParticipantBadges(target.eventId, profile.userId, {
+        type: "tag",
+        id: result.tag.id,
+      })
 
       return {
         success: true,
