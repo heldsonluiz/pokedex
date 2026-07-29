@@ -4,6 +4,7 @@ import type { Session } from "next-auth"
 
 import { SCORES } from "@/config/scores"
 import { env } from "@/env"
+import { hasPermission } from "@/modules/profile/profile.authorization"
 import {
   getProfileByPublicQrId,
   getProfileByUserId,
@@ -50,6 +51,10 @@ export async function createConnectionRequestForSession(
     return { success: false, code: "INVALID_EVENT" }
   }
 
+  if (!hasPermission(requester, "participate")) {
+    return { success: false, code: "FORBIDDEN" }
+  }
+
   const qrValidation = validateUserQrToken({
     token,
     eventId,
@@ -65,7 +70,10 @@ export async function createConnectionRequestForSession(
 
   const recipient = await getProfileByPublicQrId(requester.eventId, targetQrId)
 
-  if (!recipient?.onboardingCompleted) {
+  if (
+    !recipient?.onboardingCompleted ||
+    !hasPermission(recipient, "participate")
+  ) {
     return { success: false, code: "PROFILE_NOT_FOUND" }
   }
 

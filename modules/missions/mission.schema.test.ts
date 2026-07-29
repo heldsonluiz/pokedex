@@ -1,0 +1,49 @@
+import { describe, expect, it } from "vitest"
+
+import { missionFieldsSchema } from "./mission.schema"
+
+const baseMission = {
+  id: "mission-1",
+  eventId: "event-1",
+  title: "Complete o desafio",
+  description: "Apresente o resultado para a organização.",
+  imageUrl: null,
+  prerequisites: [],
+  active: true,
+  order: 1,
+  xpAwarded: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
+describe("mission schema", () => {
+  it("accepts a fixed QR mission", () => {
+    expect(
+      missionFieldsSchema.safeParse({
+        ...baseMission,
+        validationType: "qr",
+        qrId: "c35d5cf6-a3f4-4ae0-9e6f-0bad73cdded6",
+      }).success
+    ).toBe(true)
+  })
+
+  it("accepts a reviewer mission without its own QR code", () => {
+    expect(
+      missionFieldsSchema.safeParse({
+        ...baseMission,
+        validationType: "reviewer",
+        qrId: null,
+      }).success
+    ).toBe(true)
+  })
+
+  it("rejects inconsistent validation configuration", () => {
+    expect(
+      missionFieldsSchema.safeParse({
+        ...baseMission,
+        validationType: "reviewer",
+        qrId: "c35d5cf6-a3f4-4ae0-9e6f-0bad73cdded6",
+      }).success
+    ).toBe(false)
+  })
+})

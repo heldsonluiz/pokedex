@@ -10,7 +10,8 @@
 | `/companies`                  | listar patrocinadores   | categorias, busca e cards                           |
 | `/companies/[companyId]`      | detalhar empresa        | descrição, links e status de visita                 |
 | `/tags`                       | acompanhar descobertas  | progresso, slots bloqueados e tags reveladas        |
-| `/missions`                   | acompanhar missões      | filtros, progresso e estado                         |
+| `/missions`                   | missões ou revisão      | catálogo do participante ou seleção do reviewer     |
+| `/missions/review/{id}`       | validar missão          | scanner restrito ao QR temporário do participante   |
 | `/scan`                       | ler QR Code             | câmera, permissão, leitura e resultado              |
 | `/passport`                   | exibir progresso        | visitas, missões e selos                            |
 | `/ranking`                    | mostrar classificação   | posição atual, lista e nível                        |
@@ -49,9 +50,9 @@ leitura, antes da validação e da navegação. O valor lido passa pelo contrato
 central de QR Code. Códigos externos, inválidos, de outro evento ou sem suporte
 recebem mensagens específicas; falta de permissão, câmera ocupada, contexto sem
 HTTPS e ausência de conexão também possuem estados recuperáveis. Participantes
-criam conexões; empresas abrem seu deep link de visita; tags abrem seu fluxo de
-descoberta. Missões já são reconhecidas pelo contrato, mas informam que o
-destino ainda será habilitado.
+criam conexões; empresas, tags e missões automáticas abrem seus respectivos
+deep links. No modo de revisão, a câmera aceita somente o QR temporário de um
+participante.
 
 Ao reconhecer um QR Code válido de participante, o scanner chama a Server
 Action que repete a validação de evento, assinatura e expiração e cria a
@@ -82,10 +83,15 @@ para preservar o histórico e permitir uma futura reconexão. A página possui
 skeleton estrutural durante a consulta e erro recuperável para falhas de
 carregamento.
 
-`/missions` e `/passport` já participam da navegação autenticada, mas exibem
-estados informativos até que suas respectivas regras de negócio sejam
-implementadas. Esses estados tornam os destinos navegáveis sem simular dados ou
-comportamentos ainda inexistentes.
+`/missions` projeta a experiência conforme as permissões do perfil.
+Participantes veem disponibilidade, pré-requisitos, conclusão e XP.
+Reviewers/admins escolhem uma missão presencial e escaneiam o QR temporário do
+participante. Cards bloqueados, disponíveis e concluídos usam tratamentos
+visuais distintos; o estado disponível recebe somente borda, ícone e degradê
+discreto no verde neon `#8BFF3D`, sem preencher todo o card. Bloqueios apresentam
+nominalmente as visitas ou missões pendentes. Missões presenciais disponíveis oferecem um atalho para o QR do
+participante, preservando `/missions` como destino de retorno. `/passport`
+permanece informativo até sua fase correspondente.
 
 ## Composição
 

@@ -87,6 +87,12 @@ Action autenticada. A primeira descoberta registra uma conclusão permanente e
 concede o XP padrão ou sobrescrito; releituras não duplicam a recompensa. Nome,
 imagem e descrição são apresentados somente depois da validação do servidor.
 
+Missões automáticas abrem `/qr/{eventId}/mission/{qrId}`. O servidor confirma
+que a missão aceita QR, está ativa, teve seus pré-requisitos cumpridos e ainda
+não foi concluída. Missões presenciais não possuem QR próprio: um reviewer ou
+admin escolhe a missão e usa o scanner em modo de revisão para ler o QR
+temporário do participante.
+
 Uma leitura válida de participante feita pelo scanner cria a conexão
 automaticamente e concede 5 XP a cada participante. A operação é idempotente:
 reler uma conexão ativa não duplica a conexão nem a pontuação. Depois de uma

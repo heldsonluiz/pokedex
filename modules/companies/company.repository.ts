@@ -6,6 +6,7 @@ import { Timestamp } from "firebase-admin/firestore"
 import * as z from "zod"
 
 import { firestore } from "@/lib/firebase/admin"
+import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
 import {
   type Company,
@@ -44,6 +45,7 @@ const profileScoreSchema = z.object({
   userId: z.string().trim().min(1).max(128),
   eventId: z.string().trim().min(1).max(128),
   onboardingCompleted: z.boolean(),
+  accessRoles: accessRolesSchema.default(["participant"]),
   xp: z.number().int().nonnegative().default(0),
 })
 
@@ -269,7 +271,8 @@ export async function completeCompanyVisit({
     if (
       profile.userId !== validatedParticipantId ||
       profile.eventId !== target.eventId ||
-      !profile.onboardingCompleted
+      !profile.onboardingCompleted ||
+      !profile.accessRoles.includes("participant")
     ) {
       return { status: "profile-unavailable" }
     }

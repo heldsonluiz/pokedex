@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
+import { reviewMissionAction } from "@/modules/missions/mission.actions"
 import { connectFromScanAction } from "@/modules/networking/connection.actions"
 import { parseQrCodeUrl } from "@/modules/qr-code/qr-code.contract"
 
@@ -29,9 +30,14 @@ type ScannerStatus =
 type QrScannerProps = Readonly<{
   appUrl: string
   eventId: string
+  mode?: Readonly<{
+    type: "mission-review"
+    missionId: string
+    title: string
+  }>
 }>
 
-export function QrScanner({ appUrl, eventId }: QrScannerProps) {
+export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
   const router = useRouter()
   const videoRef = useRef<HTMLVideoElement>(null)
   const controlsRef = useRef<IScannerControls | null>(null)
@@ -95,8 +101,14 @@ export function QrScanner({ appUrl, eventId }: QrScannerProps) {
 
       if (
         parsedQrCode.target.type === "company" ||
-        parsedQrCode.target.type === "tag"
+        parsedQrCode.target.type === "tag" ||
+        parsedQrCode.target.type === "mission"
       ) {
+        if (mode) {
+          showFailure("target-unavailable")
+          return
+        }
+
         router.push(
           `/qr/${encodeURIComponent(parsedQrCode.target.eventId)}/${parsedQrCode.target.type}/${encodeURIComponent(parsedQrCode.target.qrId)}`
         )
@@ -105,6 +117,27 @@ export function QrScanner({ appUrl, eventId }: QrScannerProps) {
 
       if (parsedQrCode.target.type !== "user") {
         showFailure("target-unavailable")
+        return
+      }
+
+      if (mode?.type === "mission-review") {
+        const result = await reviewMissionAction({
+          eventId: parsedQrCode.target.eventId,
+          missionId: mode.missionId,
+          participantQrId: parsedQrCode.target.qrId,
+          token: parsedQrCode.target.token,
+        })
+        const query = new URLSearchParams({
+          reviewResult: result.code,
+        })
+
+        if (result.success) {
+          query.set("participant", result.participantName ?? "Participante")
+          query.set("mission", result.missionTitle)
+          query.set("xp", String(result.xpAwarded))
+        }
+
+        router.push(`/missions?${query.toString()}`)
         return
       }
 
@@ -118,7 +151,7 @@ export function QrScanner({ appUrl, eventId }: QrScannerProps) {
 
       router.push(`/connections?result=${encodeURIComponent(resultCode)}`)
     },
-    [appUrl, eventId, router, showFailure]
+    [appUrl, eventId, mode, router, showFailure]
   )
 
   const startScanner = useCallback(async () => {
@@ -252,7 +285,9 @@ export function QrScanner({ appUrl, eventId }: QrScannerProps) {
                 </span>
                 <div className="max-w-sm space-y-2">
                   <h1 className="text-xl font-semibold">
-                    Leia um QR Code do evento
+                    {mode
+                      ? "Leia o QR Code do participante"
+                      : "Leia um QR Code do evento"}
                   </h1>
                   <p className="text-sm leading-6 text-muted-foreground">
                     A câmera será usada somente enquanto esta tela estiver
@@ -326,7 +361,9 @@ export function QrScanner({ appUrl, eventId }: QrScannerProps) {
         >
           <p className="font-medium">Aponte para o QR Code</p>
           <p className="text-xs text-muted-foreground">
-            Mantenha o código dentro da área destacada.
+            {mode
+              ? `Validando: ${mode.title}`
+              : "Mantenha o código dentro da área destacada."}
           </p>
         </div>
       )}

@@ -114,6 +114,10 @@ scan → conexão automática → concessão de XP
 
 ### Missões e palestras
 
+- perfis possuem `accessRoles`; contas novas começam como `participant`;
+- `role` continua sendo o cargo público e nunca concede autorização;
+- `reviewer` e `admin` podem validar missões presenciais;
+- staff só recebe XP se também possuir explicitamente o papel `participant`;
 - missões podem ser validadas automaticamente por QR Code ou submetidas a revisores;
 - qualquer usuário com papel de reviewer pode validar uma missão que exija revisão;
 - missões podem exigir visitas ou outras conclusões como pré-requisitos;
