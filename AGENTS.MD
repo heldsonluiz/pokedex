@@ -125,6 +125,14 @@ scan → conexão automática → concessão de XP
 - enviar uma avaliação válida conclui sua missão e concede XP uma única vez;
 - avaliações são vinculadas ao perfil do avaliador.
 
+### Passaporte
+
+- o passaporte é uma projeção das conclusões de empresas, tags e missões;
+- não crie uma coleção duplicada de passaportes;
+- o XP exibido vem dos valores preservados em cada conclusão;
+- tags ainda não descobertas permanecem anônimas também no passaporte;
+- somente perfis com papel `participant` possuem jornada no passaporte.
+
 ## Decisões pendentes
 
 Consulte `docs/project-questionnaire.md`. Não invente regras marcadas como `A definir`, especialmente valores de XP, faixas dos níveis, tipos e critérios das missões, badges, sorteios, avaliações e métricas.
