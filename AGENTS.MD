@@ -105,9 +105,16 @@ scan → conexão automática → concessão de XP
 ### XP, ranking, badges e tickets
 
 - XP não é moeda e não pode ser gasto;
-- níveis usam faixas fixas;
+- níveis usam as dez faixas fixas de `config/levels.ts`;
+- o nível é calculado a partir do XP e não persistido separadamente;
+- número e título aparecem juntos, como `Nível 5 · Guardião dos Logs`;
 - o ranking é geral e ordenado por XP;
 - em empate, fica à frente quem atingiu primeiro a pontuação atual, usando `xpReachedAt`;
+- persistindo o empate, o ID do perfil define uma ordem determinística;
+- somente perfis concluídos com papel `participant` aparecem no ranking;
+- durante o MVP, o ranking ordena em memória os perfis do evento e usa cache
+  compartilhado de 60 segundos;
+- a consulta indexada e paginada fica registrada como melhoria pós-MVP;
 - badges são conquistas visuais e não concedem XP;
 - cada nível concede no máximo um ticket por participante;
 - tickets devem ser concedidos de forma idempotente.

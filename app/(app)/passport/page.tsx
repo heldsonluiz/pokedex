@@ -13,7 +13,6 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { requireAuth } from "@/lib/require-auth"
 import {
@@ -73,18 +72,16 @@ export default async function PassportPage({
   return (
     <div className="space-y-7 p-6">
       <section className="space-y-4">
-        <div className="space-y-2">
-          <Badge variant="secondary">
-            <BookOpen aria-hidden="true" />
-            Passaporte digital
-          </Badge>
-          <h1 className="text-2xl font-semibold">Sua jornada no evento</h1>
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight">
+            Sua jornada no evento
+          </h1>
           <p className="text-sm leading-6 text-muted-foreground">
             Reúna carimbos, encontre Tags e conclua missões.
           </p>
         </div>
 
-        <div className="rounded-2xl bg-primary p-5 text-primary-foreground shadow-lg">
+        <div className="rounded-2xl bg-(image:--gradient-primary-card) p-5 text-primary-foreground shadow-glow-primary">
           <div className="flex flex-wrap gap-3">
             <span className="text-sm font-medium">Progresso geral</span>
             <span className="ml-auto text-sm tabular-nums">

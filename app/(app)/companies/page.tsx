@@ -42,8 +42,10 @@ export default async function CompaniesPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <section className="space-y-2">
-        <h1 className="text-2xl font-semibold">Explore os estandes</h1>
+      <section className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight">
+          Explore os estandes
+        </h1>
         <p className="text-sm leading-6 text-muted-foreground">
           Visite as empresas, leia seus QR Codes e complete seu passaporte.
         </p>

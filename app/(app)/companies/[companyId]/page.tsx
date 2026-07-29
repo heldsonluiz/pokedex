@@ -44,8 +44,8 @@ export default async function CompanyDetailsPage({
           </AvatarFallback>
         </Avatar>
 
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">{company.name}</h1>
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight">{company.name}</h1>
           {visitedAt && (
             <Badge variant="secondary">
               <CheckCircle2 data-icon="inline-start" aria-hidden="true" />

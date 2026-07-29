@@ -6,6 +6,7 @@ import {
   ScanLine,
   Tags,
   Target,
+  Trophy,
   UserRound,
 } from "lucide-react"
 import type { Metadata } from "next"
@@ -39,6 +40,12 @@ const shortcuts = [
     label: "Missões",
     description: "Veja os desafios",
     icon: Target,
+  },
+  {
+    href: "/ranking",
+    label: "Ranking",
+    description: "Confira sua posição",
+    icon: Trophy,
   },
   {
     href: "/passport",
@@ -100,7 +107,7 @@ export default async function HomePage() {
         </Link>
       </section>
 
-      <section className="space-y-4 rounded-2xl bg-primary p-5 text-primary-foreground shadow-lg">
+      <section className="space-y-4 rounded-2xl bg-(image:--gradient-primary-card) p-5 text-primary-foreground shadow-glow-primary">
         <span className="flex size-11 items-center justify-center rounded-xl bg-primary-foreground/15">
           <ScanLine className="size-6" aria-hidden="true" />
         </span>

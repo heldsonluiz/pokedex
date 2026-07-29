@@ -2,20 +2,20 @@
 
 ## Coleções
 
-| Coleção               | Finalidade              | Campos essenciais                                                                                 |
-| --------------------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
-| `events`              | configuração do evento  | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                                  |
-| `profiles`            | participante            | `userId`, `eventId`, dados públicos, `qrId`, `level`, `xp`, `xpReachedAt`, onboarding, timestamps |
-| `companies`           | patrocinadores          | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                                 |
-| `tags`                | itens escondidos        | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                           |
-| `talks`               | palestras               | `eventId`, título, palestrante, horários, sala e liberação da avaliação                           |
-| `missions`            | missões                 | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem                      |
-| `badges`              | conquistas              | `eventId`, nome, descrição, ícone e visibilidade                                                  |
-| `tickets`             | entradas para sorteios  | `eventId`, `profileId`, nível de origem, sorteio e timestamp                                      |
-| `connections`         | networking              | `eventId`, perfis, status, criação, remoção e XP concedida                                        |
-| `activityCompletions` | progresso e carimbos    | evento, participante, tipo, entidade, QR, XP concedida e conclusão                                |
-| `scans`               | histórico de leituras   | `eventId`, perfil, tipo, alvo, QR e timestamp                                                     |
-| `talk-ratings`        | avaliações de palestras | `eventId`, palestra, avaliador, respostas e timestamp                                             |
+| Coleção               | Finalidade              | Campos essenciais                                                                        |
+| --------------------- | ----------------------- | ---------------------------------------------------------------------------------------- |
+| `events`              | configuração do evento  | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                         |
+| `profiles`            | participante            | `userId`, `eventId`, dados públicos, `qrId`, `xp`, `xpReachedAt`, onboarding, timestamps |
+| `companies`           | patrocinadores          | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                        |
+| `tags`                | itens escondidos        | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
+| `talks`               | palestras               | `eventId`, título, palestrante, horários, sala e liberação da avaliação                  |
+| `missions`            | missões                 | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
+| `badges`              | conquistas              | `eventId`, nome, descrição, ícone e visibilidade                                         |
+| `tickets`             | entradas para sorteios  | `eventId`, `profileId`, nível de origem, sorteio e timestamp                             |
+| `connections`         | networking              | `eventId`, perfis, status, criação, remoção e XP concedida                               |
+| `activityCompletions` | progresso e carimbos    | evento, participante, tipo, entidade, QR, XP concedida e conclusão                       |
+| `scans`               | histórico de leituras   | `eventId`, perfil, tipo, alvo, QR e timestamp                                            |
+| `talk-ratings`        | avaliações de palestras | `eventId`, palestra, avaliador, respostas e timestamp                                    |
 
 Schemas completos devem existir no código e ser validados com Zod. Este documento registra o modelo conceitual, não substitui os contratos tipados.
 
@@ -140,6 +140,31 @@ Somente perfis com `participant` recebem a projeção. Os valores de XP são
 obtidos das conclusões persistidas, preservando a recompensa efetivamente
 concedida. Tags bloqueadas continuam anônimas.
 
+### Níveis e ranking
+
+As dez faixas ficam centralizadas em `config/levels.ts`. O nível é derivado do
+XP atual e não é persistido no perfil. A interface sempre combina número e
+título, de `Nível 1 · Newbie` até `Nível 10 · Mestre do Endgame`. O último
+nível começa em 4.000 XP; valores superiores continuam válidos para diferenciar
+participantes no ranking.
+
+O ranking consulta somente perfis concluídos do evento com `accessRoles`
+contendo `participant`. A ordem usa `xp` decrescente, `xpReachedAt` crescente e
+ID do documento crescente. O ID resolve o caso raro de XP e timestamp
+idênticos.
+
+Durante o MVP, o servidor busca os perfis do evento, filtra os participantes e
+ordena o resultado em memória. A classificação completa usa cache compartilhado
+de 60 segundos; por isso, atualizações de XP podem levar até esse intervalo para
+aparecer. Essa solução temporária elimina a dependência imediata de um índice
+composto, mas seu custo cresce linearmente com o número de perfis.
+
+Participantes entre os três primeiros recebem a lista das dez primeiras
+posições. Os demais recebem o Top 3 e uma janela contextual com até três
+posições anteriores e três posteriores, sem repetir o pódio. Depois do MVP, o
+ranking deverá migrar para
+consulta indexada e paginada ou para uma projeção própria de leaderboard.
+
 ## Relacionamentos e IDs
 
 - documentos relacionados ao evento carregam `eventId`;
@@ -165,7 +190,7 @@ Modele consultas antes de criar índices. Casos previstos incluem:
 - empresas e missões ordenadas;
 - submissões pendentes por evento e revisor;
 - scans e conexões por perfil;
-- ranking por XP;
+- ranking por evento, papel de participante, XP e `xpReachedAt`;
 - avaliações por palestra e perfil;
 - busca de entidades por `eventId`, tipo e `qrId`.
 
