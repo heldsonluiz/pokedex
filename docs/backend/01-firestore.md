@@ -85,6 +85,12 @@ Ao criar a conexão, os dois participantes recebem os 5 XP definidos por
 transação. A remoção por qualquer participante subtrai de ambos exatamente o
 valor registrado na conexão, também atomicamente, sem apagar o histórico.
 
+Na criação ou reativação, os perfis já foram validados pelo serviço antes da
+transação. O repositório lê somente a conexão para garantir idempotência e usa
+`FieldValue.increment()` para creditar atomicamente os dois perfis sem reler
+seus saldos. A remoção continua lendo ambos os perfis antes do desconto para
+impedir XP negativo caso exista alguma inconsistência.
+
 ### Empresas e visitas
 
 Cada documento de `companies` possui `eventId`, um único `qrId` público,
