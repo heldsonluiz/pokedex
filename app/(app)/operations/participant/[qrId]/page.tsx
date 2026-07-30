@@ -63,14 +63,14 @@ export default async function ParticipantServicePage({
 
   return (
     <div className="space-y-6 p-6">
-      <section className="flex items-center gap-4">
-        <Avatar className="size-16">
-          <AvatarFallback>
+      <section className="flex items-center gap-4 overflow-hidden rounded-3xl bg-(image:--gradient-immersive) p-5 text-white shadow-lg shadow-primary/15">
+        <Avatar className="size-16 ring-2 ring-white/25">
+          <AvatarFallback className="bg-white/15 text-white">
             <UserRound className="size-7" aria-hidden="true" />
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <p className="text-sm text-muted-foreground">Participante</p>
+          <p className="text-sm text-white/70">Participante em atendimento</p>
           <h1 className="truncate text-xl font-bold tracking-tight">
             {participant.participantName}
           </h1>
@@ -90,7 +90,7 @@ export default async function ParticipantServicePage({
         />
       </section>
 
-      <section className="space-y-4 rounded-2xl bg-card p-5 ring-1 ring-foreground/10">
+      <section className="space-y-4 rounded-3xl bg-card p-5 ring-1 ring-foreground/10">
         <div>
           <h2 className="font-semibold">Converter XP</h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -129,14 +129,14 @@ export default async function ParticipantServicePage({
             Nenhum brinde está disponível.
           </p>
         ) : (
-          <div className="space-y-2">
+          <div className="divide-y divide-foreground/10 overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
             {participant.rewards.map((reward) => {
               const redemptionIdempotencyKey = randomUUID()
 
               return (
                 <article
                   key={reward.id}
-                  className="flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-foreground/10"
+                  className="flex items-center gap-3 p-3"
                 >
                   <Avatar className="size-14 rounded-xl">
                     <AvatarImage
@@ -205,8 +205,10 @@ function OperationMetric({
   value: number
 }>) {
   return (
-    <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
-      <Icon className="size-5 text-primary" aria-hidden="true" />
+    <div className="rounded-2xl bg-card p-4 ring-1 ring-foreground/10">
+      <span className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <Icon className="size-5" aria-hidden="true" />
+      </span>
       <p className="mt-3 font-pixel-square text-xl tabular-nums">{value}</p>
       <p className="mt-1 text-xs text-muted-foreground">{label}</p>
     </div>

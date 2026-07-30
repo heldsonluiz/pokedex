@@ -1,14 +1,22 @@
 import {
   Building2,
   ChevronRight,
+  ClipboardCheck,
+  ClipboardList,
+  Gift,
+  LockKeyhole,
   Mic2,
+  MonitorUp,
+  QrCode,
   ScanLine,
+  ShieldCheck,
   Sparkles,
   Stamp,
   Tags,
   Target,
   Ticket,
   Trophy,
+  UnlockKeyhole,
   UsersRound,
 } from "lucide-react"
 import type { Metadata } from "next"
@@ -27,7 +35,10 @@ import {
 } from "@/modules/home/home-progress"
 import { findOrInitializeParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
 import { ParticipantSummaryCard } from "@/modules/participant-summary/participant-summary-card"
+import { hasPermission } from "@/modules/profile/profile.authorization"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
+import type { Profile } from "@/modules/profile/profile.types"
+import { findEventOperations } from "@/modules/tickets/ticket.repository"
 
 export const metadata: Metadata = {
   title: "Início",
@@ -54,6 +65,13 @@ const explorationItems = [
     icon: Ticket,
     className:
       "bg-[#FF3DF2]/15 text-[#9B0091] shadow-[0_0_18px_color-mix(in_oklab,#FF3DF2_20%,transparent)] dark:text-[#FF78F5]",
+  },
+  {
+    href: "/profile/qr-code?source=home",
+    label: "Meu QR Code",
+    icon: QrCode,
+    className:
+      "bg-[#8CFF52]/15 text-[#357A12] shadow-[0_0_18px_color-mix(in_oklab,#8CFF52_20%,transparent)] dark:text-[#8CFF52]",
   },
 ] as const
 
@@ -89,6 +107,15 @@ function calculateLevelProgress(xp: number) {
 export default async function HomePage() {
   const session = await requireAuth()
   const profile = await requireProfileForSession(session)
+
+  if (!hasPermission(profile, "participate")) {
+    const operations = hasPermission(profile, "serve-participants")
+      ? await findEventOperations(profile.eventId)
+      : null
+
+    return <OrganizationHome profile={profile} operations={operations} />
+  }
+
   const [summary, catalogTotals] = await Promise.all([
     findOrInitializeParticipantSummary(profile.eventId, profile.userId),
     getHomeCatalogTotals(profile.eventId),
@@ -195,7 +222,7 @@ export default async function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {explorationItems.map(({ href, label, icon: Icon, className }) => (
             <Link
               key={href}
@@ -215,6 +242,229 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+    </div>
+  )
+}
+
+function OrganizationHome({
+  profile,
+  operations,
+}: Readonly<{
+  profile: Profile
+  operations: Awaited<ReturnType<typeof findEventOperations>> | null
+}>) {
+  const canServeParticipants = hasPermission(profile, "serve-participants")
+  const canReviewMissions = hasPermission(profile, "review-missions")
+  const canManage = hasPermission(profile, "manage-event-operations")
+  const roleLabel = canManage ? "Administrador" : "Equipe do evento"
+
+  const shortcuts = [
+    ...(canReviewMissions
+      ? [
+          {
+            href: "/missions",
+            label: "Validar missões",
+            description: "Escolha uma missão e leia o QR do participante",
+            icon: ClipboardCheck,
+          },
+        ]
+      : []),
+    ...(canServeParticipants
+      ? [
+          {
+            href: "/operations",
+            label: "Central de operações",
+            description: "Acompanhe conversões, resgates e atendimentos",
+            icon: ClipboardList,
+          },
+        ]
+      : []),
+    ...(canManage
+      ? [
+          {
+            href: "/operations/talks",
+            label: "Avaliações de palestras",
+            description: "Libere, bloqueie ou encerre avaliações",
+            icon: Mic2,
+          },
+          {
+            href: "/raffles/live",
+            label: "Telão do sorteio",
+            description: "Abra a visualização pública em outra tela",
+            icon: MonitorUp,
+          },
+        ]
+      : []),
+  ]
+
+  return (
+    <div className="space-y-6 px-6 py-6">
+      <section className="flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground">
+            Organização do DevFest
+          </p>
+          <h1 className="truncate text-2xl font-bold">
+            Olá, {getFirstName(profile.displayName)}!
+          </h1>
+        </div>
+
+        <Link
+          href="/profile"
+          className="shrink-0 rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+          aria-label="Abrir meu perfil"
+        >
+          <Avatar className="size-12">
+            {profile.avatarUrl && (
+              <AvatarImage
+                src={profile.avatarUrl}
+                alt={`Foto de ${profile.displayName}`}
+              />
+            )}
+            <AvatarFallback>{getInitials(profile.displayName)}</AvatarFallback>
+          </Avatar>
+        </Link>
+      </section>
+
+      <section className="overflow-hidden rounded-3xl bg-(image:--gradient-immersive) p-5 text-white shadow-lg shadow-primary/15">
+        <div className="flex items-start gap-4">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/20">
+            <ShieldCheck className="size-6" aria-hidden="true" />
+          </span>
+          <div>
+            <p className="text-xs font-medium text-white/65">Acesso ativo</p>
+            <h2 className="mt-1 text-xl font-bold">{roleLabel}</h2>
+            <p className="mt-1 text-sm leading-5 text-white/70">
+              Acesse rapidamente as atividades necessárias para operar o evento.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {canServeParticipants && (
+        <Link
+          href="/operations/scan"
+          className="group flex items-center gap-4 rounded-3xl bg-card p-4 ring-1 ring-foreground/10 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        >
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-glow-primary">
+            <ScanLine className="size-6" aria-hidden="true" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold">Atender participante</span>
+            <span className="mt-0.5 block text-sm text-muted-foreground">
+              Leia um QR Code para iniciar o atendimento
+            </span>
+          </span>
+          <ChevronRight
+            className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+            aria-hidden="true"
+          />
+        </Link>
+      )}
+
+      {operations && (
+        <section className="space-y-3" aria-labelledby="services-status-title">
+          <div>
+            <h2 id="services-status-title" className="text-lg font-semibold">
+              Estado dos serviços
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Situação atual das operações com participantes.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <ServiceStatus
+              icon={Ticket}
+              label="Conversões"
+              enabled={operations.ticketConversionEnabled}
+            />
+            <ServiceStatus
+              icon={Gift}
+              label="Resgates"
+              enabled={operations.rewardRedemptionEnabled}
+            />
+          </div>
+        </section>
+      )}
+
+      {shortcuts.length > 0 && (
+        <section className="space-y-3" aria-labelledby="staff-shortcuts-title">
+          <div>
+            <h2 id="staff-shortcuts-title" className="text-lg font-semibold">
+              Atalhos operacionais
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Ferramentas disponíveis para o seu acesso.
+            </p>
+          </div>
+          <div className="divide-y divide-foreground/10 overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
+            {shortcuts.map(
+              ({ href, label, description, icon: ShortcutIcon }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  target={href === "/raffles/live" ? "_blank" : undefined}
+                  rel={href === "/raffles/live" ? "noreferrer" : undefined}
+                  className="group flex items-center gap-3 p-4 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset"
+                >
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <ShortcutIcon className="size-5" aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-semibold">{label}</span>
+                    <span className="mt-0.5 block text-sm text-muted-foreground">
+                      {description}
+                    </span>
+                  </span>
+                  <ChevronRight
+                    className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+                    aria-hidden="true"
+                  />
+                </Link>
+              )
+            )}
+          </div>
+        </section>
+      )}
+    </div>
+  )
+}
+
+function ServiceStatus({
+  icon: Icon,
+  label,
+  enabled,
+}: Readonly<{
+  icon: typeof Ticket
+  label: string
+  enabled: boolean
+}>) {
+  return (
+    <div className="rounded-2xl bg-card p-4 ring-1 ring-foreground/10">
+      <span
+        className={cn(
+          "flex size-9 items-center justify-center rounded-xl",
+          enabled
+            ? "bg-success/15 text-success"
+            : "bg-muted text-muted-foreground"
+        )}
+      >
+        <Icon className="size-5" aria-hidden="true" />
+      </span>
+      <p className="mt-3 text-sm font-semibold">{label}</p>
+      <p
+        className={cn(
+          "mt-1 flex items-center gap-1.5 text-xs",
+          enabled ? "text-success" : "text-muted-foreground"
+        )}
+      >
+        {enabled ? (
+          <UnlockKeyhole className="size-3.5" aria-hidden="true" />
+        ) : (
+          <LockKeyhole className="size-3.5" aria-hidden="true" />
+        )}
+        {enabled ? "Liberadas" : "Bloqueadas"}
+      </p>
     </div>
   )
 }

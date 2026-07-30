@@ -84,7 +84,7 @@ export default async function OperationsPage() {
     displayedRaffles.every((raffle) => raffle.status === "drawn")
 
   return (
-    <div className="space-y-7 p-6">
+    <div className="space-y-6 p-6">
       <section className="space-y-1">
         <Badge variant="secondary">
           <ShieldCheck aria-hidden="true" />
@@ -99,7 +99,7 @@ export default async function OperationsPage() {
       </section>
 
       {simulation && (
-        <div className="space-y-3 rounded-2xl border border-secondary/50 bg-secondary/10 p-4">
+        <div className="space-y-3 rounded-3xl border border-secondary/50 bg-secondary/10 p-4">
           <div className="flex items-start gap-3">
             <FlaskConical
               className="mt-0.5 size-5 shrink-0 text-secondary-foreground"
@@ -121,52 +121,89 @@ export default async function OperationsPage() {
       {!simulation && (
         <Link
           href="/operations/scan"
-          className={cn(buttonVariants({ size: "lg" }), "w-full")}
+          className="group flex items-center gap-4 overflow-hidden rounded-3xl bg-(image:--gradient-immersive) p-5 text-white shadow-lg shadow-primary/15 transition-transform focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none active:scale-[0.99]"
         >
-          <ScanLine aria-hidden="true" />
-          Escanear participante
+          <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/20">
+            <ScanLine className="size-7" aria-hidden="true" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-lg font-bold">
+              Atender participante
+            </span>
+            <span className="mt-0.5 block text-sm text-white/75">
+              Escaneie o QR Code para converter XP ou resgatar brindes
+            </span>
+          </span>
+          <ChevronRight
+            className="size-6 shrink-0 transition-transform group-hover:translate-x-0.5"
+            aria-hidden="true"
+          />
         </Link>
       )}
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Serviços</h2>
-        <div className="flex items-center gap-3 rounded-2xl bg-card p-4 ring-1 ring-foreground/10">
-          <span
-            className={cn(
-              "flex size-11 items-center justify-center rounded-xl",
-              operations.ticketConversionEnabled
-                ? "bg-success/10 text-success"
-                : "bg-muted text-muted-foreground"
-            )}
-          >
-            <Ticket className="size-6" aria-hidden="true" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold">Conversão de XP</p>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              {operations.ticketConversionEnabled
-                ? "Conversões liberadas"
-                : "Conversões bloqueadas"}
-            </p>
-          </div>
+        <div className="divide-y divide-foreground/10 overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
+          <div className="flex items-center gap-3 p-4">
+            <span
+              className={cn(
+                "flex size-11 items-center justify-center rounded-xl",
+                operations.ticketConversionEnabled
+                  ? "bg-success/10 text-success"
+                  : "bg-muted text-muted-foreground"
+              )}
+            >
+              <Ticket className="size-6" aria-hidden="true" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold">Conversão de XP</p>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                {operations.ticketConversionEnabled
+                  ? "Conversões liberadas"
+                  : "Conversões bloqueadas"}
+              </p>
+            </div>
 
-          {operations.canManage && operationsAreOpen && !simulation && (
-            <form action={toggleTicketConversionAction}>
-              <input
-                type="hidden"
-                name="enabled"
-                value={String(!operations.ticketConversionEnabled)}
-              />
+            {operations.canManage && operationsAreOpen && !simulation && (
+              <form action={toggleTicketConversionAction}>
+                <input
+                  type="hidden"
+                  name="enabled"
+                  value={String(!operations.ticketConversionEnabled)}
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  variant={
+                    operations.ticketConversionEnabled
+                      ? "destructive"
+                      : "outline"
+                  }
+                  aria-label={
+                    operations.ticketConversionEnabled
+                      ? "Bloquear conversões"
+                      : "Liberar conversões"
+                  }
+                >
+                  {operations.ticketConversionEnabled ? (
+                    <LockKeyhole aria-hidden="true" />
+                  ) : (
+                    <UnlockKeyhole aria-hidden="true" />
+                  )}
+                </Button>
+              </form>
+            )}
+            {operations.canManage && serviceControlsDisabledReason && (
               <Button
-                type="submit"
+                type="button"
                 size="icon"
-                variant={
-                  operations.ticketConversionEnabled ? "destructive" : "outline"
-                }
+                variant="outline"
+                disabled
+                title={serviceControlsDisabledReason}
                 aria-label={
                   operations.ticketConversionEnabled
-                    ? "Bloquear conversões"
-                    : "Liberar conversões"
+                    ? "Bloqueio de conversões indisponível"
+                    : "Liberação de conversões indisponível"
                 }
               >
                 {operations.ticketConversionEnabled ? (
@@ -175,67 +212,69 @@ export default async function OperationsPage() {
                   <UnlockKeyhole aria-hidden="true" />
                 )}
               </Button>
-            </form>
-          )}
-          {operations.canManage && serviceControlsDisabledReason && (
-            <Button
-              type="button"
-              size="icon"
-              variant="outline"
-              disabled
-              title={serviceControlsDisabledReason}
-              aria-label={
-                operations.ticketConversionEnabled
-                  ? "Bloqueio de conversões indisponível"
-                  : "Liberação de conversões indisponível"
-              }
-            >
-              {operations.ticketConversionEnabled ? (
-                <LockKeyhole aria-hidden="true" />
-              ) : (
-                <UnlockKeyhole aria-hidden="true" />
-              )}
-            </Button>
-          )}
-        </div>
-
-        <div className="flex items-center gap-3 rounded-2xl bg-card p-4 ring-1 ring-foreground/10">
-          <span
-            className={cn(
-              "flex size-11 items-center justify-center rounded-xl",
-              operations.rewardRedemptionEnabled
-                ? "bg-success/10 text-success"
-                : "bg-muted text-muted-foreground"
             )}
-          >
-            <Gift className="size-6" aria-hidden="true" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold">Resgate de brindes</p>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              {operations.rewardRedemptionEnabled
-                ? "Resgates liberados"
-                : "Resgates bloqueados"}
-            </p>
           </div>
 
-          {operations.canManage && operationsAreOpen && !simulation && (
-            <form action={toggleRewardRedemptionAction}>
-              <input
-                type="hidden"
-                name="enabled"
-                value={String(!operations.rewardRedemptionEnabled)}
-              />
+          <div className="flex items-center gap-3 p-4">
+            <span
+              className={cn(
+                "flex size-11 items-center justify-center rounded-xl",
+                operations.rewardRedemptionEnabled
+                  ? "bg-success/10 text-success"
+                  : "bg-muted text-muted-foreground"
+              )}
+            >
+              <Gift className="size-6" aria-hidden="true" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold">Resgate de brindes</p>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                {operations.rewardRedemptionEnabled
+                  ? "Resgates liberados"
+                  : "Resgates bloqueados"}
+              </p>
+            </div>
+
+            {operations.canManage && operationsAreOpen && !simulation && (
+              <form action={toggleRewardRedemptionAction}>
+                <input
+                  type="hidden"
+                  name="enabled"
+                  value={String(!operations.rewardRedemptionEnabled)}
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  variant={
+                    operations.rewardRedemptionEnabled
+                      ? "destructive"
+                      : "outline"
+                  }
+                  aria-label={
+                    operations.rewardRedemptionEnabled
+                      ? "Bloquear resgates"
+                      : "Liberar resgates"
+                  }
+                >
+                  {operations.rewardRedemptionEnabled ? (
+                    <LockKeyhole aria-hidden="true" />
+                  ) : (
+                    <UnlockKeyhole aria-hidden="true" />
+                  )}
+                </Button>
+              </form>
+            )}
+            {operations.canManage && serviceControlsDisabledReason && (
               <Button
-                type="submit"
+                type="button"
                 size="icon"
-                variant={
-                  operations.rewardRedemptionEnabled ? "destructive" : "outline"
-                }
+                variant="outline"
+                disabled
+                title={serviceControlsDisabledReason}
                 aria-label={
                   operations.rewardRedemptionEnabled
-                    ? "Bloquear resgates"
-                    : "Liberar resgates"
+                    ? "Bloqueio de resgates indisponível"
+                    : "Liberação de resgates indisponível"
                 }
               >
                 {operations.rewardRedemptionEnabled ? (
@@ -244,28 +283,8 @@ export default async function OperationsPage() {
                   <UnlockKeyhole aria-hidden="true" />
                 )}
               </Button>
-            </form>
-          )}
-          {operations.canManage && serviceControlsDisabledReason && (
-            <Button
-              type="button"
-              size="icon"
-              variant="outline"
-              disabled
-              title={serviceControlsDisabledReason}
-              aria-label={
-                operations.rewardRedemptionEnabled
-                  ? "Bloqueio de resgates indisponível"
-                  : "Liberação de resgates indisponível"
-              }
-            >
-              {operations.rewardRedemptionEnabled ? (
-                <LockKeyhole aria-hidden="true" />
-              ) : (
-                <UnlockKeyhole aria-hidden="true" />
-              )}
-            </Button>
-          )}
+            )}
+          </div>
         </div>
 
         {operations.canManage && serviceControlsDisabledReason && (
@@ -320,7 +339,7 @@ export default async function OperationsPage() {
             </Link>
           </div>
 
-          <div className="space-y-4 rounded-2xl bg-card p-4 ring-1 ring-foreground/10">
+          <div className="space-y-4 rounded-3xl bg-card p-4 ring-1 ring-foreground/10">
             <div className="flex items-start gap-3">
               <span
                 className={cn(
