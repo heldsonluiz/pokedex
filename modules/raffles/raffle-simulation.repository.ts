@@ -3,8 +3,10 @@ import "server-only"
 import { createHash, randomInt, randomUUID } from "node:crypto"
 
 import { Timestamp } from "firebase-admin/firestore"
+import { revalidateTag, unstable_cache } from "next/cache"
 import * as z from "zod"
 
+import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
 import {
   CONSUME_RAFFLE_WINNER_TICKETS,
   RAFFLE_PREPARATION_BATCH_SIZE,
@@ -371,6 +373,10 @@ export async function processRaffleSimulationBatch(
   })
   await batch.commit()
 
+  if (reachedEnd) {
+    revalidateTag(CACHE_TAGS.RAFFLE_SNAPSHOTS, { expire: 0 })
+  }
+
   return {
     status: reachedEnd ? ("ready" as const) : ("preparing" as const),
     processedParticipants,
@@ -389,25 +395,43 @@ export async function findSimulationRaffles(runId: string) {
     .sort((first, second) => first.order - second.order)
 }
 
-async function findSimulationEntries(runId: string) {
-  const runRef = simulationRef(runId)
-  const [chunkSnapshots, winnerSnapshots] = await Promise.all([
-    runRef.collection("entryChunks").get(),
-    runRef.collection("winners").get(),
-  ])
-  const winnerIds = new Set(winnerSnapshots.docs.map((snapshot) => snapshot.id))
+async function loadSimulationSnapshotEntries(runId: string) {
+  const chunkSnapshots = await simulationRef(runId)
+    .collection("entryChunks")
+    .get()
 
   return chunkSnapshots.docs
     .flatMap(
       (snapshot) => parseEntryChunk(snapshot.id, snapshot.data()).participants
     )
-    .filter(
-      (entry) => !winnerIds.has(entry.participantId) && entry.ticketWeight > 0
-    )
+    .filter((entry) => entry.ticketWeight > 0)
+}
+
+const findCachedSimulationSnapshotEntries = unstable_cache(
+  loadSimulationSnapshotEntries,
+  ["raffle-simulation-entry-snapshots"],
+  {
+    revalidate: CACHE_SECONDS.RAFFLE_SNAPSHOT,
+    tags: [CACHE_TAGS.RAFFLE_SNAPSHOTS],
+  }
+)
+
+async function findSimulationEntries(runId: string) {
+  const runRef = simulationRef(runId)
+  const [entries, winnerSnapshots] = await Promise.all([
+    findCachedSimulationSnapshotEntries(runId),
+    runRef.collection("winners").get(),
+  ])
+  const winnerIds = new Set(winnerSnapshots.docs.map((snapshot) => snapshot.id))
+
+  return entries.filter((entry) => !winnerIds.has(entry.participantId))
 }
 
 async function findSimulationAttempts(runId: string, raffleId: string) {
-  const snapshots = await simulationRef(runId).collection("attempts").get()
+  const snapshots = await simulationRef(runId)
+    .collection("attempts")
+    .where("raffleId", "==", raffleId)
+    .get()
 
   return snapshots.docs
     .map((snapshot) => parseAttempt(snapshot.id, snapshot.data()))

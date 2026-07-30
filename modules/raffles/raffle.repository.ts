@@ -3,8 +3,10 @@ import "server-only"
 import { createHash, randomInt, randomUUID } from "node:crypto"
 
 import { Timestamp } from "firebase-admin/firestore"
+import { revalidateTag, unstable_cache } from "next/cache"
 import * as z from "zod"
 
+import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
 import {
   CONSUME_RAFFLE_WINNER_TICKETS,
   RAFFLE_PREPARATION_BATCH_SIZE,
@@ -421,6 +423,10 @@ export async function processRaffleClosureBatch(
   })
   await writeBatch.commit()
 
+  if (reachedEnd) {
+    revalidateTag(CACHE_TAGS.RAFFLE_SNAPSHOTS, { expire: 0 })
+  }
+
   return {
     status: reachedEnd ? ("closed" as const) : ("processing" as const),
     processedParticipants,
@@ -441,12 +447,31 @@ export async function findRaffles(eventId: string) {
     .sort((first, second) => first.order - second.order)
 }
 
+async function loadSnapshotEntries(eventId: string) {
+  const chunkSnapshots = await firestore
+    .collection(ENTRY_CHUNKS_COLLECTION)
+    .where("eventId", "==", eventId)
+    .get()
+
+  return chunkSnapshots.docs
+    .flatMap(
+      (snapshot) => parseEntryChunk(snapshot.id, snapshot.data()).participants
+    )
+    .filter((entry) => entry.ticketWeight > 0)
+}
+
+const findCachedSnapshotEntries = unstable_cache(
+  loadSnapshotEntries,
+  ["raffle-entry-snapshots"],
+  {
+    revalidate: CACHE_SECONDS.RAFFLE_SNAPSHOT,
+    tags: [CACHE_TAGS.RAFFLE_SNAPSHOTS],
+  }
+)
+
 async function findEligibleEntries(eventId: string) {
-  const [chunkSnapshots, winnerSnapshots] = await Promise.all([
-    firestore
-      .collection(ENTRY_CHUNKS_COLLECTION)
-      .where("eventId", "==", eventId)
-      .get(),
+  const [entries, winnerSnapshots] = await Promise.all([
+    findCachedSnapshotEntries(eventId),
     firestore
       .collection(WINNERS_COLLECTION)
       .where("eventId", "==", eventId)
@@ -458,13 +483,7 @@ async function findEligibleEntries(eventId: string) {
     )
   )
 
-  return chunkSnapshots.docs
-    .flatMap(
-      (snapshot) => parseEntryChunk(snapshot.id, snapshot.data()).participants
-    )
-    .filter(
-      (entry) => !winnerIds.has(entry.participantId) && entry.ticketWeight > 0
-    )
+  return entries.filter((entry) => !winnerIds.has(entry.participantId))
 }
 
 async function findRaffleAttempts(raffleId: string) {

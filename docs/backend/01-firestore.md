@@ -378,10 +378,17 @@ entrar na fotografia. Como `onboardingTicketGranted` é sempre booleano, a
 preparação calcula a concessão inicial diretamente do perfil e não consulta
 `ticketTransactions` para reconstruir estado legado.
 
-Cada sorteio lê apenas os cerca de 20 blocos gerados para 2.000 participantes,
-mais os poucos vencedores e tentativas existentes. Os cálculos ponderados
-acontecem em memória dentro daquela requisição; somente tentativas e resultados
-são mutáveis.
+A fotografia dos participantes é imutável depois da preparação e permanece em
+cache compartilhado por até 24 horas. A conclusão do fechamento ou da
+preparação de uma simulação invalida o cache antes do primeiro sorteio. Assim,
+os cerca de 20 blocos de uma fotografia com 2.000 participantes são lidos na
+primeira seleção e reutilizados nas seguintes.
+
+Vencedores e tentativas permanecem fora do cache porque mudam durante
+confirmações e re-rolagens. Cada seleção combina a fotografia em cache com
+esses registros atuais. Na simulação, a consulta de tentativas filtra
+`raffleId` no Firestore, em vez de carregar tentativas de todos os prêmios. Os
+cálculos ponderados acontecem em memória e não geram gravações adicionais.
 
 Enquanto a referência estiver ativa, as ações administrativas de sorteio,
 re-rolagem, confirmação, consumo de saldo e liberação de resgates são
@@ -393,6 +400,17 @@ operações reais permanecem inalterados.
 Encerrar o modo marca a execução como `archived` e remove somente a referência
 ativa. As subcoleções são preservadas para auditoria e uma nova simulação parte
 de uma fotografia atualizada.
+
+Simulações arquivadas permanecem armazenadas até o encerramento operacional do
+evento. Elas não entram nas consultas normais: a aplicação resolve somente o
+UUID ativo em `eventOperations`, portanto o histórico não aumenta o custo de
+leitura dos sorteios seguintes.
+
+A limpeza acontece somente depois do evento e deve usar exclusão recursiva do
+documento de `raffleTestRuns`, incluindo `entryChunks`, `raffles`, `winners`,
+`attempts` e `skippedProfiles`. Excluir apenas o documento pai ou configurar
+TTL nele deixaria subcoleções órfãs. A limpeza deve registrar evento, execução,
+data e responsável e não faz parte de uma ação automática do MVP.
 
 ## Relacionamentos e IDs
 
