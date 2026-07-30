@@ -2,6 +2,7 @@
 
 import { type LucideIcon, Monitor, Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
+import { useSyncExternalStore } from "react"
 
 import { Button } from "@/components/ui/button"
 
@@ -15,8 +16,16 @@ const themeOptions = [
   icon: LucideIcon
 }>
 
+const subscribeToClientMount = () => () => {}
+
 export function ThemeSelector() {
   const { theme = "system", setTheme } = useTheme()
+  const isMounted = useSyncExternalStore(
+    subscribeToClientMount,
+    () => true,
+    () => false
+  )
+  const selectedTheme = isMounted ? theme : "system"
 
   return (
     <div
@@ -25,7 +34,7 @@ export function ThemeSelector() {
       aria-label="Tema da aplicação"
     >
       {themeOptions.map(({ value, label, icon: Icon }) => {
-        const isSelected = theme === value
+        const isSelected = selectedTheme === value
 
         return (
           <Button
