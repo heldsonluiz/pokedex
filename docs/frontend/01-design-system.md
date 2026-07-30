@@ -164,6 +164,12 @@ altura, espaçamento e hierarquia tipográfica consistentes. O texto deve explic
 se o próximo passo depende do participante ou da organização; vazios internos
 de cards e coleções permanecem compactos.
 
+Entidades e endereços inexistentes usam `NotFoundState`. Dentro da área
+autenticada, o estado preserva o shell e retorna à Home; uma URL global
+desconhecida oferece retorno ao fluxo de acesso. A ilustração compartilhada do
+mascote é decorativa, possui fundo transparente e não repete a mensagem para
+tecnologias assistivas.
+
 ## Checklist
 
 - [ ] Usa tokens semânticos.

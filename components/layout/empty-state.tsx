@@ -9,6 +9,7 @@ type EmptyStateProps = Readonly<{
   className?: string
   action?: ReactNode
   headingLevel?: "h1" | "h2"
+  mediaClassName?: string
 }>
 
 export function EmptyState({
@@ -18,6 +19,7 @@ export function EmptyState({
   className,
   action,
   headingLevel: Heading = "h1",
+  mediaClassName,
 }: EmptyStateProps) {
   return (
     <section
@@ -26,7 +28,12 @@ export function EmptyState({
         className
       )}
     >
-      <span className="rounded-full bg-primary/10 p-4 text-primary">
+      <span
+        className={cn(
+          "rounded-full bg-primary/10 p-4 text-primary",
+          mediaClassName
+        )}
+      >
         {icon}
       </span>
       <div className="max-w-sm space-y-2">
