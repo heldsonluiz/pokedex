@@ -9,6 +9,7 @@ import {
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { EmptyState } from "@/components/layout/empty-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { requireAuth } from "@/lib/require-auth"
@@ -42,17 +43,11 @@ export default async function TalksPage() {
 
   if (talks.length === 0) {
     return (
-      <section className="flex min-h-full flex-col items-center justify-center gap-4 p-6 text-center">
-        <span className="rounded-full bg-primary/10 p-4 text-primary">
-          <Mic2 className="size-8" aria-hidden="true" />
-        </span>
-        <div className="max-w-sm space-y-2">
-          <h1 className="text-xl font-semibold">Nenhuma palestra disponível</h1>
-          <p className="text-sm leading-6 text-muted-foreground">
-            As palestras do evento aparecerão aqui quando forem publicadas.
-          </p>
-        </div>
-      </section>
+      <EmptyState
+        icon={<Mic2 className="size-8" aria-hidden="true" />}
+        title="Nenhuma palestra disponível"
+        description="As palestras do evento aparecerão aqui quando forem publicadas."
+      />
     )
   }
 

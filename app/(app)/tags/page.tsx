@@ -1,6 +1,7 @@
 import { LockKeyhole, Tags } from "lucide-react"
 import type { Metadata } from "next"
 
+import { EmptyState } from "@/components/layout/empty-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Progress, ProgressLabel } from "@/components/ui/progress"
 import { requireAuth } from "@/lib/require-auth"
@@ -21,17 +22,11 @@ export default async function TagsPage() {
 
   if (collection.totalCount === 0) {
     return (
-      <section className="flex min-h-full flex-col items-center justify-center gap-4 p-6 text-center">
-        <span className="rounded-full bg-primary/10 p-4 text-primary">
-          <Tags className="size-8" aria-hidden="true" />
-        </span>
-        <div className="max-w-sm space-y-2">
-          <h1 className="text-xl font-semibold">Nenhuma tag disponível</h1>
-          <p className="text-sm leading-6 text-muted-foreground">
-            As tags escondidas aparecerão aqui quando a busca começar.
-          </p>
-        </div>
-      </section>
+      <EmptyState
+        icon={<Tags className="size-8" aria-hidden="true" />}
+        title="Nenhuma tag disponível"
+        description="As tags escondidas aparecerão aqui quando a busca começar."
+      />
     )
   }
 

@@ -9,6 +9,7 @@ import {
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
+import { EmptyState } from "@/components/layout/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
@@ -49,17 +50,13 @@ export default async function TalkOperationsPage() {
       </section>
 
       {orderedTalks.length === 0 ? (
-        <section className="flex min-h-72 flex-col items-center justify-center gap-3 text-center">
-          <span className="rounded-full bg-primary/10 p-4 text-primary">
-            <Mic2 className="size-8" aria-hidden="true" />
-          </span>
-          <div className="space-y-1">
-            <h2 className="font-semibold">Nenhuma palestra ativa</h2>
-            <p className="text-sm text-muted-foreground">
-              As palestras aparecerão aqui quando forem cadastradas.
-            </p>
-          </div>
-        </section>
+        <EmptyState
+          className="min-h-72 py-6"
+          icon={<Mic2 className="size-8" aria-hidden="true" />}
+          title="Nenhuma palestra ativa"
+          description="As palestras aparecerão aqui quando forem cadastradas."
+          headingLevel="h2"
+        />
       ) : (
         <section className="space-y-3" aria-label="Palestras para administrar">
           {orderedTalks.map((talk) => (

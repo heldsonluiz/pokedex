@@ -2,6 +2,7 @@ import { Building2, CheckCircle2, ChevronRight } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { EmptyState } from "@/components/layout/empty-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { requireAuth } from "@/lib/require-auth"
@@ -22,17 +23,11 @@ export default async function CompaniesPage() {
 
   if (companies.length === 0) {
     return (
-      <section className="flex min-h-full flex-col items-center justify-center gap-4 p-6 text-center">
-        <span className="rounded-full bg-primary/10 p-4 text-primary">
-          <Building2 className="size-8" aria-hidden="true" />
-        </span>
-        <div className="max-w-sm space-y-2">
-          <h1 className="text-xl font-semibold">Nenhuma empresa disponível</h1>
-          <p className="text-sm leading-6 text-muted-foreground">
-            As empresas participantes aparecerão aqui quando estiverem ativas.
-          </p>
-        </div>
-      </section>
+      <EmptyState
+        icon={<Building2 className="size-8" aria-hidden="true" />}
+        title="Nenhuma empresa disponível"
+        description="As empresas participantes aparecerão aqui quando estiverem ativas."
+      />
     )
   }
 

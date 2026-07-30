@@ -159,6 +159,11 @@ Erros de carregamento de rota usam o estado compartilhado
 novamente. A região usa `role="alert"` para que a falha também seja comunicada
 por tecnologias assistivas.
 
+Ausências de conteúdo que ocupam a região principal usam `EmptyState`, mantendo
+altura, espaçamento e hierarquia tipográfica consistentes. O texto deve explicar
+se o próximo passo depende do participante ou da organização; vazios internos
+de cards e coleções permanecem compactos.
+
 ## Checklist
 
 - [ ] Usa tokens semânticos.

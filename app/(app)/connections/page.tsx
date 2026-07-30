@@ -1,6 +1,7 @@
 import { UserRoundSearch } from "lucide-react"
 import type { Metadata } from "next"
 
+import { EmptyState } from "@/components/layout/empty-state"
 import { requireAuth } from "@/lib/require-auth"
 import { listConnectionsForSession } from "@/modules/networking/connection.service"
 import { ConnectionCard } from "@/modules/networking/connection-card"
@@ -23,18 +24,12 @@ export default async function ConnectionsPage({
     return (
       <div className="flex min-h-full flex-col gap-6 p-6">
         <ScanResultFeedback result={result} />
-        <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-          <span className="rounded-full bg-primary/10 p-4 text-primary">
-            <UserRoundSearch className="size-8" aria-hidden="true" />
-          </span>
-          <div className="max-w-sm space-y-2">
-            <h2 className="text-xl font-semibold">Nenhuma conexão ainda</h2>
-            <p className="text-sm text-muted-foreground">
-              Leia o QR Code de outro participante para criar sua primeira
-              conexão.
-            </p>
-          </div>
-        </div>
+        <EmptyState
+          className="min-h-0 flex-1 p-0"
+          icon={<UserRoundSearch className="size-8" aria-hidden="true" />}
+          title="Nenhuma conexão ainda"
+          description="Leia o QR Code de outro participante para criar sua primeira conexão."
+        />
       </div>
     )
   }

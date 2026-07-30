@@ -10,6 +10,7 @@ import {
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { EmptyState } from "@/components/layout/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -72,17 +73,11 @@ export default async function MissionsPage({
 
   if (missions.length === 0) {
     return (
-      <section className="flex min-h-full flex-col items-center justify-center gap-4 p-6 text-center">
-        <span className="rounded-full bg-primary/10 p-4 text-primary">
-          <Target className="size-8" aria-hidden="true" />
-        </span>
-        <div className="max-w-sm space-y-2">
-          <h1 className="text-xl font-semibold">Nenhuma missão disponível</h1>
-          <p className="text-sm text-muted-foreground">
-            As missões aparecerão aqui quando forem liberadas.
-          </p>
-        </div>
-      </section>
+      <EmptyState
+        icon={<Target className="size-8" aria-hidden="true" />}
+        title="Nenhuma missão disponível"
+        description="As missões aparecerão aqui quando forem liberadas."
+      />
     )
   }
 
