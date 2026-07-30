@@ -1,6 +1,7 @@
 "use client"
 
-import { LoaderCircle, UserMinus } from "lucide-react"
+import { ChevronRight, LoaderCircle, UserMinus } from "lucide-react"
+import Link from "next/link"
 import { useActionState } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -47,33 +48,44 @@ export function ConnectionCard({
   return (
     <article className="px-4 py-3">
       <div className="flex min-h-14 items-center gap-3">
-        <Avatar className="size-11">
-          {participant.avatarUrl && (
-            <AvatarImage
-              src={participant.avatarUrl}
-              alt={`Foto de ${participant.displayName}`}
-            />
-          )}
-          <AvatarFallback>
-            {getInitials(participant.displayName)}
-          </AvatarFallback>
-        </Avatar>
+        <Link
+          href={`/connections/${encodeURIComponent(connection.id)}`}
+          className="flex min-w-0 flex-1 items-center gap-3 rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          aria-label={`Abrir perfil de ${participant.displayName}`}
+        >
+          <Avatar className="size-11">
+            {participant.avatarUrl && (
+              <AvatarImage
+                src={participant.avatarUrl}
+                alt={`Foto de ${participant.displayName}`}
+              />
+            )}
+            <AvatarFallback>
+              {getInitials(participant.displayName)}
+            </AvatarFallback>
+          </Avatar>
 
-        <div className="min-w-0 flex-1">
-          <h3 className="truncate text-sm font-semibold">
-            {participant.displayName}
-          </h3>
-          <p className="truncate text-xs text-muted-foreground">
-            {[participant.role, participant.company]
-              .filter(Boolean)
-              .join(" · ") || "Participante"}
-          </p>
-          {participant.email && (
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">
-              {participant.email}
-            </p>
-          )}
-        </div>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-semibold">
+              {participant.displayName}
+            </span>
+            <span className="block truncate text-xs text-muted-foreground">
+              {[participant.role, participant.company]
+                .filter(Boolean)
+                .join(" · ") || "Participante"}
+            </span>
+            {participant.email && (
+              <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                {participant.email}
+              </span>
+            )}
+          </span>
+
+          <ChevronRight
+            className="size-5 shrink-0 text-muted-foreground"
+            aria-hidden="true"
+          />
+        </Link>
 
         <ConnectionRemovalDialog
           connectionId={connection.id}

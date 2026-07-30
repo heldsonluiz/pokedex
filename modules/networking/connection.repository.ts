@@ -314,3 +314,16 @@ export async function findConnectionsByParticipant(
       (first, second) => second.updatedAt.getTime() - first.updatedAt.getTime()
     )
 }
+
+export async function findConnectionById(
+  connectionId: string
+): Promise<Connection | null> {
+  const snapshot = await firestore
+    .collection(CONNECTIONS_COLLECTION)
+    .doc(connectionId)
+    .get()
+
+  return snapshot.exists
+    ? parseConnectionDocument(snapshot.id, snapshot.data())
+    : null
+}
