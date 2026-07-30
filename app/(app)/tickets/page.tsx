@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 
-import { Clock3, Ticket, Zap } from "lucide-react"
+import { Clock3, Sparkles, Ticket, Zap } from "lucide-react"
 import type { Metadata } from "next"
 
 import { TICKET_EXCHANGE_RATE_XP } from "@/config/tickets"
@@ -41,28 +41,19 @@ export default async function TicketsPage() {
   const conversionIdempotencyKey = randomUUID()
 
   return (
-    <div className="space-y-7 p-6">
-      <section className="space-y-4">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight">Seus tickets</h1>
-          <p className="text-sm leading-6 text-muted-foreground">
-            Converta XP disponível em chances para brindes e sorteios.
-          </p>
-        </div>
-
-        <div className="rounded-2xl bg-(image:--gradient-gamification) p-5 text-gamification-foreground shadow-glow-gamification">
-          <p className="text-sm font-medium opacity-75">Saldo disponível</p>
-          <div className="mt-2 flex items-end justify-between gap-4">
-            <p className="font-pixel-square text-4xl tabular-nums">
-              {tickets.ticketBalance}
-            </p>
-            <Ticket className="size-10" aria-hidden="true" />
-          </div>
-          <p className="mt-1 text-sm font-medium">
-            {tickets.ticketBalance === 1 ? "ticket" : "tickets"}
-          </p>
-        </div>
+    <div className="space-y-6 p-6">
+      <section className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight">Seus tickets</h1>
+        <p className="text-sm leading-6 text-muted-foreground">
+          Converta XP disponível em chances para brindes e sorteios.
+        </p>
       </section>
+
+      <TicketBalanceOverview
+        balance={tickets.ticketBalance}
+        convertibleXp={tickets.convertibleXp}
+        convertibleTickets={tickets.convertibleTickets}
+      />
 
       <section className="space-y-4 rounded-2xl bg-card p-5 ring-1 ring-foreground/10">
         <div>
@@ -71,14 +62,6 @@ export default async function TicketsPage() {
             Cada {TICKET_EXCHANGE_RATE_XP} XP disponíveis equivalem a um ticket.
             Seu nível e sua posição no ranking não diminuem.
           </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <TicketMetric label="XP conversível" value={tickets.convertibleXp} />
-          <TicketMetric
-            label="Tickets possíveis"
-            value={tickets.convertibleTickets}
-          />
         </div>
 
         {!tickets.conversionEnabled ? (
@@ -101,11 +84,11 @@ export default async function TicketsPage() {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Histórico</h2>
-        <div className="space-y-2">
+        <div className="divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
           {tickets.transactions.map((transaction) => (
             <div
               key={transaction.id}
-              className="flex items-center gap-3 rounded-xl bg-card p-3 ring-1 ring-foreground/10"
+              className="flex min-h-16 items-center gap-3 px-4 py-3"
             >
               <span className="flex size-10 items-center justify-center rounded-lg bg-gamification/10 text-gamification">
                 {transaction.type === "xp_conversion" ? (
@@ -131,7 +114,13 @@ export default async function TicketsPage() {
                   {dateFormatter.format(transaction.createdAt)}
                 </p>
               </div>
-              <span className="font-pixel-square text-sm text-gamification">
+              <span
+                className={`font-pixel-square text-sm tabular-nums ${
+                  transaction.ticketDelta > 0
+                    ? "text-gamification"
+                    : "text-muted-foreground"
+                }`}
+              >
                 {transaction.ticketDelta > 0 ? "+" : ""}
                 {transaction.ticketDelta}
               </span>
@@ -143,16 +132,55 @@ export default async function TicketsPage() {
   )
 }
 
-function TicketMetric({
-  label,
-  value,
-}: Readonly<{ label: string; value: number }>) {
+function TicketBalanceOverview({
+  balance,
+  convertibleXp,
+  convertibleTickets,
+}: Readonly<{
+  balance: number
+  convertibleXp: number
+  convertibleTickets: number
+}>) {
   return (
-    <div className="rounded-xl bg-muted p-3">
-      <p className="font-pixel-square text-xl text-gamification tabular-nums">
-        {value.toLocaleString("pt-BR")}
-      </p>
-      <p className="mt-1 text-xs text-muted-foreground">{label}</p>
-    </div>
+    <section className="overflow-hidden rounded-3xl bg-(image:--gradient-gamification) p-5 text-gamification-foreground shadow-glow-gamification">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-medium opacity-75">Saldo disponível</p>
+          <p className="mt-2 font-pixel-square text-4xl tabular-nums">
+            {balance}
+          </p>
+          <p className="mt-1 text-sm font-medium">
+            {balance === 1 ? "ticket" : "tickets"}
+          </p>
+        </div>
+        <span className="flex size-14 items-center justify-center rounded-2xl bg-black/10">
+          <Ticket className="size-8" aria-hidden="true" />
+        </span>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 divide-x divide-black/10 rounded-2xl bg-black/10">
+        <div className="p-3">
+          <p className="flex items-center gap-1 text-xs font-medium opacity-75">
+            <Zap className="size-3.5" aria-hidden="true" />
+            XP conversível
+          </p>
+          <p className="mt-1 font-pixel-square text-lg tabular-nums">
+            {convertibleXp.toLocaleString("pt-BR")}
+          </p>
+        </div>
+        <div className="p-3">
+          <p className="flex items-center gap-1 text-xs font-medium opacity-75">
+            <Sparkles className="size-3.5" aria-hidden="true" />
+            Pode gerar
+          </p>
+          <p className="mt-1 font-pixel-square text-lg tabular-nums">
+            {convertibleTickets}{" "}
+            <span className="font-sans text-xs font-medium">
+              {convertibleTickets === 1 ? "ticket" : "tickets"}
+            </span>
+          </p>
+        </div>
+      </div>
+    </section>
   )
 }
