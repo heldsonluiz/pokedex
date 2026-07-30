@@ -141,6 +141,18 @@ header contextual não cria um segundo `h1`; o título principal pertence ao
 conteúdo da página. Erros urgentes usam `role="alert"` e confirmações usam
 `role="status"`.
 
+## Temas
+
+A aplicação oferece as preferências `Sistema`, `Claro` e `Escuro`. A escolha é
+controlada pelo `ThemeProvider`, armazenada localmente pelo `next-themes` e não
+gera gravações no Firestore. `Sistema` é o padrão e acompanha a preferência do
+dispositivo.
+
+O seletor fica no Perfil porque a preferência pertence ao dispositivo, não ao
+evento. Fluxos imersivos, como autenticação, onboarding, scanner e QR Code,
+podem manter o tema escuro localmente mesmo quando a preferência global for
+clara.
+
 ## Movimento e feedback
 
 - animações devem ser curtas e comunicar mudança de estado;

@@ -45,6 +45,10 @@ retorno levar novamente ao início; acessos sem essa origem retornam ao Perfil.
 A página possui skeleton estrutural e erro recuperável para suas leituras. A
 ação de logout fica em `/profile`, junto às demais ações de conta.
 
+O Perfil também oferece as preferências de aparência `Sistema`, `Claro` e
+`Escuro`. A escolha é persistida somente no navegador e vale para as rotas que
+seguem o tema global; experiências imersivas podem continuar escuras.
+
 A Home também oferece acesso ao catálogo de empresas. `/companies` lista
 somente empresas ativas do evento atual, ordenadas pelo nome, e mostra quantas
 já foram visitadas. Cada card informa o estado do carimbo e abre

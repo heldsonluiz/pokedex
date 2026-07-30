@@ -1,8 +1,9 @@
-import { ExternalLink, Pencil, QrCode, UsersRound } from "lucide-react"
+import { ExternalLink, Palette, Pencil, QrCode, UsersRound } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 
 import { SignOutButton } from "@/components/auth/sign-out-button"
+import { ThemeSelector } from "@/components/theme/theme-selector"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
@@ -97,6 +98,21 @@ export default async function ProfilePage() {
               Adicione habilidades para facilitar novas conexões.
             </p>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Palette className="size-5 text-primary" aria-hidden="true" />
+            Aparência
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm leading-6 text-muted-foreground">
+            Escolha como o aplicativo deve aparecer neste dispositivo.
+          </p>
+          <ThemeSelector />
         </CardContent>
       </Card>
 

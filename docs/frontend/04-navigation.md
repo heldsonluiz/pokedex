@@ -18,7 +18,9 @@ esses papéis redireciona para `/operations`.
 
 O layout autenticado mantém os controles de navegação fora da área rolável. Home, Missões, Scanner, Passaporte e Perfil não exibem header; elas usam somente a navegação inferior, com o item atual identificado visualmente e por `aria-current`. Telas secundárias, como edição de perfil e exibição do QR Code, ocultam a navegação inferior e exibem header com retorno explícito para `/profile`.
 
-O scanner usa o tema dark; as demais rotas principais usam o tema light. Telas secundárias podem escolher o tema adequado ao próprio fluxo sem criar outro shell.
+O scanner usa o tema dark; as demais rotas principais seguem a preferência
+global `Sistema`, `Claro` ou `Escuro`, selecionada no Perfil. Telas secundárias
+podem escolher um tema imersivo adequado ao próprio fluxo sem criar outro shell.
 
 ## Acesso às rotas
 
