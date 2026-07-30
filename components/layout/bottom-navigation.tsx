@@ -67,7 +67,7 @@ export function BottomNavigation({
                   href={href}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "flex min-h-12 flex-col items-center justify-end gap-1 rounded-xl px-1 text-[10px] font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                    "flex min-h-12 flex-col items-center justify-end gap-1 rounded-xl px-1 text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
                     isActive && "text-primary",
                     isScanner && "relative -mt-7"
                   )}

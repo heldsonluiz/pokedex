@@ -293,7 +293,10 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
         )}
 
         {status !== "scanning" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 bg-background/95 px-6 text-center">
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center gap-5 bg-background/95 px-6 text-center"
+            aria-live="polite"
+          >
             {status === "idle" && (
               <>
                 <span className="rounded-full bg-secondary/15 p-4 text-secondary">

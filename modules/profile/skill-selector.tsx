@@ -66,13 +66,13 @@ export function SkillSelector({
           return (
             <Badge
               variant="secondary"
-              className="h-8 gap-1.5 border border-primary bg-transparent px-3 py-1 pr-1 pl-3 text-sm text-foreground"
+              className="h-10 gap-1.5 border border-primary bg-transparent px-3 py-1 pr-1 pl-3 text-sm text-foreground"
               key={slug}
             >
               {skill.name}
               <button
                 type="button"
-                className="inline-flex size-6 items-center justify-center rounded-full hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                className="inline-flex size-8 touch-manipulation items-center justify-center rounded-full hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 aria-label={`Remover ${skill.name}`}
                 disabled={disabled}
                 onClick={() => removeSkill(slug)}
@@ -98,6 +98,7 @@ export function SkillSelector({
               : "Pesquise por nome ou alias"
           }
           role="combobox"
+          aria-label="Pesquisar habilidades"
           aria-autocomplete="list"
           aria-controls={listboxId}
           aria-expanded={shouldShowResults}
@@ -128,7 +129,7 @@ export function SkillSelector({
                   type="button"
                   role="option"
                   aria-selected="false"
-                  className="flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+                  className="flex min-h-11 w-full touch-manipulation items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
                   key={skill.slug}
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => selectSkill(skill.slug)}

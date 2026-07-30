@@ -113,12 +113,18 @@ Escala de altura para controles:
 
 | Tamanho   | Altura | Uso                                |
 | --------- | ------ | ---------------------------------- |
-| `xs`      | 32px   | ações compactas e auxiliares       |
-| `sm`      | 36px   | controles secundários              |
-| `default` | 40px   | botões, inputs e selects padrão    |
-| `lg`      | 44px   | ações principais de maior destaque |
+| `xs`      | 36px   | ações compactas e auxiliares       |
+| `sm`      | 40px   | controles secundários com texto    |
+| `default` | 44px   | botões, inputs e selects padrão    |
+| `lg`      | 48px   | ações principais de maior destaque |
 
 Variantes de ícone seguem as mesmas dimensões. Controles `xs` e `sm` devem ser usados apenas quando a área clicável ou o contexto preserve usabilidade adequada.
+
+Como a aplicação é majoritariamente móvel, ações principais e controles
+somente com ícone usam pelo menos 44px. Diálogos limitam sua altura ao viewport
+dinâmico e permitem rolagem interna com texto ampliado. Mudanças assíncronas
+relevantes, como scanner e progresso do onboarding, são anunciadas por regiões
+ao vivo sem expor ícones decorativos.
 
 Todos os componentes interativos devem oferecer:
 
