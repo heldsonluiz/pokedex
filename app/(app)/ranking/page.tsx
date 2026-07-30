@@ -1,4 +1,4 @@
-import { Crown, Medal, Trophy, UserRound } from "lucide-react"
+import { Trophy, UserRound } from "lucide-react"
 import type { Metadata } from "next"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -47,7 +47,7 @@ export default async function RankingPage() {
 
       <CurrentParticipantCard entry={ranking.current} />
 
-      <RankingSection
+      <TopRankingSection
         title={ranking.nearby.length === 0 ? "Top 10" : "Top 3"}
         entries={ranking.top}
       />
@@ -125,6 +125,36 @@ function CurrentParticipantCard({
   )
 }
 
+function TopRankingSection({
+  title,
+  entries,
+}: Readonly<{ title: string; entries: RankingEntry[] }>) {
+  const podium = entries.filter((entry) => entry.position <= 3)
+  const remaining = entries.filter((entry) => entry.position > 3)
+
+  return (
+    <section className="space-y-4">
+      <h2 className="text-lg font-semibold">{title}</h2>
+      <ol className="space-y-3">
+        {podium.map((entry) => (
+          <RankingRow key={entry.userId} entry={entry} podium />
+        ))}
+      </ol>
+
+      {remaining.length > 0 && (
+        <ol
+          className="divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10"
+          start={4}
+        >
+          {remaining.map((entry) => (
+            <RankingRow key={entry.userId} entry={entry} />
+          ))}
+        </ol>
+      )}
+    </section>
+  )
+}
+
 function RankingSection({
   title,
   entries,
@@ -141,47 +171,44 @@ function RankingSection({
   )
 }
 
-function RankingRow({ entry }: Readonly<{ entry: RankingEntry }>) {
-  const podiumStyles = {
-    1: "border-l-[#FFD700] bg-[linear-gradient(90deg,#FFE55C_0%,#FFF4B3_100%)] shadow-[inset_0_0_30px_rgb(255_215_0/0.18)] dark:bg-[linear-gradient(90deg,#806000_0%,#3D2C00_100%)] dark:shadow-[inset_0_0_36px_rgb(255_215_0/0.28)]",
-    2: "border-l-[#E2E8F0] bg-[linear-gradient(90deg,#D8DEE6_0%,#F4F7FA_100%)] shadow-[inset_0_0_30px_rgb(148_163_184/0.2)] dark:bg-[linear-gradient(90deg,#596575_0%,#2F3743_100%)] dark:shadow-[inset_0_0_36px_rgb(226_232_240/0.18)]",
-    3: "border-l-[#FF8A3D] bg-[linear-gradient(90deg,#E9955F_0%,#FFD2B5_100%)] shadow-[inset_0_0_30px_rgb(205_127_50/0.2)] dark:bg-[linear-gradient(90deg,#843F20_0%,#3D1C10_100%)] dark:shadow-[inset_0_0_36px_rgb(255_138_61/0.24)]",
+function RankingRow({
+  entry,
+  podium = false,
+}: Readonly<{ entry: RankingEntry; podium?: boolean }>) {
+  const podiumCardStyle = {
+    1: "border-[#F6F118] shadow-[0_0_18px_rgb(246_241_24/0.18)]",
+    2: "border-[#6CF6FF] shadow-[0_0_18px_rgb(108_246_255/0.14)]",
+    3: "border-[#FF6B1A] shadow-[0_0_18px_rgb(255_107_26/0.14)]",
   }[entry.position]
-  const PositionIcon =
-    entry.position === 1 ? Crown : entry.position <= 3 ? Medal : null
+  const podiumPositionStyle = {
+    1: "bg-[#F6F118] text-[#373500] shadow-[0_0_14px_rgb(246_241_24/0.55)]",
+    2: "bg-[#DFFFFF] text-[#075761] shadow-[0_0_14px_rgb(108_246_255/0.45)]",
+    3: "bg-[#FF6B1A] text-[#3D1600] shadow-[0_0_14px_rgb(255_107_26/0.45)]",
+  }[entry.position]
+  const podiumXpStyle = {
+    1: "text-[#777300] dark:text-[#F6F118]",
+    2: "text-[#08727E] dark:text-[#6CF6FF]",
+    3: "text-[#B13E00] dark:text-[#FF7F38]",
+  }[entry.position]
 
   return (
     <li
       aria-current={entry.isCurrentParticipant ? "true" : undefined}
       className={cn(
         "flex min-h-18 items-center gap-3 border-l-3 border-transparent px-3 py-3",
-        podiumStyles,
-        entry.isCurrentParticipant &&
-          (entry.position <= 3
-            ? "ring-2 ring-primary ring-inset"
-            : "border-l-primary bg-primary/8")
+        podium && "rounded-2xl border-l-3 bg-card ring-1 ring-foreground/10",
+        podium && podiumCardStyle,
+        entry.isCurrentParticipant && "border-l-primary bg-primary/8"
       )}
     >
       <div
         className={cn(
           "flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted font-semibold tabular-nums",
-          entry.position === 1 &&
-            "bg-[#FFD700]/30 text-[#806600] dark:text-[#FFE66B]",
-          entry.position === 2 &&
-            "bg-[#C0C0C0]/35 text-[#596168] dark:text-[#EDF2F7]",
-          entry.position === 3 &&
-            "bg-[#CD7F32]/30 text-[#7A3F16] dark:text-[#FFB27A]",
+          podium && podiumPositionStyle,
           entry.isCurrentParticipant && "bg-primary text-primary-foreground"
         )}
       >
-        {PositionIcon ? (
-          <PositionIcon
-            className="size-5"
-            aria-label={`Posição ${entry.position}`}
-          />
-        ) : (
-          entry.position
-        )}
+        {entry.position}
       </div>
 
       <Avatar className="size-11">
@@ -210,7 +237,12 @@ function RankingRow({ entry }: Readonly<{ entry: RankingEntry }>) {
         </p>
       </div>
 
-      <p className="shrink-0 font-pixel-square text-sm text-gamification tabular-nums">
+      <p
+        className={cn(
+          "shrink-0 font-pixel-square text-sm text-gamification tabular-nums",
+          podium && podiumXpStyle
+        )}
+      >
         {entry.xp} XP
       </p>
     </li>
