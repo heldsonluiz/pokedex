@@ -1,7 +1,8 @@
 "use client"
 
 import { LoaderCircle, LockKeyhole, UnlockKeyhole } from "lucide-react"
-import { useFormStatus } from "react-dom"
+import { useActionState } from "react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 
@@ -25,13 +26,30 @@ export function OperationServiceToggle({
       : toggleRewardRedemptionAction
   const serviceLabel =
     service === "ticket-conversion" ? "conversões" : "resgates"
+  const [, formAction, isPending] = useActionState(
+    async (_state: null, formData: FormData) => {
+      try {
+        await action(formData)
+      } catch {
+        toast.error(`Não foi possível alterar ${serviceLabel}`, {
+          description:
+            "O estado anterior foi mantido. Verifique sua conexão e tente novamente.",
+          duration: 5_000,
+        })
+      }
+
+      return null
+    },
+    null
+  )
 
   return (
-    <form action={action}>
+    <form action={formAction}>
       <input type="hidden" name="enabled" value={String(!enabled)} />
       <OperationServiceToggleButton
         enabled={enabled}
         serviceLabel={serviceLabel}
+        isPending={isPending}
       />
     </form>
   )
@@ -40,11 +58,12 @@ export function OperationServiceToggle({
 function OperationServiceToggleButton({
   enabled,
   serviceLabel,
+  isPending,
 }: Readonly<{
   enabled: boolean
   serviceLabel: string
+  isPending: boolean
 }>) {
-  const { pending } = useFormStatus()
   const actionLabel = enabled ? "Bloquear" : "Liberar"
   const pendingLabel = enabled ? "Bloqueando" : "Liberando"
 
@@ -53,14 +72,14 @@ function OperationServiceToggleButton({
       type="submit"
       size="icon"
       variant={enabled ? "destructive" : "outline"}
-      disabled={pending}
+      disabled={isPending}
       aria-label={
-        pending
+        isPending
           ? `${pendingLabel} ${serviceLabel}`
           : `${actionLabel} ${serviceLabel}`
       }
     >
-      {pending ? (
+      {isPending ? (
         <LoaderCircle className="animate-spin" aria-hidden="true" />
       ) : enabled ? (
         <LockKeyhole aria-hidden="true" />
