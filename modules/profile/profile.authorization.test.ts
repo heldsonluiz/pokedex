@@ -32,4 +32,16 @@ describe("profile authorization", () => {
       hasPermission({ accessRoles: ["admin"] }, "manage-event-operations")
     ).toBe(true)
   })
+
+  it("allows reviewers to view the raffle display without managing raffles", () => {
+    expect(
+      hasPermission({ accessRoles: ["reviewer"] }, "view-raffle-display")
+    ).toBe(true)
+    expect(
+      hasPermission({ accessRoles: ["reviewer"] }, "manage-event-operations")
+    ).toBe(false)
+    expect(
+      hasPermission({ accessRoles: ["admin"] }, "view-raffle-display")
+    ).toBe(true)
+  })
 })

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation"
 
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
-import { getRaffleOperationsForSession } from "@/modules/raffles/raffle.service"
+import { getRaffleLiveForSession } from "@/modules/raffles/raffle.service"
 import { RaffleLiveRefresh } from "@/modules/raffles/raffle-live-refresh"
 
 export const metadata: Metadata = {
@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic"
 
 export default async function RaffleLivePage() {
   const session = await requireAuth()
-  const operations = await getRaffleOperationsForSession(session)
+  const operations = await getRaffleLiveForSession(session)
 
   if (!operations) {
     notFound()
@@ -82,7 +82,7 @@ export default async function RaffleLivePage() {
 
         <main className="relative grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_minmax(24rem,34rem)] gap-[clamp(1.5rem,3vw,3.5rem)] px-[clamp(1.5rem,4vw,5rem)] pb-[clamp(1.5rem,3dvh,3rem)]">
           <section className="flex min-h-0 items-center justify-center">
-            <RaffleLiveRefresh>
+            <RaffleLiveRefresh eventId={operations.eventId}>
               <div className="w-full max-w-5xl text-center">
                 {closureStatus !== "closed" ? (
                   <>

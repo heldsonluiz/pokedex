@@ -1,24 +1,39 @@
 "use client"
 
+import { doc, onSnapshot } from "firebase/firestore"
 import { Dices, LoaderCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 import {
   type ReactNode,
+  useCallback,
   useEffect,
   useRef,
   useState,
   useTransition,
 } from "react"
 
+import { clientFirestore } from "@/lib/firebase/client"
+
 import { RAFFLE_LIVE_CHANNEL } from "./raffle-live-channel"
 
 export function RaffleLiveRefresh({
   children,
-}: Readonly<{ children: ReactNode }>) {
+  eventId,
+}: Readonly<{ children: ReactNode; eventId: string }>) {
   const router = useRouter()
   const [drawingPrizeName, setDrawingPrizeName] = useState<string | null>(null)
   const [isRefreshing, startRefreshTransition] = useTransition()
   const refreshRequested = useRef(false)
+  const receivedInitialSignal = useRef(false)
+
+  const requestRefresh = useCallback(() => {
+    if (refreshRequested.current) {
+      return
+    }
+
+    refreshRequested.current = true
+    startRefreshTransition(() => router.refresh())
+  }, [router])
 
   useEffect(() => {
     if (refreshRequested.current && !isRefreshing) {
@@ -26,6 +41,39 @@ export function RaffleLiveRefresh({
       setDrawingPrizeName(null)
     }
   }, [isRefreshing])
+
+  useEffect(() => {
+    const signalReference = doc(clientFirestore, "raffleLiveSignals", eventId)
+
+    return onSnapshot(signalReference, (snapshot) => {
+      const signal = snapshot.data()
+      const phase = signal?.phase
+      const prizeName = signal?.prizeName
+
+      if (!receivedInitialSignal.current) {
+        receivedInitialSignal.current = true
+
+        if (phase === "drawing") {
+          setDrawingPrizeName(
+            typeof prizeName === "string" ? prizeName : "o prêmio"
+          )
+        }
+
+        return
+      }
+
+      if (phase === "drawing") {
+        setDrawingPrizeName(
+          typeof prizeName === "string" ? prizeName : "o prêmio"
+        )
+        return
+      }
+
+      if (phase === "updated") {
+        requestRefresh()
+      }
+    })
+  }, [eventId, requestRefresh])
 
   useEffect(() => {
     if (typeof BroadcastChannel === "undefined") {
@@ -48,13 +96,12 @@ export function RaffleLiveRefresh({
       }
 
       if (event.data?.type === "raffle-updated") {
-        refreshRequested.current = true
-        startRefreshTransition(() => router.refresh())
+        requestRefresh()
       }
     })
 
     return () => channel.close()
-  }, [router])
+  }, [requestRefresh])
 
   if (drawingPrizeName) {
     return (

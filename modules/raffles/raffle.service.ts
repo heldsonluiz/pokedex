@@ -15,6 +15,7 @@ import {
   rerollRaffle,
   setPostRaffleRedemptionsEnabled,
 } from "./raffle.repository"
+import { publishRaffleLiveSignal } from "./raffle-live.repository"
 import {
   archiveRaffleSimulation,
   confirmSimulationWinner,
@@ -51,6 +52,7 @@ export async function getRaffleOperationsForSession(session: Session) {
   const simulation = await findActiveRaffleSimulation(profile.eventId)
 
   return {
+    eventId: profile.eventId,
     closure,
     raffles,
     simulation: simulation
@@ -60,6 +62,52 @@ export async function getRaffleOperationsForSession(session: Session) {
         }
       : null,
   }
+}
+
+export async function getRaffleLiveForSession(session: Session) {
+  const profile = await requireProfileForSession(session)
+
+  if (!hasPermission(profile, "view-raffle-display")) {
+    return null
+  }
+
+  const [closure, raffles] = await Promise.all([
+    findRaffleClosureState(profile.eventId),
+    findRaffles(profile.eventId),
+  ])
+  const simulation = await findActiveRaffleSimulation(profile.eventId)
+
+  return {
+    eventId: profile.eventId,
+    closure,
+    raffles,
+    simulation: simulation
+      ? {
+          ...simulation,
+          raffles: await findSimulationRaffles(simulation.id),
+        }
+      : null,
+  }
+}
+
+export async function publishRaffleLiveSignalForSession(
+  session: Session,
+  phase: "drawing" | "updated",
+  prizeName?: string
+) {
+  const profile = await requireRaffleAdministrator(session)
+
+  if (!profile) {
+    return false
+  }
+
+  await publishRaffleLiveSignal({
+    eventId: profile.eventId,
+    phase,
+    prizeName: phase === "drawing" ? prizeName : null,
+  })
+
+  return true
 }
 
 export async function beginRaffleClosureForSession(session: Session) {

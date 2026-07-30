@@ -256,6 +256,7 @@ function OrganizationHome({
   const canServeParticipants = hasPermission(profile, "serve-participants")
   const canReviewMissions = hasPermission(profile, "review-missions")
   const canManage = hasPermission(profile, "manage-event-operations")
+  const canViewRaffleDisplay = hasPermission(profile, "view-raffle-display")
   const roleLabel = canManage ? "Administrador" : "Equipe do evento"
 
   const shortcuts = [
@@ -287,10 +288,14 @@ function OrganizationHome({
             description: "Libere, bloqueie ou encerre avaliações",
             icon: Mic2,
           },
+        ]
+      : []),
+    ...(canViewRaffleDisplay
+      ? [
           {
             href: "/raffles/live",
             label: "Telão do sorteio",
-            description: "Abra a visualização pública em outra tela",
+            description: "Abra a visualização do sorteio em outra tela",
             icon: MonitorUp,
           },
         ]
