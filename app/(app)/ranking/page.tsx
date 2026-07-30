@@ -143,9 +143,9 @@ function RankingSection({
 
 function RankingRow({ entry }: Readonly<{ entry: RankingEntry }>) {
   const podiumStyles = {
-    1: "border-l-[#D4AF37] bg-[#FFD700]/18 shadow-[inset_0_0_28px_color-mix(in_oklab,#FFD700_8%,transparent)] dark:bg-[#5A4300]/65 dark:shadow-[inset_0_0_32px_color-mix(in_oklab,#FFD700_14%,transparent)]",
-    2: "border-l-[#A8B0B8] bg-[#C0C0C0]/20 shadow-[inset_0_0_28px_color-mix(in_oklab,#C0C0C0_8%,transparent)] dark:bg-[#3F4652]/80 dark:shadow-[inset_0_0_32px_color-mix(in_oklab,#E3E8ED_10%,transparent)]",
-    3: "border-l-[#B87333] bg-[#CD7F32]/18 shadow-[inset_0_0_28px_color-mix(in_oklab,#CD7F32_8%,transparent)] dark:bg-[#552B18]/75 dark:shadow-[inset_0_0_32px_color-mix(in_oklab,#FF9A55_12%,transparent)]",
+    1: "border-l-[#FFD700] bg-[linear-gradient(90deg,#FFE55C_0%,#FFF4B3_100%)] shadow-[inset_0_0_30px_rgb(255_215_0/0.18)] dark:bg-[linear-gradient(90deg,#806000_0%,#3D2C00_100%)] dark:shadow-[inset_0_0_36px_rgb(255_215_0/0.28)]",
+    2: "border-l-[#E2E8F0] bg-[linear-gradient(90deg,#D8DEE6_0%,#F4F7FA_100%)] shadow-[inset_0_0_30px_rgb(148_163_184/0.2)] dark:bg-[linear-gradient(90deg,#596575_0%,#2F3743_100%)] dark:shadow-[inset_0_0_36px_rgb(226_232_240/0.18)]",
+    3: "border-l-[#FF8A3D] bg-[linear-gradient(90deg,#E9955F_0%,#FFD2B5_100%)] shadow-[inset_0_0_30px_rgb(205_127_50/0.2)] dark:bg-[linear-gradient(90deg,#843F20_0%,#3D1C10_100%)] dark:shadow-[inset_0_0_36px_rgb(255_138_61/0.24)]",
   }[entry.position]
   const PositionIcon =
     entry.position === 1 ? Crown : entry.position <= 3 ? Medal : null
