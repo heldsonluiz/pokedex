@@ -315,12 +315,22 @@ export function StartRaffleSimulationButton() {
   )
 }
 
-export function ArchiveRaffleSimulationButton() {
+export function ArchiveRaffleSimulationButton({
+  label = "Encerrar simulação",
+  className,
+}: {
+  label?: string
+  className?: string
+} = {}) {
   return (
     <Dialog>
-      <DialogTrigger render={<Button type="button" variant="destructive" />}>
+      <DialogTrigger
+        render={
+          <Button type="button" variant="destructive" className={className} />
+        }
+      >
         <Archive aria-hidden="true" />
-        Encerrar simulação
+        {label}
       </DialogTrigger>
       <DialogContent showCloseButton={false}>
         <DialogHeader>

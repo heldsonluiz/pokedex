@@ -2,10 +2,13 @@ import "server-only"
 
 import { createHash, randomInt, randomUUID } from "node:crypto"
 
-import { FieldPath, Timestamp } from "firebase-admin/firestore"
+import { Timestamp } from "firebase-admin/firestore"
 import * as z from "zod"
 
-import { CONSUME_RAFFLE_WINNER_TICKETS } from "@/config/raffles"
+import {
+  CONSUME_RAFFLE_WINNER_TICKETS,
+  RAFFLE_PREPARATION_BATCH_SIZE,
+} from "@/config/raffles"
 import { firestore } from "@/lib/firebase/admin"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
@@ -16,21 +19,23 @@ import {
   type RaffleEntryChunk,
   raffleEntryChunkFieldsSchema,
   raffleFieldsSchema,
+  storedRaffleProfileCursorSchema,
 } from "./raffle.schema"
 import {
   calculateRaffleAllocation,
   calculateWinnerTicketDelta,
 } from "./raffle-calculator"
+import { findRaffleProfilePage } from "./raffle-profile-query"
 import { selectWeightedCandidate } from "./weighted-draw"
 
 const EVENT_OPERATIONS_COLLECTION = "eventOperations"
 const PROFILES_COLLECTION = "profiles"
 const TRANSACTIONS_COLLECTION = "ticketTransactions"
 const ENTRY_CHUNKS_COLLECTION = "raffleEntryChunks"
+const SKIPPED_PROFILES_COLLECTION = "raffleSkippedProfiles"
 const WINNERS_COLLECTION = "raffleWinners"
 const RAFFLES_COLLECTION = "raffles"
 const ATTEMPTS_COLLECTION = "raffleAttempts"
-const DEFAULT_BATCH_SIZE = 100
 
 const participantProfileSchema = z.object({
   userId: z.string().trim().min(1).max(128),
@@ -41,7 +46,7 @@ const participantProfileSchema = z.object({
   xp: z.number().int().nonnegative().default(0),
   ticketBalance: z.number().int().nonnegative().default(0),
   convertedXp: z.number().int().nonnegative().default(0),
-  onboardingTicketGranted: z.boolean().nullable().default(null),
+  onboardingTicketGranted: z.boolean().default(false),
 })
 
 const eventOperationsDocumentSchema = z.object({
@@ -49,8 +54,9 @@ const eventOperationsDocumentSchema = z.object({
   ticketConversionEnabled: z.boolean().default(true),
   rewardRedemptionEnabled: z.boolean().default(true),
   raffleClosureStatus: z.enum(["open", "processing", "closed"]).default("open"),
-  raffleClosureCursor: z.string().nullable().default(null),
+  raffleClosureCursor: storedRaffleProfileCursorSchema.nullable().default(null),
   raffleProcessedParticipants: z.number().int().nonnegative().default(0),
+  raffleSkippedParticipants: z.number().int().nonnegative().default(0),
   raffleSnapshotAt: z.instanceof(Timestamp).nullable().default(null),
   raffleClosedAt: z.instanceof(Timestamp).nullable().default(null),
 })
@@ -114,6 +120,7 @@ function parseAttempt(id: string, value: unknown): RaffleAttempt {
 export type RaffleClosureState = Readonly<{
   status: "open" | "processing" | "closed"
   processedParticipants: number
+  skippedParticipants: number
   snapshotAt: Date | null
   closedAt: Date | null
 }>
@@ -131,6 +138,7 @@ export async function findRaffleClosureState(
     return {
       status: "open",
       processedParticipants: 0,
+      skippedParticipants: 0,
       snapshotAt: null,
       closedAt: null,
     }
@@ -145,6 +153,7 @@ export async function findRaffleClosureState(
   return {
     status: operations.raffleClosureStatus,
     processedParticipants: operations.raffleProcessedParticipants,
+    skippedParticipants: operations.raffleSkippedParticipants,
     snapshotAt: operations.raffleSnapshotAt?.toDate() ?? null,
     closedAt: operations.raffleClosedAt?.toDate() ?? null,
   }
@@ -179,6 +188,7 @@ export async function beginRaffleClosure(eventId: string, operatorId: string) {
         raffleClosureStatus: "processing",
         raffleClosureCursor: null,
         raffleProcessedParticipants: 0,
+        raffleSkippedParticipants: 0,
         raffleSnapshotAt: now,
         raffleClosedAt: null,
         updatedAt: now,
@@ -194,12 +204,17 @@ export async function beginRaffleClosure(eventId: string, operatorId: string) {
 export async function processRaffleClosureBatch(
   eventId: string,
   operatorId: string,
-  batchSize = DEFAULT_BATCH_SIZE
+  batchSize = RAFFLE_PREPARATION_BATCH_SIZE
 ) {
   const validatedEventId = participantProfileSchema.shape.eventId.parse(eventId)
   const validatedOperatorId =
     participantProfileSchema.shape.userId.parse(operatorId)
-  const validatedBatchSize = z.number().int().min(1).max(100).parse(batchSize)
+  const validatedBatchSize = z
+    .number()
+    .int()
+    .min(1)
+    .max(RAFFLE_PREPARATION_BATCH_SIZE)
+    .parse(batchSize)
   const operationsRef = firestore
     .collection(EVENT_OPERATIONS_COLLECTION)
     .doc(validatedEventId)
@@ -221,17 +236,12 @@ export async function processRaffleClosureBatch(
     throw new Error("Raffle closure is not processing")
   }
 
-  const profileQuery = firestore
-    .collection(PROFILES_COLLECTION)
-    .where("eventId", "==", validatedEventId)
-    .orderBy(FieldPath.documentId())
-    .limit(validatedBatchSize + 1)
-  const profileSnapshots = await (
-    operations.raffleClosureCursor
-      ? profileQuery.startAfter(operations.raffleClosureCursor)
-      : profileQuery
-  ).get()
-  const nextSnapshots = profileSnapshots.docs.slice(0, validatedBatchSize)
+  const profilePage = await findRaffleProfilePage({
+    eventId: validatedEventId,
+    batchSize: validatedBatchSize,
+    cursor: operations.raffleClosureCursor,
+  })
+  const nextSnapshots = profilePage.snapshots
 
   if (nextSnapshots.length === 0) {
     await operationsRef.update({
@@ -244,42 +254,32 @@ export async function processRaffleClosureBatch(
     return {
       status: "closed" as const,
       processedParticipants: operations.raffleProcessedParticipants,
+      skippedParticipants: operations.raffleSkippedParticipants,
     }
   }
 
-  const participants = nextSnapshots.flatMap((snapshot) => {
+  const participants: Array<{
+    reference: (typeof nextSnapshots)[number]["ref"]
+    profile: z.infer<typeof participantProfileSchema>
+  }> = []
+  const skippedSnapshots: typeof nextSnapshots = []
+
+  nextSnapshots.forEach((snapshot) => {
     const parsed = participantProfileSchema.safeParse(snapshot.data())
 
     if (
       !parsed.success ||
       parsed.data.userId !== snapshot.id ||
+      parsed.data.eventId !== validatedEventId ||
       !parsed.data.onboardingCompleted ||
       !parsed.data.accessRoles.includes("participant")
     ) {
-      return []
+      skippedSnapshots.push(snapshot)
+      return
     }
 
-    return [{ reference: snapshot.ref, profile: parsed.data }]
+    participants.push({ reference: snapshot.ref, profile: parsed.data })
   })
-  const legacyParticipants = participants.filter(
-    ({ profile }) => profile.onboardingTicketGranted === null
-  )
-  const onboardingRefs = legacyParticipants.map(({ profile }) =>
-    firestore
-      .collection(TRANSACTIONS_COLLECTION)
-      .doc(
-        deterministicId([validatedEventId, profile.userId, "onboarding_grant"])
-      )
-  )
-  const onboardingSnapshots = await Promise.all(
-    onboardingRefs.map((reference) => reference.get())
-  )
-  const legacyGrantByParticipant = new Map(
-    legacyParticipants.map(({ profile }, index) => [
-      profile.userId,
-      onboardingSnapshots[index].exists,
-    ])
-  )
   const writeBatch = firestore.batch()
   const chunkParticipants: Array<{
     participantId: string
@@ -290,10 +290,7 @@ export async function processRaffleClosureBatch(
   }> = []
 
   participants.forEach(({ reference, profile }) => {
-    const hasOnboardingGrant =
-      profile.onboardingTicketGranted ??
-      legacyGrantByParticipant.get(profile.userId) ??
-      false
+    const hasOnboardingGrant = profile.onboardingTicketGranted
     const allocation = calculateRaffleAllocation({
       xp: profile.xp,
       convertedXp: profile.convertedXp,
@@ -368,12 +365,10 @@ export async function processRaffleClosureBatch(
     })
   })
 
-  const lastSnapshot = nextSnapshots.at(-1)
-
   if (chunkParticipants.length > 0) {
     const chunkId = deterministicId([
       validatedEventId,
-      lastSnapshot?.id ?? randomUUID(),
+      nextSnapshots.at(-1)?.id ?? randomUUID(),
       "raffle_entry_chunk",
     ])
 
@@ -387,14 +382,38 @@ export async function processRaffleClosureBatch(
     )
   }
 
+  skippedSnapshots.forEach((snapshot) => {
+    writeBatch.create(
+      firestore
+        .collection(SKIPPED_PROFILES_COLLECTION)
+        .doc(
+          deterministicId([
+            validatedEventId,
+            snapshot.id,
+            "raffle_skipped_profile",
+          ])
+        ),
+      {
+        eventId: validatedEventId,
+        participantId: snapshot.id,
+        reason: "INVALID_PROFILE",
+        snapshotAt: operations.raffleSnapshotAt,
+        createdAt: operations.raffleSnapshotAt,
+      }
+    )
+  })
+
   const processedParticipants =
-    operations.raffleProcessedParticipants + participants.length
-  const reachedEnd = profileSnapshots.size <= validatedBatchSize
+    operations.raffleProcessedParticipants + nextSnapshots.length
+  const skippedParticipants =
+    operations.raffleSkippedParticipants + skippedSnapshots.length
+  const reachedEnd = profilePage.reachedEnd
   const now = Timestamp.now()
 
   writeBatch.update(operationsRef, {
-    raffleClosureCursor: lastSnapshot?.id ?? operations.raffleClosureCursor,
+    raffleClosureCursor: profilePage.nextCursor,
     raffleProcessedParticipants: processedParticipants,
+    raffleSkippedParticipants: skippedParticipants,
     raffleClosureStatus: reachedEnd ? "closed" : "processing",
     raffleClosedAt: reachedEnd ? now : null,
     updatedAt: now,
@@ -405,6 +424,7 @@ export async function processRaffleClosureBatch(
   return {
     status: reachedEnd ? ("closed" as const) : ("processing" as const),
     processedParticipants,
+    skippedParticipants,
   }
 }
 

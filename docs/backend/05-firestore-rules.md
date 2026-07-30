@@ -14,6 +14,7 @@ As regras seguem menor privilégio. O Firebase Admin ignora Firestore Rules, por
 | `activityCompletions`                               | próprias conclusões e carimbos                  | servidor                                  |
 | `participantSummaries`                              | próprio resumo individual                       | servidor                                  |
 | `rewardRedemptions`                                 | próprios resgates                               | servidor                                  |
+| `raffleSkippedProfiles`                             | administrador                                   | servidor                                  |
 | `scans`                                             | scans do próprio participante quando necessário | servidor                                  |
 | `talk-ratings`                                      | própria avaliação quando necessária             | servidor                                  |
 | ranking                                             | projeção pública mínima de participantes        | servidor                                  |

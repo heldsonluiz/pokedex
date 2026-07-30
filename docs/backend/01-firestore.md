@@ -2,28 +2,29 @@
 
 ## Coleções
 
-| Coleção                | Finalidade                 | Campos essenciais                                                                        |
-| ---------------------- | -------------------------- | ---------------------------------------------------------------------------------------- |
-| `events`               | configuração do evento     | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                         |
-| `profiles`             | participante               | `userId`, `eventId`, dados públicos, `qrId`, `xp`, `xpReachedAt`, onboarding, timestamps |
-| `companies`            | patrocinadores             | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                        |
-| `tags`                 | itens escondidos           | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
-| `talks`                | palestras                  | `eventId`, título, palestrante, horários, sala e liberação da avaliação                  |
-| `missions`             | missões                    | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
-| `ticketTransactions`   | movimentações de tickets   | evento, participante, tipo, quantidade, XP convertido, operador, referência e timestamp  |
-| `eventOperations`      | controles operacionais     | evento, conversões, resgates, fechamento e responsável                                   |
-| `rewards`              | catálogo de brindes        | evento, conteúdo, custo, estoque, limites e estado                                       |
-| `rewardRedemptions`    | resgates de brindes        | evento, participante, brinde, quantidade, custo, operador e timestamp                    |
-| `raffleEntryChunks`    | fotografia das chances     | evento, snapshot e blocos de até 100 participantes                                       |
-| `raffleWinners`        | exclusões entre sorteios   | evento, participante, prêmio, confirmação e operador                                     |
-| `raffleAttempts`       | tentativas dos sorteios    | prêmio, candidato, peso, universo, resultado, operador e timestamps                      |
-| `raffles`              | sorteios ponderados        | evento, prêmio, estado, fotografia, universo elegível e vencedor                         |
-| `raffleTestRuns`       | simulações administrativas | fotografia isolada, progresso, prêmios, tentativas e resultados                          |
-| `connections`          | networking                 | `eventId`, perfis, status, criação, remoção e XP concedida                               |
-| `activityCompletions`  | progresso e carimbos       | evento, participante, tipo, entidade, QR, XP concedida e conclusão                       |
-| `participantSummaries` | resumo individual leve     | evento, participante, contadores de conexões e atividades, inicialização e atualização   |
-| `scans`                | histórico de leituras      | `eventId`, perfil, tipo, alvo, QR e timestamp                                            |
-| `talk-ratings`         | avaliações de palestras    | `eventId`, palestra, avaliador, respostas e timestamp                                    |
+| Coleção                 | Finalidade                  | Campos essenciais                                                                        |
+| ----------------------- | --------------------------- | ---------------------------------------------------------------------------------------- |
+| `events`                | configuração do evento      | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                         |
+| `profiles`              | participante                | `userId`, `eventId`, dados públicos, `qrId`, `xp`, `xpReachedAt`, onboarding, timestamps |
+| `companies`             | patrocinadores              | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                        |
+| `tags`                  | itens escondidos            | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
+| `talks`                 | palestras                   | `eventId`, título, palestrante, horários, sala e liberação da avaliação                  |
+| `missions`              | missões                     | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
+| `ticketTransactions`    | movimentações de tickets    | evento, participante, tipo, quantidade, XP convertido, operador, referência e timestamp  |
+| `eventOperations`       | controles operacionais      | evento, conversões, resgates, fechamento e responsável                                   |
+| `rewards`               | catálogo de brindes         | evento, conteúdo, custo, estoque, limites e estado                                       |
+| `rewardRedemptions`     | resgates de brindes         | evento, participante, brinde, quantidade, custo, operador e timestamp                    |
+| `raffleEntryChunks`     | fotografia das chances      | evento, snapshot e blocos de até 100 participantes                                       |
+| `raffleWinners`         | exclusões entre sorteios    | evento, participante, prêmio, confirmação e operador                                     |
+| `raffleAttempts`        | tentativas dos sorteios     | prêmio, candidato, peso, universo, resultado, operador e timestamps                      |
+| `raffleSkippedProfiles` | exclusões por dado inválido | evento, participante, motivo controlado e instante da fotografia                         |
+| `raffles`               | sorteios ponderados         | evento, prêmio, estado, fotografia, universo elegível e vencedor                         |
+| `raffleTestRuns`        | simulações administrativas  | fotografia isolada, progresso, prêmios, tentativas e resultados                          |
+| `connections`           | networking                  | `eventId`, perfis, status, criação, remoção e XP concedida                               |
+| `activityCompletions`   | progresso e carimbos        | evento, participante, tipo, entidade, QR, XP concedida e conclusão                       |
+| `participantSummaries`  | resumo individual leve      | evento, participante, contadores de conexões e atividades, inicialização e atualização   |
+| `scans`                 | histórico de leituras       | `eventId`, perfil, tipo, alvo, QR e timestamp                                            |
+| `talk-ratings`          | avaliações de palestras     | `eventId`, palestra, avaliador, respostas e timestamp                                    |
 
 Schemas completos devem existir no código e ser validados com Zod. Este documento registra o modelo conceitual, não substitui os contratos tipados.
 
@@ -258,8 +259,8 @@ enquanto `eventOperations.ticketConversionEnabled` estiver ativo.
 O perfil mantém `ticketBalance`, `convertedXp` e
 `onboardingTicketGranted` como projeções controladas pelo servidor. O último
 campo começa em `false` e muda para `true` na mesma transação que concede o
-ticket inicial. Documentos legados podem manter `null` até sua primeira
-verificação. Converter XP incrementa `convertedXp` sem reduzir `xp`; assim,
+ticket inicial. O contrato não aceita `null`, pois a produção começa sem
+perfis legados. Converter XP incrementa `convertedXp` sem reduzir `xp`; assim,
 nível e ranking continuam representando a participação. Se uma conexão
 removida fizer o XP ficar abaixo do total já convertido, novas conversões
 permanecem indisponíveis até que o participante recupere a diferença.
@@ -291,6 +292,39 @@ lotes retomáveis de até 100 documentos, evitando depender de uma única
 requisição longa para um evento com milhares de pessoas. O cursor e as
 gravações do lote avançam juntos; se a requisição falhar antes do commit, o
 mesmo lote pode ser tentado novamente sem duplicar tickets.
+
+O limite de 100 também é o tamanho máximo de um `raffleEntryChunk`. No pior
+caso, cada participante gera uma atualização de perfil, a concessão inicial e
+uma conversão final; somadas ao chunk e ao cursor, as gravações permanecem
+abaixo do limite de 500 operações por batch do Firestore. Aumentar o lote não
+reduziria leituras e diminuiria essa margem de segurança.
+
+Novos fechamentos reutilizam o índice composto do ranking para filtrar no
+Firestore somente perfis com onboarding concluído e `participant`. A paginação
+segue `xp` decrescente, `xpReachedAt` crescente e `userId` crescente. Essa
+ordem não influencia as chances: ela serve apenas para produzir uma fotografia
+retomável, e o sorteio ponderado continua usando uma posição aleatória sobre os
+tickets congelados. Fechamentos iniciados com o cursor antigo por ID continuam
+nesse formato até terminar, evitando reinício ou duplicação durante uma
+atualização da aplicação.
+
+Chunks usam IDs determinísticos baseados no último perfil do lote. Se dois
+processadores tentarem confirmar o mesmo cursor, apenas um batch consegue criar
+o chunk; o outro falha por duplicidade sem aplicar gravações parciais.
+
+Um perfil indexado que não satisfaça o contrato é excluído da fotografia sem
+interromper os demais participantes. O fechamento cria no mesmo batch um
+registro determinístico em `raffleSkippedProfiles`, incrementa
+`raffleSkippedParticipants` e avança o cursor. A Central de Operações mostra o
+total ignorado para conferência. A simulação usa a subcoleção
+`skippedProfiles` da própria execução, sem misturar ensaios com a auditoria do
+fechamento real.
+
+A consulta seleciona somente identidade, nome, filtros de participação, XP,
+cursor e saldos necessários ao fechamento. E-mail, avatar, biografia, empresa,
+skills, QR Code e demais campos públicos não são transferidos. A projeção não
+reduz o número faturado de documentos lidos, mas diminui tráfego, memória e
+exposição de dados que não participam do sorteio.
 
 Cada participante concluído recebe retroativamente o ticket de onboarding caso
 a movimentação determinística ainda não exista. Todo XP restante conversível é
@@ -336,12 +370,13 @@ grava a fotografia calculada nas subcoleções `entryChunks`, `raffles`,
 da execução. Para suportar milhares de participantes, essa preparação também é
 retomável em lotes de até 100 perfis.
 
-Os lotes usam `eventId`, ordenação pelo ID do documento, `startAfter` e
-`limit`; portanto, não releem toda a coleção a cada avanço. Para 2.000
-participantes, a preparação consome aproximadamente 2.000 leituras de perfis.
-O histórico de onboarding só é consultado para documentos legados cujo
-`onboardingTicketGranted` ainda seja `null`, em vez de executar uma leitura
-adicional para cada participante.
+Os novos lotes usam a mesma consulta indexada do fechamento real, com cursor e
+`limit`; portanto, descartam perfis administrativos no Firestore e não releem
+toda a coleção a cada avanço. Para 2.000 participantes elegíveis, a preparação
+ainda consome aproximadamente 2.000 leituras de perfis, pois cada saldo precisa
+entrar na fotografia. Como `onboardingTicketGranted` é sempre booleano, a
+preparação calcula a concessão inicial diretamente do perfil e não consulta
+`ticketTransactions` para reconstruir estado legado.
 
 Cada sorteio lê apenas os cerca de 20 blocos gerados para 2.000 participantes,
 mais os poucos vencedores e tentativas existentes. Os cálculos ponderados

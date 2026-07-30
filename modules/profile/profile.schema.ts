@@ -127,7 +127,7 @@ export const storedProfileFieldsSchema = z.object({
   accessRoles: accessRolesSchema.default(["participant"]),
   ticketBalance: z.number().int().nonnegative().default(0),
   convertedXp: z.number().int().nonnegative().default(0),
-  onboardingTicketGranted: z.boolean().nullable().default(null),
+  onboardingTicketGranted: z.boolean().default(false),
 })
 
 export type StoredProfileFields = z.infer<typeof storedProfileFieldsSchema>
