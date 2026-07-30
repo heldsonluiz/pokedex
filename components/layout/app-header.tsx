@@ -47,7 +47,7 @@ export function AppHeader({
         {greeting && (
           <p className="truncate text-xs text-muted-foreground">{greeting}</p>
         )}
-        <h1 className="truncate text-lg font-bold tracking-tight">{title}</h1>
+        <p className="truncate text-lg font-bold tracking-tight">{title}</p>
       </div>
 
       {actions && (

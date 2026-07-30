@@ -81,7 +81,7 @@ export function TalkEvaluationControls({
 
       {state.message && (
         <p
-          role="status"
+          role={state.success ? "status" : "alert"}
           className={
             state.success ? "text-xs text-success" : "text-xs text-destructive"
           }

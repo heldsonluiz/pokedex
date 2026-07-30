@@ -157,7 +157,7 @@ export function TalkRatingForm({ talkId }: Readonly<{ talkId: string }>) {
 
       {state.message && (
         <p
-          role="status"
+          role={state.success ? "status" : "alert"}
           className={
             state.success
               ? "rounded-xl bg-success/10 p-3 text-sm text-success"

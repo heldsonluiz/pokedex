@@ -89,7 +89,7 @@ export function RewardRedemptionButton({
 
         {state.message && (
           <p
-            role="status"
+            role={state.success ? "status" : "alert"}
             className={
               state.success
                 ? "text-sm text-success"

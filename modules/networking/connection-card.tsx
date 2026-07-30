@@ -94,7 +94,7 @@ export function ConnectionCard({
                 ? "text-sm text-success"
                 : "text-sm text-destructive"
             }
-            role="status"
+            role={state.success ? "status" : "alert"}
           >
             {state.message}
           </p>
@@ -122,7 +122,7 @@ function ConnectionRemovalDialog({
           <Button
             type="button"
             variant="destructive"
-            size="icon-sm"
+            size="icon"
             className="border border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/20"
             aria-label={`Remover conexão com ${participantName}`}
           />

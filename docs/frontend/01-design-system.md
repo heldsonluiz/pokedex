@@ -134,6 +134,13 @@ Todos os componentes interativos devem oferecer:
 - rótulo ou nome acessível;
 - feedback sem depender apenas de cor.
 
+No tema claro, os tokens de texto `success` e `destructive` usam tons mais
+escuros que suas referências decorativas para preservar contraste sobre
+`background` e `card`. No tema escuro, os tons mais luminosos são mantidos. O
+header contextual não cria um segundo `h1`; o título principal pertence ao
+conteúdo da página. Erros urgentes usam `role="alert"` e confirmações usam
+`role="status"`.
+
 ## Movimento e feedback
 
 - animações devem ser curtas e comunicar mudança de estado;

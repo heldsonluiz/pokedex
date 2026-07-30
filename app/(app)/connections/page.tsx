@@ -72,7 +72,7 @@ function ScanResultFeedback({ result }: Readonly<{ result: string | null }>) {
           ? "rounded-xl bg-success/10 p-4 text-sm text-success"
           : "rounded-xl bg-destructive/10 p-4 text-sm text-destructive"
       }
-      role="status"
+      role={isSuccess ? "status" : "alert"}
     >
       {messages[result] ?? "Não foi possível processar o QR Code."}
     </p>

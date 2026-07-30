@@ -221,7 +221,7 @@ function ReviewFeedback({
 
   return (
     <div
-      role="status"
+      role={success ? "status" : "alert"}
       className={
         success
           ? "rounded-xl bg-primary/10 p-4 text-sm text-primary"
