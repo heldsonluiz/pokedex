@@ -149,6 +149,11 @@ conteúdo da página. Erros urgentes usam `role="alert"` e confirmações usam
 - mensagens devem explicar erro e próxima ação;
 - estados vazios devem orientar o usuário.
 
+Rotas que dependem de dados do servidor devem fornecer um `loading.tsx`
+compatível com a estrutura final. O skeleton reserva aproximadamente o espaço
+do conteúdo real para reduzir mudanças bruscas de layout, usa
+`aria-busy="true"` com um nome acessível e não inicia consultas adicionais.
+
 ## Checklist
 
 - [ ] Usa tokens semânticos.
