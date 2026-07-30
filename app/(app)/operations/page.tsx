@@ -33,10 +33,7 @@ import {
   RaffleCandidateActions,
   StartRaffleSimulationButton,
 } from "@/modules/raffles/raffle-operation-buttons"
-import {
-  toggleRewardRedemptionAction,
-  toggleTicketConversionAction,
-} from "@/modules/tickets/ticket.actions"
+import { OperationServiceToggle } from "@/modules/tickets/operation-service-toggle"
 import { getOperationsForSession } from "@/modules/tickets/ticket.service"
 
 export const metadata: Metadata = { title: "Operações" }
@@ -165,33 +162,10 @@ export default async function OperationsPage() {
             </div>
 
             {operations.canManage && operationsAreOpen && !simulation && (
-              <form action={toggleTicketConversionAction}>
-                <input
-                  type="hidden"
-                  name="enabled"
-                  value={String(!operations.ticketConversionEnabled)}
-                />
-                <Button
-                  type="submit"
-                  size="icon"
-                  variant={
-                    operations.ticketConversionEnabled
-                      ? "destructive"
-                      : "outline"
-                  }
-                  aria-label={
-                    operations.ticketConversionEnabled
-                      ? "Bloquear conversões"
-                      : "Liberar conversões"
-                  }
-                >
-                  {operations.ticketConversionEnabled ? (
-                    <LockKeyhole aria-hidden="true" />
-                  ) : (
-                    <UnlockKeyhole aria-hidden="true" />
-                  )}
-                </Button>
-              </form>
+              <OperationServiceToggle
+                service="ticket-conversion"
+                enabled={operations.ticketConversionEnabled}
+              />
             )}
             {operations.canManage && serviceControlsDisabledReason && (
               <Button
@@ -236,33 +210,10 @@ export default async function OperationsPage() {
             </div>
 
             {operations.canManage && operationsAreOpen && !simulation && (
-              <form action={toggleRewardRedemptionAction}>
-                <input
-                  type="hidden"
-                  name="enabled"
-                  value={String(!operations.rewardRedemptionEnabled)}
-                />
-                <Button
-                  type="submit"
-                  size="icon"
-                  variant={
-                    operations.rewardRedemptionEnabled
-                      ? "destructive"
-                      : "outline"
-                  }
-                  aria-label={
-                    operations.rewardRedemptionEnabled
-                      ? "Bloquear resgates"
-                      : "Liberar resgates"
-                  }
-                >
-                  {operations.rewardRedemptionEnabled ? (
-                    <LockKeyhole aria-hidden="true" />
-                  ) : (
-                    <UnlockKeyhole aria-hidden="true" />
-                  )}
-                </Button>
-              </form>
+              <OperationServiceToggle
+                service="reward-redemption"
+                enabled={operations.rewardRedemptionEnabled}
+              />
             )}
             {operations.canManage && serviceControlsDisabledReason && (
               <Button
