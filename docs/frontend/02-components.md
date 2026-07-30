@@ -57,7 +57,10 @@ Telas e componentes de dados devem considerar:
 
 ## Catálogo de desenvolvimento
 
-A rota `/design-system` reúne tokens, temas e estados dos componentes para inspeção durante o desenvolvimento. Ela deve permanecer com `noindex` e ser removida ao final da entrega do MVP.
+A rota temporária `/design-system` reuniu tokens, temas e estados dos
+componentes para inspeção durante o desenvolvimento. Ela foi removida ao final
+da entrega do MVP; os padrões permanentes permanecem documentados neste
+diretório.
 
 ## Checklist
 
