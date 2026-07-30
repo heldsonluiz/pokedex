@@ -70,7 +70,7 @@ export function TalkRatingForm({ talkId }: Readonly<{ talkId: string }>) {
                   className={cn(
                     "relative flex min-h-12 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-border bg-background text-xs transition-colors has-focus-visible:ring-3 has-focus-visible:ring-ring/50",
                     ratings[question.name] === score &&
-                      "border-primary bg-primary/10 text-primary",
+                      "border-[#8BFF3D] bg-[#8BFF3D]/12 text-[#3F7800] shadow-[0_0_12px_rgb(139_255_61/0.15)] dark:text-[#AFFF78]",
                     isPending && "pointer-events-none opacity-50"
                   )}
                 >

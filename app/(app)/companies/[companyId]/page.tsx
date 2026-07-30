@@ -1,11 +1,21 @@
-import { Building2, CheckCircle2, Sparkles, Stamp } from "lucide-react"
+import {
+  Building2,
+  CheckCircle2,
+  ChevronRight,
+  ScanLine,
+  Sparkles,
+  Stamp,
+} from "lucide-react"
 import type { Metadata } from "next"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { requireAuth } from "@/lib/require-auth"
+import { cn } from "@/lib/utils"
 import { getCompanyDetailsForSession } from "@/modules/companies/company.service"
 
 type CompanyDetailsPageProps = Readonly<{
@@ -32,22 +42,25 @@ export default async function CompanyDetailsPage({
 
   return (
     <div className="space-y-6 p-6">
-      <section className="flex flex-col items-center gap-4 text-center">
-        <Avatar className="size-32 rounded-3xl">
+      <section className="flex items-center gap-4 rounded-3xl bg-(image:--gradient-immersive) p-5 text-white shadow-card">
+        <Avatar className="size-20 shrink-0 rounded-2xl bg-white ring-2 ring-white/15">
           <AvatarImage
             src={company.logoUrl}
             alt={`Logo da ${company.name}`}
             className="rounded-3xl object-contain"
           />
-          <AvatarFallback className="rounded-3xl">
-            <Building2 className="size-10" aria-hidden="true" />
+          <AvatarFallback className="rounded-2xl">
+            <Building2 className="size-8" aria-hidden="true" />
           </AvatarFallback>
         </Avatar>
 
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight">{company.name}</h1>
+        <div className="min-w-0 flex-1 space-y-2">
+          <p className="text-xs font-medium text-white/65">
+            Estande participante
+          </p>
+          <h1 className="text-xl font-bold tracking-tight">{company.name}</h1>
           {visitedAt && (
-            <Badge variant="secondary">
+            <Badge className="bg-success text-white">
               <CheckCircle2 data-icon="inline-start" aria-hidden="true" />
               Empresa visitada
             </Badge>
@@ -56,7 +69,7 @@ export default async function CompanyDetailsPage({
       </section>
 
       {company.description && (
-        <Card>
+        <Card className="rounded-2xl">
           <CardHeader>
             <CardTitle>Sobre a empresa</CardTitle>
           </CardHeader>
@@ -68,7 +81,11 @@ export default async function CompanyDetailsPage({
         </Card>
       )}
 
-      <Card>
+      <Card
+        className={
+          visitedAt ? "rounded-3xl bg-success/5 ring-success/25" : "rounded-3xl"
+        }
+      >
         <CardHeader>
           <CardTitle>
             {visitedAt ? "Carimbo conquistado" : "Visite o estande"}
@@ -115,6 +132,14 @@ export default async function CompanyDetailsPage({
                 <Sparkles className="size-4" aria-hidden="true" />
                 Vale {company.xpAwarded} XP
               </p>
+              <Link
+                href="/scan"
+                className={cn(buttonVariants({ size: "lg" }), "w-full")}
+              >
+                <ScanLine data-icon="inline-start" aria-hidden="true" />
+                Abrir scanner
+                <ChevronRight data-icon="inline-end" aria-hidden="true" />
+              </Link>
             </>
           )}
         </CardContent>

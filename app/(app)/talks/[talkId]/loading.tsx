@@ -16,7 +16,7 @@ export default function TalkDetailsLoading() {
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-4/5" />
       </section>
-      <div className="space-y-5 rounded-xl border border-border bg-card p-6">
+      <div className="space-y-5 rounded-2xl bg-card p-5 ring-1 ring-foreground/10">
         <Skeleton className="h-6 w-28" />
         <div className="flex items-center gap-4">
           <Skeleton className="size-16 shrink-0 rounded-full" />
@@ -26,7 +26,7 @@ export default function TalkDetailsLoading() {
           </div>
         </div>
       </div>
-      <div className="space-y-5 rounded-xl border border-border bg-card p-6">
+      <div className="space-y-5 rounded-3xl bg-card p-5 ring-1 ring-foreground/10">
         <Skeleton className="h-6 w-24" />
         <Skeleton className="h-5 w-52 max-w-full" />
         <Skeleton className="h-32 w-full rounded-xl" />
