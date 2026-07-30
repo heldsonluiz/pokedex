@@ -123,12 +123,16 @@ carregamento.
 `/missions` projeta a experiência conforme as permissões do perfil.
 Participantes veem disponibilidade, pré-requisitos, conclusão e XP.
 Reviewers/admins escolhem uma missão presencial e escaneiam o QR temporário do
-participante. Cards bloqueados, disponíveis e concluídos usam tratamentos
-visuais distintos; o estado disponível recebe somente borda, ícone e degradê
-discreto no verde neon `#8BFF3D`, sem preencher todo o card. Bloqueios
-apresentam nominalmente as visitas ou missões pendentes. Missões presenciais
-disponíveis oferecem um atalho para o QR do participante, preservando
-`/missions` como destino de retorno.
+participante. A primeira missão disponível recebe destaque; na ausência dela, o
+destaque explica qual missão está mais próxima de ser desbloqueada. A lista
+compacta mantém disponíveis e bloqueadas na ordem configurada e leva as
+concluídas ao final.
+
+Tocar no destaque ou em qualquer linha abre um dialog com descrição, XP, modo
+de validação e todos os pré-requisitos. Missões presenciais disponíveis
+oferecem nele um atalho para o QR do participante, preservando `/missions` como
+destino de retorno. A interface não apresenta cronômetro nem progresso parcial,
+pois o contrato atual registra somente conclusão binária.
 
 `/passport` agrega empresas visitadas, Tags descobertas e missões concluídas.
 O cabeçalho apresenta progresso geral e XP registrado nessas atividades; o

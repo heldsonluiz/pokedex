@@ -1,12 +1,4 @@
-import {
-  CheckCircle2,
-  CircleDot,
-  LockKeyhole,
-  QrCode,
-  ScanLine,
-  ShieldCheck,
-  Target,
-} from "lucide-react"
+import { ScanLine, ShieldCheck, Target } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 
@@ -15,18 +7,17 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import { requireAuth } from "@/lib/require-auth"
-import { cn } from "@/lib/utils"
 import {
   listMissionsForSession,
   listReviewableMissionsForSession,
 } from "@/modules/missions/mission.service"
+import { MissionParticipantExperience } from "@/modules/missions/mission-participant-experience"
 
 export const metadata: Metadata = { title: "Missões" }
 export const dynamic = "force-dynamic"
@@ -90,107 +81,7 @@ export default async function MissionsPage({
         </p>
       </section>
 
-      <section className="space-y-3" aria-label="Lista de missões">
-        {missions.map((mission) => {
-          const completed = mission.status === "completed"
-          const blocked = mission.status === "blocked"
-          const StatusIcon = completed
-            ? CheckCircle2
-            : blocked
-              ? LockKeyhole
-              : CircleDot
-
-          return (
-            <Card
-              key={mission.id}
-              className={cn(
-                "transition-colors",
-                completed && "bg-primary/8 ring-primary/25 dark:bg-primary/10",
-                blocked && "bg-muted/50 opacity-70 ring-border",
-                mission.status === "available" &&
-                  "bg-[linear-gradient(135deg,rgba(139,255,61,0.10)_0%,transparent_42%)] shadow-sm shadow-[#8BFF3D]/10 ring-[#8BFF3D]/55"
-              )}
-            >
-              <CardHeader>
-                <CardTitle>{mission.title}</CardTitle>
-                <CardDescription>{mission.description}</CardDescription>
-                <CardAction>
-                  <StatusIcon
-                    className={
-                      completed
-                        ? "size-5 text-primary"
-                        : blocked
-                          ? "size-5 text-muted-foreground"
-                          : "size-5 text-[#3F7800] dark:text-[#8BFF3D]"
-                    }
-                    aria-hidden="true"
-                  />
-                </CardAction>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between gap-3">
-                  <Badge
-                    variant={completed ? "default" : "outline"}
-                    className={
-                      mission.status === "available"
-                        ? "border-[#65C21B]/50 bg-[#8BFF3D]/30 text-[#3F7800] dark:border-[#8BFF3D]/50 dark:text-[#C5FF9D]"
-                        : undefined
-                    }
-                  >
-                    {completed
-                      ? "Concluída"
-                      : blocked
-                        ? "Bloqueada"
-                        : mission.validationType === "reviewer"
-                          ? "Disponível · validação presencial"
-                          : "Disponível · encontre o QR Code"}
-                  </Badge>
-                  <span className="text-sm font-medium text-primary">
-                    +{mission.xpAwarded} XP
-                  </span>
-                </div>
-
-                {blocked && (
-                  <div className="rounded-lg bg-background/70 p-3">
-                    <p className="text-xs font-medium">
-                      Para desbloquear, conclua:
-                    </p>
-                    <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-                      {mission.blockedBy.map((prerequisite) => (
-                        <li
-                          key={`${prerequisite.type}:${prerequisite.label}`}
-                          className="flex gap-2"
-                        >
-                          <LockKeyhole
-                            className="mt-0.5 size-3 shrink-0"
-                            aria-hidden="true"
-                          />
-                          {prerequisite.type === "company"
-                            ? `Visite ${prerequisite.label}`
-                            : `Complete “${prerequisite.label}”`}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {mission.status === "available" &&
-                  mission.validationType === "reviewer" && (
-                    <Button
-                      variant="outline"
-                      className="w-full border-[#65C21B]/50 text-[#3F7800] hover:bg-[#8BFF3D]/10 hover:text-[#315F00] dark:border-[#8BFF3D]/50 dark:text-[#C5FF9D] dark:hover:bg-[#8BFF3D]/10 dark:hover:text-[#DCFFC7]"
-                      render={<Link href="/profile/qr-code?source=missions" />}
-                      nativeButton={false}
-                    >
-                      <QrCode data-icon="inline-start" aria-hidden="true" />
-                      Exibir meu QR Code
-                    </Button>
-                  )}
-              </CardContent>
-            </Card>
-          )
-        })}
-      </section>
+      <MissionParticipantExperience missions={missions} />
     </div>
   )
 }
