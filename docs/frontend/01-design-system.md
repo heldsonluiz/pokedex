@@ -154,6 +154,11 @@ compatível com a estrutura final. O skeleton reserva aproximadamente o espaço
 do conteúdo real para reduzir mudanças bruscas de layout, usa
 `aria-busy="true"` com um nome acessível e não inicia consultas adicionais.
 
+Erros de carregamento de rota usam o estado compartilhado
+`RouteErrorState`: título contextual, orientação curta e uma ação para tentar
+novamente. A região usa `role="alert"` para que a falha também seja comunicada
+por tecnologias assistivas.
+
 ## Checklist
 
 - [ ] Usa tokens semânticos.
