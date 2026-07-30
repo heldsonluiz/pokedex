@@ -23,17 +23,18 @@ const statusContent = {
   locked: {
     label: "Avaliação bloqueada",
     icon: LockKeyhole,
-    className: "text-muted-foreground",
+    iconClassName: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
   },
   open: {
     label: "Avaliação disponível",
     icon: UnlockKeyhole,
-    className: "border-success/40 bg-success/10 text-success",
+    iconClassName:
+      "bg-[#8BFF3D]/15 text-[#3F7800] shadow-[0_0_14px_color-mix(in_oklab,#8BFF3D_16%,transparent)] dark:text-[#AFFF78]",
   },
   closed: {
     label: "Avaliação encerrada",
     icon: MessageSquareText,
-    className: "text-muted-foreground",
+    iconClassName: "bg-destructive/12 text-destructive",
   },
 } as const
 
@@ -113,10 +114,7 @@ export default async function TalksPage() {
                 href={`/talks/${encodeURIComponent(talk.id)}`}
                 className={cn(
                   "flex min-h-20 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none",
-                  talk.rating && "bg-primary/5",
-                  talk.evaluationStatus === "closed" &&
-                    !talk.rating &&
-                    "opacity-70"
+                  talk.rating && "bg-success/5"
                 )}
               >
                 <Avatar className="size-11">
@@ -147,12 +145,10 @@ export default async function TalksPage() {
 
                 <span
                   className={cn(
-                    "shrink-0",
+                    "flex size-9 shrink-0 items-center justify-center rounded-xl",
                     talk.rating
-                      ? "text-success"
-                      : talk.evaluationStatus === "open"
-                        ? "text-primary"
-                        : "text-muted-foreground"
+                      ? "bg-success/12 text-success"
+                      : status.iconClassName
                   )}
                 >
                   <StatusIcon className="size-4" aria-hidden="true" />
