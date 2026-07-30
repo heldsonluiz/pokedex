@@ -38,19 +38,22 @@ const explorationItems = [
     href: "/talks",
     label: "Palestras",
     icon: Mic2,
-    className: "bg-info/10 text-info",
+    className:
+      "bg-[#00E5FF]/15 text-[#00788A] shadow-[0_0_18px_color-mix(in_oklab,#00E5FF_20%,transparent)] dark:text-[#66F3FF]",
   },
   {
     href: "/ranking",
     label: "Ranking",
     icon: Trophy,
-    className: "bg-gamification/10 text-gamification",
+    className:
+      "bg-[#F6F118]/18 text-[#716E00] shadow-[0_0_18px_color-mix(in_oklab,#F6F118_22%,transparent)] dark:text-[#F6F118]",
   },
   {
     href: "/tickets",
     label: "Tickets",
     icon: Ticket,
-    className: "bg-secondary/20 text-secondary-foreground",
+    className:
+      "bg-[#FF3DF2]/15 text-[#9B0091] shadow-[0_0_18px_color-mix(in_oklab,#FF3DF2_20%,transparent)] dark:text-[#FF78F5]",
   },
 ] as const
 
