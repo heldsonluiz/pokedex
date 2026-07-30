@@ -143,9 +143,9 @@ function RankingSection({
 
 function RankingRow({ entry }: Readonly<{ entry: RankingEntry }>) {
   const podiumStyles = {
-    1: "border-l-[#D4AF37] bg-[#FFD700]/12",
-    2: "border-l-[#A8B0B8] bg-[#C0C0C0]/12",
-    3: "border-l-[#B87333] bg-[#CD7F32]/12",
+    1: "border-l-[#D4AF37] bg-[#FFD700]/18 shadow-[inset_0_0_28px_color-mix(in_oklab,#FFD700_8%,transparent)] dark:bg-[#5A4300]/65 dark:shadow-[inset_0_0_32px_color-mix(in_oklab,#FFD700_14%,transparent)]",
+    2: "border-l-[#A8B0B8] bg-[#C0C0C0]/20 shadow-[inset_0_0_28px_color-mix(in_oklab,#C0C0C0_8%,transparent)] dark:bg-[#3F4652]/80 dark:shadow-[inset_0_0_32px_color-mix(in_oklab,#E3E8ED_10%,transparent)]",
+    3: "border-l-[#B87333] bg-[#CD7F32]/18 shadow-[inset_0_0_28px_color-mix(in_oklab,#CD7F32_8%,transparent)] dark:bg-[#552B18]/75 dark:shadow-[inset_0_0_32px_color-mix(in_oklab,#FF9A55_12%,transparent)]",
   }[entry.position]
   const PositionIcon =
     entry.position === 1 ? Crown : entry.position <= 3 ? Medal : null
@@ -156,15 +156,21 @@ function RankingRow({ entry }: Readonly<{ entry: RankingEntry }>) {
       className={cn(
         "flex min-h-18 items-center gap-3 border-l-3 border-transparent px-3 py-3",
         podiumStyles,
-        entry.isCurrentParticipant && "border-l-primary bg-primary/8"
+        entry.isCurrentParticipant &&
+          (entry.position <= 3
+            ? "ring-2 ring-primary ring-inset"
+            : "border-l-primary bg-primary/8")
       )}
     >
       <div
         className={cn(
           "flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted font-semibold tabular-nums",
-          entry.position === 1 && "bg-[#FFD700]/25 text-[#806600]",
-          entry.position === 2 && "bg-[#C0C0C0]/30 text-[#596168]",
-          entry.position === 3 && "bg-[#CD7F32]/25 text-[#7A3F16]",
+          entry.position === 1 &&
+            "bg-[#FFD700]/30 text-[#806600] dark:text-[#FFE66B]",
+          entry.position === 2 &&
+            "bg-[#C0C0C0]/35 text-[#596168] dark:text-[#EDF2F7]",
+          entry.position === 3 &&
+            "bg-[#CD7F32]/30 text-[#7A3F16] dark:text-[#FFB27A]",
           entry.isCurrentParticipant && "bg-primary text-primary-foreground"
         )}
       >
