@@ -27,8 +27,8 @@ export function CatalogCacheButton() {
         <div className="min-w-0 flex-1">
           <p className="font-semibold">Atualizar catálogos</p>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            Use após alterar empresas, tags, missões ou brindes no painel
-            administrativo.
+            Use após alterar empresas, tags, missões, brindes, palestrantes ou
+            palestras no painel administrativo.
           </p>
         </div>
       </div>

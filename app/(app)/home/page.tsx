@@ -2,6 +2,7 @@ import {
   BookOpen,
   Building2,
   ChevronRight,
+  Mic2,
   QrCode,
   ScanLine,
   Tags,
@@ -43,6 +44,12 @@ const shortcuts = [
     label: "Missões",
     description: "Veja os desafios",
     icon: Target,
+  },
+  {
+    href: "/talks",
+    label: "Palestras",
+    description: "Avalie os conteúdos",
+    icon: Mic2,
   },
   {
     href: "/ranking",

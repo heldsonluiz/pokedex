@@ -9,5 +9,7 @@ export const CACHE_TAGS = {
   MISSIONS: "catalog:missions",
   RAFFLE_SNAPSHOTS: "raffles:snapshots",
   REWARDS: "catalog:rewards",
+  SPEAKERS: "catalog:speakers",
   TAGS: "catalog:tags",
+  TALKS: "catalog:talks",
 } as const
