@@ -16,7 +16,7 @@ import Link from "next/link"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
-import { formatLevelLabel, getLevelForXp, getNextLevel } from "@/config/levels"
+import { formatLevelLabel, getLevelForXp, MAX_LEVEL_XP } from "@/config/levels"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
 import { getHomeCatalogTotals } from "@/modules/home/home.service"
@@ -79,19 +79,10 @@ function getInitials(displayName: string) {
 
 function calculateLevelProgress(xp: number) {
   const level = getLevelForXp(xp)
-  const nextLevel = getNextLevel(level)
-
-  if (!nextLevel) {
-    return { level, nextLevel, percentage: 100 }
-  }
-
-  const levelRange = nextLevel.minimumXp - level.minimumXp
-  const earnedInLevel = Math.max(0, xp - level.minimumXp)
 
   return {
     level,
-    nextLevel,
-    percentage: Math.min(100, (earnedInLevel / levelRange) * 100),
+    percentage: Math.min(100, Math.max(0, (xp / MAX_LEVEL_XP) * 100)),
   }
 }
 
@@ -145,15 +136,12 @@ export default async function HomePage() {
             </p>
             <p className="shrink-0 text-muted-foreground tabular-nums">
               {profile.xp.toLocaleString("pt-BR")} /{" "}
-              {levelProgress.nextLevel
-                ? levelProgress.nextLevel.minimumXp.toLocaleString("pt-BR")
-                : profile.xp.toLocaleString("pt-BR")}{" "}
-              XP
+              {MAX_LEVEL_XP.toLocaleString("pt-BR")} XP
             </p>
           </div>
           <ProgressTrack
             value={levelProgress.percentage}
-            label="Progresso até o próximo nível"
+            label="Progresso até o nível máximo"
           />
         </div>
       </section>

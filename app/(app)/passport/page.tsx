@@ -157,7 +157,8 @@ function PassportOverview({
 
         <p className="mt-4 inline-flex items-center gap-1 rounded-full bg-primary-foreground/15 px-2.5 py-1 text-xs font-semibold">
           <Sparkles className="size-3.5" aria-hidden="true" />
-          {passport.xpEarned.toLocaleString("pt-BR")} XP conquistados
+          {passport.xpEarned.toLocaleString("pt-BR")} XP em atividades do
+          passaporte
         </p>
       </div>
     </section>
