@@ -16,7 +16,7 @@ export default function LoginLoading() {
           src="/images/brand/devfest-logo.png"
           alt="DevFest Triângulo"
           width={200}
-          height={60}
+          height={62}
           className="h-auto w-48"
         />
       </header>
