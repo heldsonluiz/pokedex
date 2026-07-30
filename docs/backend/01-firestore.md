@@ -189,6 +189,14 @@ lista duplicada de palestras no documento do palestrante.
 alteram esse estado, e a liberação não depende do horário da apresentação. Não
 é necessário registrar quem ou quando liberou a avaliação.
 
+Cada documento de `talk-ratings` usa um ID determinístico derivado de evento,
+participante e palestra. Ele armazena `speakerRating`, `contentRating`,
+`comprehensionRating`, `comment`, `xpAwarded` e `completedAt`. As três notas
+são inteiros obrigatórios entre 1 e 5; o comentário é obrigatório e contém de
+20 a 500 caracteres. Avaliação e XP são persistidos na mesma transação. Um
+reenvio devolve a avaliação existente sem conceder pontuação novamente, e o
+estado `open` é validado no documento atual da palestra dentro da transação.
+
 Cada documento de `scheduleSlots` representa uma faixa de horário com
 `startsAt`, `endsAt` e `items`. As datas usam `Timestamp`. Um item de
 `type: "talk"` contém `talkId`, `room` e `order`; os dados da apresentação e

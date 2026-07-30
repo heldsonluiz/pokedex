@@ -21,6 +21,7 @@
 | `/profile/qr-code`            | compartilhar QR         | código, instrução e alternativa de compartilhamento |
 | `/tickets`                    | gerenciar tickets       | saldo, XP conversível, conversão e histórico        |
 | `/operations`                 | operar o evento         | atendimento, bloqueios, brindes e sorteios          |
+| `/operations/talks`           | liberar avaliações      | palestras, estados e controles administrativos      |
 | `/raffles/live`               | projetar os sorteios    | candidato, vencedor e andamento sem controles       |
 | `/talks`                      | listar palestras        | conteúdo, palestrantes e status da avaliação        |
 | `/talks/[talkId]`             | detalhar palestra       | descrição, horário e avaliação identificada         |
@@ -51,6 +52,24 @@ já foram visitadas. Cada card informa o estado do carimbo e abre
 para encontrar o QR Code; depois da visita, passa a exibir a imagem do carimbo,
 o momento da conquista e a pontuação recebida. O catálogo possui estados de
 carregamento, vazio e erro recuperável.
+
+A Home oferece acesso a `/talks`, que lista palestras, painéis e keynotes
+ativos, seus palestrantes, o estado da avaliação e a conclusão individual. O
+detalhe em `/talks/[talkId]` apresenta conteúdo, participantes e o formulário
+quando `evaluationStatus` está `open`. Os três critérios recebem notas
+obrigatórias de 1 a 5; o comentário obrigatório possui de 20 a 500 caracteres.
+Erros de validação aparecem junto ao respectivo campo. Avaliações bloqueadas ou
+encerradas explicam seu estado, enquanto uma conclusão anterior continua
+visível mesmo após o encerramento.
+
+Administradores acessam `/operations/talks` por um atalho na Central de
+Operações e controlam individualmente `locked`, `open` e `closed`. Reviewers e
+demais papéis não recebem esse controle. Enquanto `scheduleSlots` não está
+implementado, os cards reservam espaços para trilha e horário com placeholders,
+ordenam alfabeticamente os itens ativos e mantêm os encerrados no final. A fase
+de cronograma substituirá os placeholders e usará o horário real na ordenação.
+A alteração de estado invalida o cache de palestras imediatamente para que o
+participante consulte o novo estado sem aguardar o prazo normal do catálogo.
 
 `/scan` inicia a câmera automaticamente, aceita tanto a webcam quanto as câmeras
 do smartphone e prioriza a câmera traseira quando ela estiver disponível. O

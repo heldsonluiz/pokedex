@@ -22,7 +22,7 @@ export function AppShell({
   return (
     <div
       className={cn(
-        "min-h-dvh w-full overflow-x-hidden bg-(image:--gradient-page-backdrop)",
+        "h-dvh w-full overflow-hidden bg-(image:--gradient-page-backdrop)",
         theme === "dark" && "dark",
         className
       )}

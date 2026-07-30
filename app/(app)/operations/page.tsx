@@ -1,10 +1,12 @@
 import {
   CheckCircle2,
+  ChevronRight,
   CircleAlert,
   Dices,
   FlaskConical,
   Gift,
   LockKeyhole,
+  Mic2,
   MonitorUp,
   ScanLine,
   ShieldCheck,
@@ -270,6 +272,29 @@ export default async function OperationsPage() {
           <p className="text-sm leading-5 text-muted-foreground">
             {serviceControlsDisabledReason}
           </p>
+        )}
+
+        {operations.canManage && (
+          <Link
+            href="/operations/talks"
+            className="flex items-center gap-3 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Mic2 className="size-6" aria-hidden="true" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold">
+                Avaliações de palestras
+              </span>
+              <span className="mt-0.5 block text-sm text-muted-foreground">
+                Libere ou encerre avaliações
+              </span>
+            </span>
+            <ChevronRight
+              className="size-5 shrink-0 text-muted-foreground"
+              aria-hidden="true"
+            />
+          </Link>
         )}
 
         {operations.canManage && <CatalogCacheButton />}

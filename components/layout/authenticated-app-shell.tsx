@@ -48,9 +48,21 @@ const routeLayouts: Record<string, RouteLayout> = {
     showNavigation: false,
     backHref: "/home",
   },
+  "/talks": {
+    title: "Palestras",
+    showHeader: true,
+    showNavigation: false,
+    backHref: "/home",
+  },
   "/operations": {
     title: "Operações",
     showNavigation: true,
+  },
+  "/operations/talks": {
+    title: "Avaliações de palestras",
+    showHeader: true,
+    showNavigation: false,
+    backHref: "/operations",
   },
   "/profile": {
     title: "Perfil",
@@ -135,7 +147,14 @@ export function AuthenticatedAppShell({
                 showNavigation: false,
                 backHref: "/companies",
               }
-            : fallbackLayout)
+            : pathname.startsWith("/talks/")
+              ? {
+                  title: "Palestra",
+                  showHeader: true,
+                  showNavigation: false,
+                  backHref: "/talks",
+                }
+              : fallbackLayout)
   const qrCodeSource =
     pathname === "/profile/qr-code" ? searchParams.get("source") : null
   const backHref =
