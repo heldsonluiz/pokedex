@@ -43,6 +43,51 @@ describe("ranking repository", () => {
       6, 7, 8, 9, 10,
     ])
   })
+
+  it("builds the Top 10 from indexed query segments", () => {
+    const profiles = createProfiles(10)
+    const ranking = repository.buildIndexedRankingWindow({
+      current: profiles[1],
+      position: 2,
+      top: profiles,
+      above: [],
+      below: [],
+    })
+
+    expect(ranking.top.map(({ position }) => position)).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+    ])
+    expect(ranking.nearby).toEqual([])
+  })
+
+  it("positions indexed neighbors without repeating the podium", () => {
+    const profiles = createProfiles(12)
+    const ranking = repository.buildIndexedRankingWindow({
+      current: profiles[7],
+      position: 8,
+      top: profiles.slice(0, 3),
+      above: profiles.slice(4, 7),
+      below: profiles.slice(8, 11),
+    })
+
+    expect(ranking.top.map(({ position }) => position)).toEqual([1, 2, 3])
+    expect(ranking.nearby.map(({ position }) => position)).toEqual([
+      5, 6, 7, 8, 9, 10, 11,
+    ])
+  })
+
+  it("starts the indexed contextual window at fourth place", () => {
+    const profiles = createProfiles(8)
+    const ranking = repository.buildIndexedRankingWindow({
+      current: profiles[3],
+      position: 4,
+      top: profiles.slice(0, 3),
+      above: [],
+      below: profiles.slice(4, 7),
+    })
+
+    expect(ranking.nearby.map(({ position }) => position)).toEqual([4, 5, 6, 7])
+  })
 })
 
 function createProfiles(amount: number): repository.RankingProfile[] {

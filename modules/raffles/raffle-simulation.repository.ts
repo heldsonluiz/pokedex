@@ -2,10 +2,15 @@ import "server-only"
 
 import { createHash, randomInt, randomUUID } from "node:crypto"
 
-import { FieldPath, Timestamp } from "firebase-admin/firestore"
+import { Timestamp } from "firebase-admin/firestore"
+import { revalidateTag, unstable_cache } from "next/cache"
 import * as z from "zod"
 
-import { CONSUME_RAFFLE_WINNER_TICKETS } from "@/config/raffles"
+import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
+import {
+  CONSUME_RAFFLE_WINNER_TICKETS,
+  RAFFLE_PREPARATION_BATCH_SIZE,
+} from "@/config/raffles"
 import { firestore } from "@/lib/firebase/admin"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
@@ -18,6 +23,7 @@ import {
   raffleFieldsSchema,
 } from "./raffle.schema"
 import { calculateRaffleAllocation } from "./raffle-calculator"
+import { findRaffleProfilePage } from "./raffle-profile-query"
 import {
   type RaffleSimulation,
   raffleSimulationFieldsSchema,
@@ -25,11 +31,8 @@ import {
 import { selectWeightedCandidate } from "./weighted-draw"
 
 const OPERATIONS_COLLECTION = "eventOperations"
-const PROFILES_COLLECTION = "profiles"
-const TRANSACTIONS_COLLECTION = "ticketTransactions"
 const RAFFLES_COLLECTION = "raffles"
 const SIMULATIONS_COLLECTION = "raffleTestRuns"
-const DEFAULT_BATCH_SIZE = 100
 
 const profileSchema = z.object({
   userId: z.string().trim().min(1).max(128),
@@ -40,7 +43,7 @@ const profileSchema = z.object({
   xp: z.number().int().nonnegative().default(0),
   ticketBalance: z.number().int().nonnegative().default(0),
   convertedXp: z.number().int().nonnegative().default(0),
-  onboardingTicketGranted: z.boolean().nullable().default(null),
+  onboardingTicketGranted: z.boolean().default(false),
 })
 
 const simulationDocumentSchema = raffleSimulationFieldsSchema
@@ -185,6 +188,7 @@ export async function startRaffleSimulation(
     snapshotFormat: "chunked-v1",
     cursor: null,
     processedParticipants: 0,
+    skippedParticipants: 0,
     rewardRedemptionEnabled: false,
     snapshotAt: now,
     createdAt: now,
@@ -240,6 +244,7 @@ export async function startRaffleSimulation(
     snapshotFormat: "chunked-v1",
     cursor: null,
     processedParticipants: 0,
+    skippedParticipants: 0,
     rewardRedemptionEnabled: false,
     snapshotAt: now,
     createdAt: now,
@@ -252,11 +257,16 @@ export async function startRaffleSimulation(
 export async function processRaffleSimulationBatch(
   eventId: string,
   operatorId: string,
-  batchSize = DEFAULT_BATCH_SIZE
+  batchSize = RAFFLE_PREPARATION_BATCH_SIZE
 ) {
   const validatedEventId = profileSchema.shape.eventId.parse(eventId)
   profileSchema.shape.userId.parse(operatorId)
-  const validatedBatchSize = z.number().int().min(1).max(100).parse(batchSize)
+  const validatedBatchSize = z
+    .number()
+    .int()
+    .min(1)
+    .max(RAFFLE_PREPARATION_BATCH_SIZE)
+    .parse(batchSize)
   const simulation = await findActiveRaffleSimulation(validatedEventId)
 
   if (
@@ -268,55 +278,41 @@ export async function processRaffleSimulationBatch(
   }
 
   const runRef = simulationRef(simulation.id)
-  const profileQuery = firestore
-    .collection(PROFILES_COLLECTION)
-    .where("eventId", "==", validatedEventId)
-    .orderBy(FieldPath.documentId())
-    .limit(validatedBatchSize + 1)
-  const profileSnapshots = await (
-    simulation.cursor
-      ? profileQuery.startAfter(simulation.cursor)
-      : profileQuery
-  ).get()
-  const nextSnapshots = profileSnapshots.docs.slice(0, validatedBatchSize)
+  const profilePage = await findRaffleProfilePage({
+    eventId: validatedEventId,
+    batchSize: validatedBatchSize,
+    cursor: simulation.cursor,
+  })
+  const nextSnapshots = profilePage.snapshots
 
   if (nextSnapshots.length === 0) {
     await runRef.update({ status: "ready" })
     return {
       status: "ready" as const,
       processedParticipants: simulation.processedParticipants,
+      skippedParticipants: simulation.skippedParticipants,
     }
   }
 
-  const participants = nextSnapshots.flatMap((snapshot) => {
+  const participants: Array<z.infer<typeof profileSchema>> = []
+  const skippedSnapshots: typeof nextSnapshots = []
+
+  nextSnapshots.forEach((snapshot) => {
     const parsed = profileSchema.safeParse(snapshot.data())
 
-    return parsed.success &&
-      parsed.data.userId === snapshot.id &&
-      parsed.data.onboardingCompleted &&
-      parsed.data.accessRoles.includes("participant")
-      ? [parsed.data]
-      : []
+    if (
+      !parsed.success ||
+      parsed.data.userId !== snapshot.id ||
+      parsed.data.eventId !== validatedEventId ||
+      !parsed.data.onboardingCompleted ||
+      !parsed.data.accessRoles.includes("participant")
+    ) {
+      skippedSnapshots.push(snapshot)
+      return
+    }
+
+    participants.push(parsed.data)
   })
-  const legacyParticipants = participants.filter(
-    (profile) => profile.onboardingTicketGranted === null
-  )
-  const onboardingRefs = legacyParticipants.map((profile) =>
-    firestore
-      .collection(TRANSACTIONS_COLLECTION)
-      .doc(
-        deterministicId([validatedEventId, profile.userId, "onboarding_grant"])
-      )
-  )
-  const onboardingSnapshots = await Promise.all(
-    onboardingRefs.map((reference) => reference.get())
-  )
-  const legacyGrantByParticipant = new Map(
-    legacyParticipants.map((profile, index) => [
-      profile.userId,
-      onboardingSnapshots[index].exists,
-    ])
-  )
   const batch = firestore.batch()
 
   const chunkParticipants = participants.map((profile) => {
@@ -324,10 +320,7 @@ export async function processRaffleSimulationBatch(
       xp: profile.xp,
       convertedXp: profile.convertedXp,
       ticketBalance: profile.ticketBalance,
-      hasOnboardingGrant:
-        profile.onboardingTicketGranted ??
-        legacyGrantByParticipant.get(profile.userId) ??
-        false,
+      hasOnboardingGrant: profile.onboardingTicketGranted,
     })
     const balanceTickets =
       profile.ticketBalance +
@@ -356,20 +349,38 @@ export async function processRaffleSimulationBatch(
     })
   }
 
-  const reachedEnd = profileSnapshots.size <= validatedBatchSize
+  skippedSnapshots.forEach((snapshot) => {
+    batch.create(runRef.collection("skippedProfiles").doc(snapshot.id), {
+      eventId: validatedEventId,
+      participantId: snapshot.id,
+      reason: "INVALID_PROFILE",
+      snapshotAt: Timestamp.fromDate(simulation.snapshotAt),
+      createdAt: Timestamp.fromDate(simulation.snapshotAt),
+    })
+  })
+
+  const reachedEnd = profilePage.reachedEnd
   const processedParticipants =
-    simulation.processedParticipants + participants.length
+    simulation.processedParticipants + nextSnapshots.length
+  const skippedParticipants =
+    simulation.skippedParticipants + skippedSnapshots.length
 
   batch.update(runRef, {
-    cursor: nextSnapshots.at(-1)?.id ?? simulation.cursor,
+    cursor: profilePage.nextCursor,
     processedParticipants,
+    skippedParticipants,
     status: reachedEnd ? "ready" : "preparing",
   })
   await batch.commit()
 
+  if (reachedEnd) {
+    revalidateTag(CACHE_TAGS.RAFFLE_SNAPSHOTS, { expire: 0 })
+  }
+
   return {
     status: reachedEnd ? ("ready" as const) : ("preparing" as const),
     processedParticipants,
+    skippedParticipants,
   }
 }
 
@@ -384,25 +395,43 @@ export async function findSimulationRaffles(runId: string) {
     .sort((first, second) => first.order - second.order)
 }
 
-async function findSimulationEntries(runId: string) {
-  const runRef = simulationRef(runId)
-  const [chunkSnapshots, winnerSnapshots] = await Promise.all([
-    runRef.collection("entryChunks").get(),
-    runRef.collection("winners").get(),
-  ])
-  const winnerIds = new Set(winnerSnapshots.docs.map((snapshot) => snapshot.id))
+async function loadSimulationSnapshotEntries(runId: string) {
+  const chunkSnapshots = await simulationRef(runId)
+    .collection("entryChunks")
+    .get()
 
   return chunkSnapshots.docs
     .flatMap(
       (snapshot) => parseEntryChunk(snapshot.id, snapshot.data()).participants
     )
-    .filter(
-      (entry) => !winnerIds.has(entry.participantId) && entry.ticketWeight > 0
-    )
+    .filter((entry) => entry.ticketWeight > 0)
+}
+
+const findCachedSimulationSnapshotEntries = unstable_cache(
+  loadSimulationSnapshotEntries,
+  ["raffle-simulation-entry-snapshots"],
+  {
+    revalidate: CACHE_SECONDS.RAFFLE_SNAPSHOT,
+    tags: [CACHE_TAGS.RAFFLE_SNAPSHOTS],
+  }
+)
+
+async function findSimulationEntries(runId: string) {
+  const runRef = simulationRef(runId)
+  const [entries, winnerSnapshots] = await Promise.all([
+    findCachedSimulationSnapshotEntries(runId),
+    runRef.collection("winners").get(),
+  ])
+  const winnerIds = new Set(winnerSnapshots.docs.map((snapshot) => snapshot.id))
+
+  return entries.filter((entry) => !winnerIds.has(entry.participantId))
 }
 
 async function findSimulationAttempts(runId: string, raffleId: string) {
-  const snapshots = await simulationRef(runId).collection("attempts").get()
+  const snapshots = await simulationRef(runId)
+    .collection("attempts")
+    .where("raffleId", "==", raffleId)
+    .get()
 
   return snapshots.docs
     .map((snapshot) => parseAttempt(snapshot.id, snapshot.data()))

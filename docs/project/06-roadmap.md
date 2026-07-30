@@ -2,7 +2,7 @@
 
 O desenvolvimento é incremental. Cada fase deve entregar uma parte utilizável, manter o projeto validável e atualizar a documentação afetada.
 
-Status atual: Fases 1 (Fundação), 2 (Design System), 3 (Autenticação), 4 (Perfil), 5 (Onboarding), 6 (Navegação), 7 (Home), 8 (QR Code), 9 (Scanner), 10 (Networking), 11 (Empresas), 12 (Tags), 13 (Missões), 14 (Passaporte), 15 (Ranking) e 17 (Tickets) concluídas. A funcionalidade da Fase 16 (Badges) foi removida do produto. A próxima etapa é a Fase 18 (Palestras). O networking cria a conexão automaticamente após uma leitura válida, concede 5 XP a cada participante e permite que qualquer uma das partes remova a conexão, revogando a pontuação de ambas. Empresas ativas possuem um QR Code fixo; a primeira leitura registra permanentemente visita, carimbo e XP em uma transação idempotente. O catálogo e os detalhes exibem o progresso real do participante. Tags ativas usam QR Codes fixos e concedem XP uma única vez; a coleção mantém itens ainda não encontrados anônimos e revela seus dados após a descoberta permanente. Os valores padrão de XP ficam centralizados em `config/scores.ts`, e cada conclusão preserva o valor efetivamente concedido. O contrato central aceita QR Codes de participante, empresa, missão e tag; palestras não possuem QR Code e terão avaliações liberadas pelo horário de encerramento. O passaporte agrega as conclusões existentes sem criar uma nova fonte de verdade. Os dez níveis são derivados do XP; o ranking exibe Top 3 ou Top 10 e uma janela contextual com até três posições de cada lado do participante. Tickets começam com uma concessão no onboarding e podem ser obtidos pela conversão de cada 200 XP ainda não utilizados, sem reduzir nível ou ranking. A rota temporária `/design-system` permanece disponível durante o desenvolvimento e deve ser removida na conclusão do MVP.
+Status atual: Fases 1 (Fundação), 2 (Design System), 3 (Autenticação), 4 (Perfil), 5 (Onboarding), 6 (Navegação), 7 (Home), 8 (QR Code), 9 (Scanner), 10 (Networking), 11 (Empresas), 12 (Tags), 13 (Missões), 14 (Passaporte), 15 (Ranking), 17 (Tickets) e 22 (Escalabilidade do ranking) concluídas. A Fase 23 (Resumo individual leve) está implementada e aguarda validação manual antes do merge. A funcionalidade da Fase 16 (Badges) foi removida do produto. A próxima etapa funcional é a Fase 18 (Palestras). O networking cria a conexão automaticamente após uma leitura válida, concede 5 XP a cada participante e permite que qualquer uma das partes remova a conexão, revogando a pontuação de ambas. Empresas ativas possuem um QR Code fixo; a primeira leitura registra permanentemente visita, carimbo e XP em uma transação idempotente. O catálogo e os detalhes exibem o progresso real do participante. Tags ativas usam QR Codes fixos e concedem XP uma única vez; a coleção mantém itens ainda não encontrados anônimos e revela seus dados após a descoberta permanente. Os valores padrão de XP ficam centralizados em `config/scores.ts`, e cada conclusão preserva o valor efetivamente concedido. O contrato central aceita QR Codes de participante, empresa, missão e tag; palestras não possuem QR Code e terão avaliações liberadas pelo horário de encerramento. O passaporte agrega as conclusões existentes sem criar uma nova fonte de verdade. Os dez níveis são derivados do XP; o ranking usa consultas indexadas para exibir Top 3 ou Top 10 e uma janela contextual com até três posições de cada lado do participante. Tickets começam com uma concessão no onboarding e podem ser obtidos pela conversão idempotente de cada 200 XP ainda não utilizados, sem reduzir nível ou ranking. A rota temporária `/design-system` permanece disponível durante o desenvolvimento e deve ser removida na conclusão do MVP.
 
 A Fase 17 cobre conversões, brindes, controles operacionais, fechamento
 retomável e sorteios ponderados. Uma execução administrativa isolada permite
@@ -16,30 +16,31 @@ O MVP inclui autenticação, perfil, onboarding, navegação, empresas, tags, mi
 
 ## Fases
 
-| Fase                          | Entrega principal                                   | Dependência                   |
-| ----------------------------- | --------------------------------------------------- | ----------------------------- |
-| 1. Fundação                   | Next.js, TypeScript, estilos, qualidade e ambiente  | —                             |
-| 2. Design System              | tokens, componentes base e shell mobile             | Fundação                      |
-| 3. Autenticação               | Google, sessão e proteção de rotas                  | Ambiente                      |
-| 4. Perfil                     | schema, persistência, edição e QR do participante   | Autenticação                  |
-| 5. Onboarding                 | fluxo inicial e conclusão de perfil                 | Perfil                        |
-| 6. Navegação                  | layout autenticado, header e menu inferior          | Design System                 |
-| 7. Home                       | resumo e atalhos das atividades                     | Perfil e navegação            |
-| 8. QR Code                    | formato, geração e validação central                | Autenticação e Firestore      |
-| 9. Scanner                    | câmera, leitura e estados de resposta               | QR Code                       |
-| 10. Networking                | criação automática, XP e remoção de conexões        | Scanner e perfil              |
-| 11. Empresas                  | catálogo, detalhes e registro de visita             | Scanner                       |
-| 12. Tags                      | QR fixo, descoberta única e XP                      | Scanner e perfil              |
-| 13. Missões                   | catálogo, critérios e conclusão                     | Empresas e perfil             |
-| 14. Passaporte                | progresso de empresas, tags e missões               | Empresas, tags e missões      |
-| 15. Ranking                   | XP, níveis e classificação                          | Interações anteriores         |
-| 16. Badges (removida)         | funcionalidade retirada do produto                  | —                             |
-| 17. Tickets                   | conversão, brindes, operações e sorteios ponderados | XP e níveis                   |
-| 18. Palestras                 | agenda e missão de avaliação após encerramento      | Perfil                        |
-| 19. Polimento                 | acessibilidade, desempenho e estados de UI          | MVP funcional                 |
-| 20. Integração administrativa | contratos com o painel externo                      | Funcionalidades configuráveis |
-| 21. Lançamento                | observabilidade, segurança e deploy                 | Todas as fases necessárias    |
-| 22. Escalabilidade do ranking | consulta indexada, paginação e redução de leituras  | MVP entregue                  |
+| Fase                          | Entrega principal                                  | Dependência                |
+| ----------------------------- | -------------------------------------------------- | -------------------------- |
+| 1. Fundação                   | Next.js, TypeScript, estilos, qualidade e ambiente | —                          |
+| 2. Design System              | tokens, componentes base e shell mobile            | Fundação                   |
+| 3. Autenticação               | Google, sessão e proteção de rotas                 | Ambiente                   |
+| 4. Perfil                     | schema, persistência, edição e QR do participante  | Autenticação               |
+| 5. Onboarding                 | fluxo inicial e conclusão de perfil                | Perfil                     |
+| 6. Navegação                  | layout autenticado, header e menu inferior         | Design System              |
+| 7. Home                       | resumo e atalhos das atividades                    | Perfil e navegação         |
+| 8. QR Code                    | formato, geração e validação central               | Autenticação e Firestore   |
+| 9. Scanner                    | câmera, leitura e estados de resposta              | QR Code                    |
+| 10. Networking                | criação automática, XP e remoção de conexões       | Scanner e perfil           |
+| 11. Empresas                  | catálogo, detalhes e registro de visita            | Scanner                    |
+| 12. Tags                      | QR fixo, descoberta única e XP                     | Scanner e perfil           |
+| 13. Missões                   | catálogo, critérios e conclusão                    | Empresas e perfil          |
+| 14. Passaporte                | progresso de empresas, tags e missões              | Empresas, tags e missões   |
+| 15. Ranking                   | XP, níveis e classificação                         | Interações anteriores      |
+| 16. Badges (removida)         | funcionalidade retirada do produto                 | —                          |
+| 17. Tickets                   | conversão de XP, brindes e sorteios ponderados     | XP e operações             |
+| 18. Palestras                 | agenda e missão de avaliação após encerramento     | Perfil                     |
+| 19. Polimento                 | acessibilidade, desempenho e estados de UI         | MVP funcional              |
+| 20. Integração administrativa | contratos externos, permissões e cache             | Catálogos configuráveis    |
+| 21. Lançamento                | observabilidade, segurança e deploy                | Todas as fases necessárias |
+| 22. Escalabilidade do ranking | consulta indexada, paginação e redução de leituras | MVP entregue               |
+| 23. Resumo individual leve    | contadores transacionais exibidos na Home          | Interações do participante |
 
 ## Marcos
 
@@ -47,16 +48,16 @@ O MVP inclui autenticação, perfil, onboarding, navegação, empresas, tags, mi
 2. **Participante pronto:** perfil, onboarding, navegação e home.
 3. **Interações reais:** QR Code, scanner, networking, empresas e palestras.
 4. **Gamificação:** tags, missões, passaporte e ranking.
-5. **Sorteios:** tickets concedidos e convertidos de forma idempotente, com brindes e sorteios auditáveis.
+5. **Sorteios:** ticket inicial e conversões de XP idempotentes, com brindes e sorteios auditáveis.
 6. **Produção:** polimento, observabilidade e deploy.
-7. **Pós-MVP:** ranking preparado para a escala real do evento.
+7. **Escalabilidade:** cache dos catálogos, ranking indexado e resumo individual leve.
 
 ## Prioridades
 
 - **Crítica:** autenticação, perfil, segurança, QR Code e scanner.
 - **Alta:** empresas, tags, missões, passaporte e networking.
 - **Média:** palestras, ranking e tickets.
-- **Posterior:** escalabilidade do ranking, integrações adicionais com o painel administrativo externo e expansões não essenciais.
+- **Posterior:** integrações adicionais com o painel administrativo externo e expansões não essenciais.
 
 ## Critérios comuns de aceite
 
@@ -76,7 +77,7 @@ Uma fase só está concluída quando:
 | internet instável       | exigir conexão nos scans, usar respostas pequenas e retry seguro |
 | pico de acessos         | consultas indexadas, paginação e testes de carga                 |
 | fraude em QR Code       | identificadores públicos, validação e idempotência no servidor   |
-| tickets duplicados      | chave idempotente por participante e nível                       |
+| tickets duplicados      | chave idempotente por concessão, conversão e operação            |
 | concorrência no ranking | atualizações atômicas e cálculo controlado pelo servidor         |
 
 ## Fora do escopo inicial

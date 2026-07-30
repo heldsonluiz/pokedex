@@ -30,7 +30,7 @@ const ticketProfileSchema = z.object({
   xp: z.number().int().nonnegative().default(0),
   ticketBalance: z.number().int().nonnegative().default(0),
   convertedXp: z.number().int().nonnegative().default(0),
-  onboardingTicketGranted: z.boolean().nullable().default(null),
+  onboardingTicketGranted: z.boolean().default(false),
 })
 
 const transactionDocumentSchema = ticketTransactionFieldsSchema
@@ -79,10 +79,7 @@ export async function ensureOnboardingTicket(
     .doc(transactionId)
 
   return firestore.runTransaction(async (transaction) => {
-    const [profileSnapshot, ticketSnapshot] = await Promise.all([
-      transaction.get(profileRef),
-      transaction.get(transactionRef),
-    ])
+    const profileSnapshot = await transaction.get(profileRef)
 
     if (!profileSnapshot.exists) {
       return "profile-unavailable"
@@ -99,15 +96,18 @@ export async function ensureOnboardingTicket(
       return "profile-unavailable"
     }
 
+    if (profile.onboardingTicketGranted) {
+      return "already-granted"
+    }
+
+    const ticketSnapshot = await transaction.get(transactionRef)
+
     if (ticketSnapshot.exists) {
       parseTransaction(ticketSnapshot.id, ticketSnapshot.data())
-
-      if (profile.onboardingTicketGranted !== true) {
-        transaction.update(profileRef, {
-          onboardingTicketGranted: true,
-          updatedAt: Timestamp.now(),
-        })
-      }
+      transaction.update(profileRef, {
+        onboardingTicketGranted: true,
+        updatedAt: Timestamp.now(),
+      })
 
       return "already-granted"
     }

@@ -2,29 +2,44 @@
 
 ## Coleções
 
-| Coleção               | Finalidade                 | Campos essenciais                                                                        |
-| --------------------- | -------------------------- | ---------------------------------------------------------------------------------------- |
-| `events`              | configuração do evento     | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                         |
-| `profiles`            | participante               | `userId`, `eventId`, dados públicos, `qrId`, `xp`, `xpReachedAt`, onboarding, timestamps |
-| `companies`           | patrocinadores             | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                        |
-| `tags`                | itens escondidos           | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
-| `talks`               | palestras                  | `eventId`, título, palestrante, horários, sala e liberação da avaliação                  |
-| `missions`            | missões                    | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
-| `ticketTransactions`  | movimentações de tickets   | evento, participante, tipo, quantidade, XP convertido, operador, referência e timestamp  |
-| `eventOperations`     | controles operacionais     | evento, conversões, resgates, fechamento e responsável                                   |
-| `rewards`             | catálogo de brindes        | evento, conteúdo, custo, estoque, limites e estado                                       |
-| `rewardRedemptions`   | resgates de brindes        | evento, participante, brinde, quantidade, custo, operador e timestamp                    |
-| `raffleEntryChunks`   | fotografia das chances     | evento, snapshot e blocos de até 100 participantes                                       |
-| `raffleWinners`       | exclusões entre sorteios   | evento, participante, prêmio, confirmação e operador                                     |
-| `raffleAttempts`      | tentativas dos sorteios    | prêmio, candidato, peso, universo, resultado, operador e timestamps                      |
-| `raffles`             | sorteios ponderados        | evento, prêmio, estado, fotografia, universo elegível e vencedor                         |
-| `raffleTestRuns`      | simulações administrativas | fotografia isolada, progresso, prêmios, tentativas e resultados                          |
-| `connections`         | networking                 | `eventId`, perfis, status, criação, remoção e XP concedida                               |
-| `activityCompletions` | progresso e carimbos       | evento, participante, tipo, entidade, QR, XP concedida e conclusão                       |
-| `scans`               | histórico de leituras      | `eventId`, perfil, tipo, alvo, QR e timestamp                                            |
-| `talk-ratings`        | avaliações de palestras    | `eventId`, palestra, avaliador, respostas e timestamp                                    |
+| Coleção                 | Finalidade                  | Campos essenciais                                                                        |
+| ----------------------- | --------------------------- | ---------------------------------------------------------------------------------------- |
+| `events`                | configuração do evento      | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                         |
+| `profiles`              | participante                | `userId`, `eventId`, dados públicos, `qrId`, `xp`, `xpReachedAt`, onboarding, timestamps |
+| `companies`             | patrocinadores              | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                        |
+| `tags`                  | itens escondidos            | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
+| `talks`                 | palestras                   | `eventId`, título, palestrante, horários, sala e liberação da avaliação                  |
+| `missions`              | missões                     | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
+| `ticketTransactions`    | movimentações de tickets    | evento, participante, tipo, quantidade, XP convertido, operador, referência e timestamp  |
+| `eventOperations`       | controles operacionais      | evento, conversões, resgates, fechamento e responsável                                   |
+| `rewards`               | catálogo de brindes         | evento, conteúdo, custo, estoque, limites e estado                                       |
+| `rewardRedemptions`     | resgates de brindes         | evento, participante, brinde, quantidade, custo, operador e timestamp                    |
+| `raffleEntryChunks`     | fotografia das chances      | evento, snapshot e blocos de até 100 participantes                                       |
+| `raffleWinners`         | exclusões entre sorteios    | evento, participante, prêmio, confirmação e operador                                     |
+| `raffleAttempts`        | tentativas dos sorteios     | prêmio, candidato, peso, universo, resultado, operador e timestamps                      |
+| `raffleSkippedProfiles` | exclusões por dado inválido | evento, participante, motivo controlado e instante da fotografia                         |
+| `raffles`               | sorteios ponderados         | evento, prêmio, estado, fotografia, universo elegível e vencedor                         |
+| `raffleTestRuns`        | simulações administrativas  | fotografia isolada, progresso, prêmios, tentativas e resultados                          |
+| `connections`           | networking                  | `eventId`, perfis, status, criação, remoção e XP concedida                               |
+| `activityCompletions`   | progresso e carimbos        | evento, participante, tipo, entidade, QR, XP concedida e conclusão                       |
+| `participantSummaries`  | resumo individual leve      | evento, participante, contadores de conexões e atividades, inicialização e atualização   |
+| `scans`                 | histórico de leituras       | `eventId`, perfil, tipo, alvo, QR e timestamp                                            |
+| `talk-ratings`          | avaliações de palestras     | `eventId`, palestra, avaliador, respostas e timestamp                                    |
 
 Schemas completos devem existir no código e ser validados com Zod. Este documento registra o modelo conceitual, não substitui os contratos tipados.
+
+Os catálogos ativos de empresas, tags e missões usam cache compartilhado de
+15 minutos por evento. Brindes usam cache de 30 segundos porque o estoque é
+mutável; um resgate concluído invalida esse cache imediatamente. Dados
+individuais, conclusões, saldos, resgates e operações permanecem fora do cache.
+Os prazos também limitam a defasagem de alterações feitas pelo painel
+administrativo externo. Administradores podem invalidar imediatamente os
+quatro catálogos pela Central de Operações após uma alteração no painel.
+
+As ações revalidam somente páginas que consomem os dados alterados. A listagem
+de missões deriva conclusões e pré-requisitos de uma única leitura de
+`activityCompletions`; o atendimento de brindes também reutiliza o mesmo
+contexto autorizado do operador e do participante durante toda a requisição.
 
 ### Perfil implementado
 
@@ -71,6 +86,12 @@ Ao criar a conexão, os dois participantes recebem os 5 XP definidos por
 `SCORES.PARTICIPANT_CONNECTION`. A conexão e os dois perfis são atualizados na mesma
 transação. A remoção por qualquer participante subtrai de ambos exatamente o
 valor registrado na conexão, também atomicamente, sem apagar o histórico.
+
+Na criação ou reativação, os perfis já foram validados pelo serviço antes da
+transação. O repositório lê somente a conexão para garantir idempotência e usa
+`FieldValue.increment()` para creditar atomicamente os dois perfis sem reler
+seus saldos. A remoção continua lendo ambos os perfis antes do desconto para
+impedir XP negativo caso exista alguma inconsistência.
 
 ### Empresas e visitas
 
@@ -147,6 +168,26 @@ Somente perfis com `participant` recebem a projeção. Os valores de XP são
 obtidos das conclusões persistidas, preservando a recompensa efetivamente
 concedida. Tags bloqueadas continuam anônimas.
 
+### Resumo individual
+
+`participantSummaries` é uma projeção leve usada por telas que precisam apenas
+dos totais do participante. Ela armazena `connectionsCount`,
+`companiesVisitedCount`, `tagsDiscoveredCount` e
+`missionsCompletedCount`. XP, nível, tickets e posição no ranking não são
+duplicados: continuam sendo obtidos de suas fontes de verdade.
+
+Novos perfis recebem o resumo zerado na mesma transação de criação. Para
+participantes anteriores à projeção, a primeira leitura reconstrói os
+contadores a partir de `activityCompletions` e `connections` e persiste o
+resultado. Essa inicialização também é transacional: uma conclusão ou conexão
+concorrente provoca uma nova tentativa, evitando perda ou duplicação.
+
+Depois da inicialização, a Home lê somente um documento de resumo. Visitas,
+tags, missões e conexões atualizam seus contadores na mesma transação da
+operação principal. A remoção de uma conexão decrementa as duas partes. As
+coleções detalhadas continuam sendo a fonte auditável e alimentam as páginas
+que precisam de IDs, datas ou conteúdo completo.
+
 ### Níveis e ranking
 
 As dez faixas ficam centralizadas em `config/levels.ts`. O nível é derivado do
@@ -157,20 +198,56 @@ participantes no ranking.
 
 O ranking consulta somente perfis concluídos do evento com `accessRoles`
 contendo `participant`. A ordem usa `xp` decrescente, `xpReachedAt` crescente e
-ID do documento crescente. O ID resolve o caso raro de XP e timestamp
+`userId` crescente. O identificador resolve o caso raro de XP e timestamp
 idênticos.
-
-Durante o MVP, o servidor busca os perfis do evento, filtra os participantes e
-ordena o resultado em memória. A classificação completa usa cache compartilhado
-de 60 segundos; por isso, atualizações de XP podem levar até esse intervalo para
-aparecer. Essa solução temporária elimina a dependência imediata de um índice
-composto, mas seu custo cresce linearmente com o número de perfis.
 
 Participantes entre os três primeiros recebem a lista das dez primeiras
 posições. Os demais recebem o Top 3 e uma janela contextual com até três
-posições anteriores e três posteriores, sem repetir o pódio. Depois do MVP, o
-ranking deverá migrar para
-consulta indexada e paginada ou para uma projeção própria de leaderboard.
+posições anteriores e três posteriores, sem repetir o pódio.
+
+O ranking usa uma consulta composta ordenada e `count()` até o cursor do
+participante para calcular a posição sem carregar os perfis anteriores. Em
+seguida, busca somente o Top 10 para participantes no pódio ou o Top 3 e os
+vizinhos necessários para os demais. O perfil autenticado já fornece o cursor
+atual e não é lido novamente pelo repositório.
+
+A consulta completa anterior permanece temporariamente em cache por 60
+segundos como fallback exclusivo para o erro `failed-precondition`, permitindo
+que a aplicação continue funcionando enquanto o índice ainda estiver
+indisponível. Outros erros não acionam o fallback e continuam visíveis para
+diagnóstico.
+
+#### Índice composto do ranking
+
+A consulta paginada do ranking exige um índice estruturado composto na coleção
+`profiles`. No Firebase Console em português:
+
+1. abra **Build → Firestore Database → Índices**;
+2. selecione a aba de índices compostos e clique em **Criar índice**;
+3. escolha **Estruturado**, não **Vetorial**;
+4. informe `profiles` como ID da coleção;
+5. selecione **Coleção** como escopo da consulta;
+6. adicione os campos na ordem abaixo;
+7. crie o índice e aguarde o estado mudar de **Criando** para **Ativado**.
+
+| Campo                 | Configuração no Console |
+| --------------------- | ----------------------- |
+| `accessRoles`         | Matrizes                |
+| `eventId`             | Crescente               |
+| `onboardingCompleted` | Crescente               |
+| `xp`                  | Decrescente             |
+| `xpReachedAt`         | Crescente               |
+| `userId`              | Crescente               |
+
+Nesse formulário, **Matrizes** corresponde ao modo `array-contains` utilizado
+para selecionar somente perfis cujo `accessRoles` contém `participant`.
+`eventId` limita a consulta ao evento atual e `onboardingCompleted` exclui
+perfis incompletos. Os três últimos campos reproduzem a ordem e o desempate do
+ranking.
+
+O índice pode ser criado no plano Spark. A definição versionada fica em
+`firestore.indexes.json`; antes de implantações pela CLI, ela deve ser comparada
+com os demais índices remotos para evitar remoções não intencionais.
 
 ### Tickets, brindes e sorteios
 
@@ -182,8 +259,8 @@ enquanto `eventOperations.ticketConversionEnabled` estiver ativo.
 O perfil mantém `ticketBalance`, `convertedXp` e
 `onboardingTicketGranted` como projeções controladas pelo servidor. O último
 campo começa em `false` e muda para `true` na mesma transação que concede o
-ticket inicial. Documentos legados podem manter `null` até sua primeira
-verificação. Converter XP incrementa `convertedXp` sem reduzir `xp`; assim,
+ticket inicial. O contrato não aceita `null`, pois a produção começa sem
+perfis legados. Converter XP incrementa `convertedXp` sem reduzir `xp`; assim,
 nível e ranking continuam representando a participação. Se uma conexão
 removida fizer o XP ficar abaixo do total já convertido, novas conversões
 permanecem indisponíveis até que o participante recupere a diferença.
@@ -215,6 +292,39 @@ lotes retomáveis de até 100 documentos, evitando depender de uma única
 requisição longa para um evento com milhares de pessoas. O cursor e as
 gravações do lote avançam juntos; se a requisição falhar antes do commit, o
 mesmo lote pode ser tentado novamente sem duplicar tickets.
+
+O limite de 100 também é o tamanho máximo de um `raffleEntryChunk`. No pior
+caso, cada participante gera uma atualização de perfil, a concessão inicial e
+uma conversão final; somadas ao chunk e ao cursor, as gravações permanecem
+abaixo do limite de 500 operações por batch do Firestore. Aumentar o lote não
+reduziria leituras e diminuiria essa margem de segurança.
+
+Novos fechamentos reutilizam o índice composto do ranking para filtrar no
+Firestore somente perfis com onboarding concluído e `participant`. A paginação
+segue `xp` decrescente, `xpReachedAt` crescente e `userId` crescente. Essa
+ordem não influencia as chances: ela serve apenas para produzir uma fotografia
+retomável, e o sorteio ponderado continua usando uma posição aleatória sobre os
+tickets congelados. Fechamentos iniciados com o cursor antigo por ID continuam
+nesse formato até terminar, evitando reinício ou duplicação durante uma
+atualização da aplicação.
+
+Chunks usam IDs determinísticos baseados no último perfil do lote. Se dois
+processadores tentarem confirmar o mesmo cursor, apenas um batch consegue criar
+o chunk; o outro falha por duplicidade sem aplicar gravações parciais.
+
+Um perfil indexado que não satisfaça o contrato é excluído da fotografia sem
+interromper os demais participantes. O fechamento cria no mesmo batch um
+registro determinístico em `raffleSkippedProfiles`, incrementa
+`raffleSkippedParticipants` e avança o cursor. A Central de Operações mostra o
+total ignorado para conferência. A simulação usa a subcoleção
+`skippedProfiles` da própria execução, sem misturar ensaios com a auditoria do
+fechamento real.
+
+A consulta seleciona somente identidade, nome, filtros de participação, XP,
+cursor e saldos necessários ao fechamento. E-mail, avatar, biografia, empresa,
+skills, QR Code e demais campos públicos não são transferidos. A projeção não
+reduz o número faturado de documentos lidos, mas diminui tráfego, memória e
+exposição de dados que não participam do sorteio.
 
 Cada participante concluído recebe retroativamente o ticket de onboarding caso
 a movimentação determinística ainda não exista. Todo XP restante conversível é
@@ -260,17 +370,25 @@ grava a fotografia calculada nas subcoleções `entryChunks`, `raffles`,
 da execução. Para suportar milhares de participantes, essa preparação também é
 retomável em lotes de até 100 perfis.
 
-Os lotes usam `eventId`, ordenação pelo ID do documento, `startAfter` e
-`limit`; portanto, não releem toda a coleção a cada avanço. Para 2.000
-participantes, a preparação consome aproximadamente 2.000 leituras de perfis.
-O histórico de onboarding só é consultado para documentos legados cujo
-`onboardingTicketGranted` ainda seja `null`, em vez de executar uma leitura
-adicional para cada participante.
+Os novos lotes usam a mesma consulta indexada do fechamento real, com cursor e
+`limit`; portanto, descartam perfis administrativos no Firestore e não releem
+toda a coleção a cada avanço. Para 2.000 participantes elegíveis, a preparação
+ainda consome aproximadamente 2.000 leituras de perfis, pois cada saldo precisa
+entrar na fotografia. Como `onboardingTicketGranted` é sempre booleano, a
+preparação calcula a concessão inicial diretamente do perfil e não consulta
+`ticketTransactions` para reconstruir estado legado.
 
-Cada sorteio lê apenas os cerca de 20 blocos gerados para 2.000 participantes,
-mais os poucos vencedores e tentativas existentes. Os cálculos ponderados
-acontecem em memória dentro daquela requisição; somente tentativas e resultados
-são mutáveis.
+A fotografia dos participantes é imutável depois da preparação e permanece em
+cache compartilhado por até 24 horas. A conclusão do fechamento ou da
+preparação de uma simulação invalida o cache antes do primeiro sorteio. Assim,
+os cerca de 20 blocos de uma fotografia com 2.000 participantes são lidos na
+primeira seleção e reutilizados nas seguintes.
+
+Vencedores e tentativas permanecem fora do cache porque mudam durante
+confirmações e re-rolagens. Cada seleção combina a fotografia em cache com
+esses registros atuais. Na simulação, a consulta de tentativas filtra
+`raffleId` no Firestore, em vez de carregar tentativas de todos os prêmios. Os
+cálculos ponderados acontecem em memória e não geram gravações adicionais.
 
 Enquanto a referência estiver ativa, as ações administrativas de sorteio,
 re-rolagem, confirmação, consumo de saldo e liberação de resgates são
@@ -282,6 +400,17 @@ operações reais permanecem inalterados.
 Encerrar o modo marca a execução como `archived` e remove somente a referência
 ativa. As subcoleções são preservadas para auditoria e uma nova simulação parte
 de uma fotografia atualizada.
+
+Simulações arquivadas permanecem armazenadas até o encerramento operacional do
+evento. Elas não entram nas consultas normais: a aplicação resolve somente o
+UUID ativo em `eventOperations`, portanto o histórico não aumenta o custo de
+leitura dos sorteios seguintes.
+
+A limpeza acontece somente depois do evento e deve usar exclusão recursiva do
+documento de `raffleTestRuns`, incluindo `entryChunks`, `raffles`, `winners`,
+`attempts` e `skippedProfiles`. Excluir apenas o documento pai ou configurar
+TTL nele deixaria subcoleções órfãs. A limpeza deve registrar evento, execução,
+data e responsável e não faz parte de uma ação automática do MVP.
 
 ## Relacionamentos e IDs
 

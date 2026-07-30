@@ -1,15 +1,74 @@
 import { describe, expect, it, vi } from "vitest"
 
+const mocks = vi.hoisted(() => {
+  const create = vi.fn()
+  const get = vi.fn().mockResolvedValue({ exists: false })
+  const set = vi.fn()
+  const update = vi.fn()
+  const increment = vi.fn((amount: number) => ({ increment: amount }))
+  const transaction = { create, get, set, update }
+  const firestore = {
+    collection: vi.fn((collection: string) => ({
+      doc: vi.fn((id: string) => ({ collection, id })),
+    })),
+    runTransaction: vi.fn(
+      async (operation: (value: typeof transaction) => unknown) =>
+        operation(transaction)
+    ),
+  }
+
+  return { create, firestore, get, increment, set, transaction, update }
+})
+
 vi.mock("server-only", () => ({}))
 vi.mock("@/lib/firebase/admin", () => ({
-  firestore: {},
+  firestore: mocks.firestore,
 }))
+vi.mock("firebase-admin/firestore", () => {
+  class Timestamp {
+    static now() {
+      return new Timestamp()
+    }
+  }
 
-import * as connectionRepository from "./connection.repository"
+  return {
+    FieldValue: { increment: mocks.increment },
+    Timestamp,
+  }
+})
+
+import { removeConnection, requestConnection } from "./connection.repository"
 
 describe("connection repository", () => {
   it("loads the repository contract without evaluating a database query", () => {
-    expect(connectionRepository.requestConnection).toBeTypeOf("function")
-    expect(connectionRepository.removeConnection).toBeTypeOf("function")
+    expect(requestConnection).toBeTypeOf("function")
+    expect(removeConnection).toBeTypeOf("function")
+  })
+
+  it("increments both profiles without reading their current XP", async () => {
+    const result = await requestConnection({
+      eventId: "event-1",
+      requesterId: "participant-a",
+      recipientId: "participant-b",
+      xpAwardedPerParticipant: 5,
+    })
+
+    expect(result).toBe("connected")
+    expect(mocks.get).toHaveBeenCalledTimes(1)
+    expect(mocks.create).toHaveBeenCalledTimes(1)
+    expect(mocks.increment).toHaveBeenNthCalledWith(1, 5)
+    expect(mocks.increment).toHaveBeenNthCalledWith(2, 5)
+    expect(mocks.increment).toHaveBeenNthCalledWith(3, 1)
+    expect(mocks.increment).toHaveBeenNthCalledWith(4, 1)
+    expect(mocks.update).toHaveBeenCalledTimes(2)
+    expect(mocks.set).toHaveBeenCalledTimes(2)
+    expect(mocks.update).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "participant-a" }),
+      expect.objectContaining({ xp: { increment: 5 } })
+    )
+    expect(mocks.update).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "participant-b" }),
+      expect.objectContaining({ xp: { increment: 5 } })
+    )
   })
 })

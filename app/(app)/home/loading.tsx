@@ -19,6 +19,15 @@ export default function HomeLoading() {
       <Skeleton className="h-11 w-full rounded-lg" />
 
       <div className="space-y-4">
+        <Skeleton className="h-6 w-28" />
+        <div className="grid grid-cols-2 gap-3">
+          {Array.from({ length: 4 }, (_, index) => (
+            <Skeleton className="h-[74px] rounded-2xl" key={index} />
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-4">
         <Skeleton className="h-6 w-20" />
         <div className="grid grid-cols-2 gap-3">
           <Skeleton className="h-28 rounded-2xl" />

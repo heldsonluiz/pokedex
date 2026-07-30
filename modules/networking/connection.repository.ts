@@ -2,10 +2,11 @@ import "server-only"
 
 import { createHash } from "node:crypto"
 
-import { Timestamp } from "firebase-admin/firestore"
+import { FieldValue, Timestamp } from "firebase-admin/firestore"
 import * as z from "zod"
 
 import { firestore } from "@/lib/firebase/admin"
+import { incrementParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
 
 import {
   type Connection,
@@ -106,28 +107,8 @@ export async function requestConnection({
     .doc(recipientId)
 
   return firestore.runTransaction(async (transaction) => {
-    const [snapshot, requesterSnapshot, recipientSnapshot] = await Promise.all([
-      transaction.get(connectionRef),
-      transaction.get(requesterRef),
-      transaction.get(recipientRef),
-    ])
+    const snapshot = await transaction.get(connectionRef)
     const now = Timestamp.now()
-
-    if (!requesterSnapshot.exists || !recipientSnapshot.exists) {
-      throw new Error("Connection participant profile was not found")
-    }
-
-    const requesterProfile = profileScoreSchema.parse(requesterSnapshot.data())
-    const recipientProfile = profileScoreSchema.parse(recipientSnapshot.data())
-
-    if (
-      requesterProfile.userId !== requesterId ||
-      recipientProfile.userId !== recipientId ||
-      requesterProfile.eventId !== eventId ||
-      recipientProfile.eventId !== eventId
-    ) {
-      throw new Error("Connection participant profile is invalid")
-    }
 
     if (!snapshot.exists) {
       transaction.create(connectionRef, {
@@ -186,14 +167,28 @@ export async function requestConnection({
     }
 
     transaction.update(requesterRef, {
-      xp: requesterProfile.xp + xpAwardedPerParticipant,
+      xp: FieldValue.increment(xpAwardedPerParticipant),
       xpReachedAt: now,
       updatedAt: now,
     })
     transaction.update(recipientRef, {
-      xp: recipientProfile.xp + xpAwardedPerParticipant,
+      xp: FieldValue.increment(xpAwardedPerParticipant),
       xpReachedAt: now,
       updatedAt: now,
+    })
+    incrementParticipantSummary(transaction, {
+      eventId,
+      participantId: requesterId,
+      counter: "connectionsCount",
+      amount: 1,
+      now,
+    })
+    incrementParticipantSummary(transaction, {
+      eventId,
+      participantId: recipientId,
+      counter: "connectionsCount",
+      amount: 1,
+      now,
     })
 
     return "connected"
@@ -289,6 +284,15 @@ export async function removeConnection({
       xpReachedAt: now,
       updatedAt: now,
     })
+    for (const connectedParticipantId of connection.participantIds) {
+      incrementParticipantSummary(transaction, {
+        eventId,
+        participantId: connectedParticipantId,
+        counter: "connectionsCount",
+        amount: -1,
+        now,
+      })
+    }
 
     return "removed"
   })

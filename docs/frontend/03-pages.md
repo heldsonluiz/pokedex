@@ -34,7 +34,14 @@ O fluxo de perfil já permite consultar os dados persistidos em `/profile` e edi
 
 `/onboarding` apresenta cinco etapas com imagem WebP otimizada, título, descrição, indicador e ação de avanço. O passo atual permanece no parâmetro `step`, sobrevivendo a refresh. O gesto horizontal para a esquerda avança e para a direita retorna, sem botão visual de voltar; a próxima imagem é pré-carregada. Imagem e textos saem na direção do movimento e a etapa seguinte entra pelo lado oposto em uma transição curta. A última etapa encaminha para `/onboarding/profile`, que reutiliza o formulário de perfil. Voltar do setup retorna ao início das etapas; cancelar encerra a sessão; salvar um perfil válido conclui o onboarding e encaminha para `/home`.
 
-`/home` usa somente dados reais do perfil para apresentar saudação e avatar. O scanner é a ação principal; o QR Code do participante e os destinos de Missões, Passaporte e Perfil aparecem como atalhos. Ao abrir o QR Code pela Home, a origem controlada `source=home` faz o retorno levar novamente ao início; acessos sem essa origem retornam ao Perfil. Progresso, XP, ranking e atividades recentes não são simulados e serão incorporados quando seus contratos de domínio existirem. A página possui skeleton estrutural e erro recuperável para a leitura do perfil. A ação de logout fica em `/profile`, junto às demais ações de conta.
+`/home` usa dados reais do perfil para apresentar saudação e avatar e lê a
+projeção individual leve para mostrar totais de conexões, empresas visitadas,
+tags descobertas e missões concluídas. O scanner é a ação principal; o QR Code
+do participante e os destinos de Missões, Passaporte e Perfil aparecem como
+atalhos. Ao abrir o QR Code pela Home, a origem controlada `source=home` faz o
+retorno levar novamente ao início; acessos sem essa origem retornam ao Perfil.
+A página possui skeleton estrutural e erro recuperável para suas leituras. A
+ação de logout fica em `/profile`, junto às demais ações de conta.
 
 A Home também oferece acesso ao catálogo de empresas. `/companies` lista
 somente empresas ativas do evento atual, ordenadas pelo nome, e mostra quantas
@@ -114,9 +121,9 @@ janela contextual com até três posições acima e três abaixo da própria
 colocação. Ouro, prata e bronze
 diferenciam o pódio, enquanto a linha do participante usa marcador, borda e
 fundo próprios. A projeção pública contém apenas nome, avatar, XP, nível e
-posição. Contas sem papel `participant` recebem um estado informativo. Durante
-o MVP, a classificação pode levar até 60 segundos para refletir uma mudança de
-XP por causa do cache compartilhado do servidor.
+posição. Contas sem papel `participant` recebem um estado informativo. A
+classificação usa posição agregada e cursores indexados para carregar somente o
+Top 3 ou Top 10 e a janela contextual necessária.
 
 `/tickets` concede retroativamente o ticket inicial do onboarding e apresenta
 saldo, XP conversível, quantidade de tickets possíveis e histórico auditável.

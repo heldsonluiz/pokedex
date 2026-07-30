@@ -3,9 +3,12 @@ import "server-only"
 import { createHash } from "node:crypto"
 
 import { Timestamp } from "firebase-admin/firestore"
+import { unstable_cache } from "next/cache"
 import * as z from "zod"
 
+import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
 import { firestore } from "@/lib/firebase/admin"
+import { incrementParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
 import {
@@ -67,6 +70,9 @@ export type CompleteMissionResult =
         | "profile-unavailable"
     }>
 
+type CachedMission = Omit<Mission, "createdAt" | "updatedAt"> &
+  Readonly<{ createdAt: number; updatedAt: number }>
+
 function getCompletionId(
   eventId: string,
   participantId: string,
@@ -100,7 +106,7 @@ function parseCompletion(id: string, value: unknown): MissionCompletion {
   })
 }
 
-export async function findActiveMissions(eventId: string): Promise<Mission[]> {
+async function loadActiveMissions(eventId: string): Promise<CachedMission[]> {
   const validatedEventId =
     completeQrMissionInputSchema.shape.eventId.parse(eventId)
   const snapshots = await firestore
@@ -116,12 +122,39 @@ export async function findActiveMissions(eventId: string): Promise<Mission[]> {
         first.order - second.order ||
         first.title.localeCompare(second.title, "pt-BR")
     )
+    .map((mission) => ({
+      ...mission,
+      createdAt: mission.createdAt.getTime(),
+      updatedAt: mission.updatedAt.getTime(),
+    }))
 }
 
-export async function findMissionCompletionsByParticipant(
+const loadCachedActiveMissions = unstable_cache(
+  loadActiveMissions,
+  ["active-missions"],
+  {
+    revalidate: CACHE_SECONDS.EVENT_CATALOG,
+    tags: [CACHE_TAGS.MISSIONS],
+  }
+)
+
+export async function findActiveMissions(eventId: string): Promise<Mission[]> {
+  const missions = await loadCachedActiveMissions(eventId)
+
+  return missions.map((mission) => ({
+    ...mission,
+    createdAt: new Date(mission.createdAt),
+    updatedAt: new Date(mission.updatedAt),
+  }))
+}
+
+export async function findMissionProgressByParticipant(
   eventId: string,
   participantId: string
-): Promise<MissionCompletion[]> {
+): Promise<{
+  completions: MissionCompletion[]
+  activityKeys: Set<string>
+}> {
   const validatedEventId =
     completeQrMissionInputSchema.shape.eventId.parse(eventId)
   const validatedParticipantId =
@@ -131,42 +164,10 @@ export async function findMissionCompletionsByParticipant(
     .where("participantId", "==", validatedParticipantId)
     .get()
   const completions: MissionCompletion[] = []
+  const activityKeys = new Set<string>()
 
   for (const snapshot of snapshots.docs) {
     const value = snapshot.data()
-    const type = z
-      .object({ activityType: z.string() })
-      .parse(value).activityType
-
-    if (type !== "mission") {
-      continue
-    }
-
-    const completion = parseCompletion(snapshot.id, value)
-
-    if (completion.eventId === validatedEventId) {
-      completions.push(completion)
-    }
-  }
-
-  return completions
-}
-
-export async function findCompletedActivityKeys(
-  eventId: string,
-  participantId: string
-): Promise<Set<string>> {
-  const validatedEventId =
-    completeQrMissionInputSchema.shape.eventId.parse(eventId)
-  const validatedParticipantId =
-    profileScoreSchema.shape.userId.parse(participantId)
-  const snapshots = await firestore
-    .collection(COMPLETIONS_COLLECTION)
-    .where("participantId", "==", validatedParticipantId)
-    .get()
-  const keys = new Set<string>()
-
-  for (const snapshot of snapshots.docs) {
     const result = z
       .object({
         eventId: z.string(),
@@ -174,18 +175,24 @@ export async function findCompletedActivityKeys(
         activityType: z.string(),
         activityId: z.string(),
       })
-      .safeParse(snapshot.data())
+      .safeParse(value)
 
     if (
-      result.success &&
-      result.data.eventId === validatedEventId &&
-      result.data.participantId === validatedParticipantId
+      !result.success ||
+      result.data.eventId !== validatedEventId ||
+      result.data.participantId !== validatedParticipantId
     ) {
-      keys.add(`${result.data.activityType}:${result.data.activityId}`)
+      continue
+    }
+
+    activityKeys.add(`${result.data.activityType}:${result.data.activityId}`)
+
+    if (result.data.activityType === "mission") {
+      completions.push(parseCompletion(snapshot.id, value))
     }
   }
 
-  return keys
+  return { completions, activityKeys }
 }
 
 async function findMissionTarget({
@@ -355,6 +362,13 @@ export async function completeMission({
       xp: profile.xp + xpAwarded,
       xpReachedAt: now,
       updatedAt: now,
+    })
+    incrementParticipantSummary(transaction, {
+      eventId: validatedEventId,
+      participantId: validatedParticipantId,
+      counter: "missionsCompletedCount",
+      amount: 1,
+      now,
     })
 
     return {

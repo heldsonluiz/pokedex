@@ -1,11 +1,13 @@
 import {
   CheckCircle2,
+  CircleAlert,
   Dices,
   FlaskConical,
   Gift,
   LockKeyhole,
   MonitorUp,
   ScanLine,
+  ShieldCheck,
   Ticket,
   Trophy,
   UnlockKeyhole,
@@ -14,9 +16,11 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
+import { Badge } from "@/components/ui/badge"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
+import { CatalogCacheButton } from "@/modules/catalog/catalog-cache-button"
 import { getRaffleOperationsForSession } from "@/modules/raffles/raffle.service"
 import { RaffleAutoProcessor } from "@/modules/raffles/raffle-auto-processor"
 import {
@@ -49,6 +53,11 @@ export default async function OperationsPage() {
     : null
   const operationsAreOpen = operations.raffleClosureStatus === "open"
   const simulation = raffleOperations?.simulation ?? null
+  const serviceControlsDisabledReason = simulation
+    ? "Encerre a simulação para alterar os serviços do evento real."
+    : !operationsAreOpen
+      ? "Os controles principais ficam indisponíveis após o fechamento."
+      : null
   const simulationRequiresRestart = simulation?.snapshotFormat === "legacy"
   const displayedRaffles =
     simulation?.raffles ?? raffleOperations?.raffles ?? []
@@ -61,6 +70,10 @@ export default async function OperationsPage() {
     simulation?.processedParticipants ??
     raffleOperations?.closure.processedParticipants ??
     0
+  const displayedSkippedParticipants =
+    simulation?.skippedParticipants ??
+    raffleOperations?.closure.skippedParticipants ??
+    0
   const displayedRedemptionEnabled =
     simulation?.rewardRedemptionEnabled ?? operations.rewardRedemptionEnabled
   const allRafflesWereDrawn =
@@ -71,6 +84,10 @@ export default async function OperationsPage() {
   return (
     <div className="space-y-7 p-6">
       <section className="space-y-1">
+        <Badge variant="secondary">
+          <ShieldCheck aria-hidden="true" />
+          Área administrativa
+        </Badge>
         <h1 className="text-2xl font-bold tracking-tight">
           Central de operações
         </h1>
@@ -95,7 +112,7 @@ export default async function OperationsPage() {
               </p>
             </div>
           </div>
-          <ArchiveRaffleSimulationButton />
+          {!simulationRequiresRestart && <ArchiveRaffleSimulationButton />}
         </div>
       )}
 
@@ -158,6 +175,26 @@ export default async function OperationsPage() {
               </Button>
             </form>
           )}
+          {operations.canManage && serviceControlsDisabledReason && (
+            <Button
+              type="button"
+              size="icon"
+              variant="outline"
+              disabled
+              title={serviceControlsDisabledReason}
+              aria-label={
+                operations.ticketConversionEnabled
+                  ? "Bloqueio de conversões indisponível"
+                  : "Liberação de conversões indisponível"
+              }
+            >
+              {operations.ticketConversionEnabled ? (
+                <LockKeyhole aria-hidden="true" />
+              ) : (
+                <UnlockKeyhole aria-hidden="true" />
+              )}
+            </Button>
+          )}
         </div>
 
         <div className="flex items-center gap-3 rounded-2xl bg-card p-4 ring-1 ring-foreground/10">
@@ -207,7 +244,35 @@ export default async function OperationsPage() {
               </Button>
             </form>
           )}
+          {operations.canManage && serviceControlsDisabledReason && (
+            <Button
+              type="button"
+              size="icon"
+              variant="outline"
+              disabled
+              title={serviceControlsDisabledReason}
+              aria-label={
+                operations.rewardRedemptionEnabled
+                  ? "Bloqueio de resgates indisponível"
+                  : "Liberação de resgates indisponível"
+              }
+            >
+              {operations.rewardRedemptionEnabled ? (
+                <LockKeyhole aria-hidden="true" />
+              ) : (
+                <UnlockKeyhole aria-hidden="true" />
+              )}
+            </Button>
+          )}
         </div>
+
+        {operations.canManage && serviceControlsDisabledReason && (
+          <p className="text-sm leading-5 text-muted-foreground">
+            {serviceControlsDisabledReason}
+          </p>
+        )}
+
+        {operations.canManage && <CatalogCacheButton />}
       </section>
 
       {raffleOperations && (
@@ -264,6 +329,26 @@ export default async function OperationsPage() {
               </div>
             </div>
 
+            {displayedSkippedParticipants > 0 && (
+              <div className="flex items-start gap-2 rounded-xl bg-secondary/15 p-3 text-sm text-secondary-foreground">
+                <CircleAlert
+                  className="mt-0.5 size-4 shrink-0"
+                  aria-hidden="true"
+                />
+                <p>
+                  {displayedSkippedParticipants}{" "}
+                  {displayedSkippedParticipants === 1
+                    ? "perfil foi ignorado"
+                    : "perfis foram ignorados"}{" "}
+                  por dados inválidos e{" "}
+                  {displayedSkippedParticipants === 1
+                    ? "não participará"
+                    : "não participarão"}{" "}
+                  do sorteio.
+                </p>
+              </div>
+            )}
+
             {!simulation && displayedStatus === "open" && (
               <BeginRaffleClosureButton />
             )}
@@ -274,10 +359,16 @@ export default async function OperationsPage() {
               />
             )}
             {simulationRequiresRestart && (
-              <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
-                Esta simulação usa o formato anterior. Encerre-a e inicie uma
-                nova execução para utilizar a fotografia otimizada.
-              </p>
+              <div className="space-y-3 rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
+                <p>
+                  Esta simulação usa o formato anterior. Encerre-a e inicie uma
+                  nova execução para utilizar a fotografia otimizada.
+                </p>
+                <ArchiveRaffleSimulationButton
+                  label="Encerrar simulação antiga"
+                  className="w-full"
+                />
+              </div>
             )}
           </div>
 
@@ -329,6 +420,7 @@ export default async function OperationsPage() {
                           raffleId={raffle.id}
                           attemptId={raffle.currentAttemptId}
                           candidateName={raffle.currentCandidateName}
+                          prizeName={raffle.prizeName}
                         />
                       )}
                   </article>

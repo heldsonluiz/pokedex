@@ -5,12 +5,13 @@ import type { Session } from "next-auth"
 import { findEventOperations } from "@/modules/tickets/ticket.repository"
 import {
   findParticipantServiceContext,
-  getParticipantServiceForSession,
+  getParticipantServiceForContext,
 } from "@/modules/tickets/ticket.service"
 
 import {
   findActiveRewards,
   findParticipantRewardRedemptions,
+  invalidateRewardsCache,
   redeemReward,
 } from "./reward.repository"
 import { redeemRewardInputSchema } from "./reward.schema"
@@ -21,12 +22,23 @@ export async function getRewardsForParticipantService(
   participantQrId: string,
   participantToken: string
 ) {
-  const [ticketService, context] = await Promise.all([
-    getParticipantServiceForSession(session, participantQrId, participantToken),
-    findParticipantServiceContext(session, participantQrId, participantToken),
-  ])
+  const context = await findParticipantServiceContext(
+    session,
+    participantQrId,
+    participantToken
+  )
 
-  if (!ticketService || !context) {
+  if (!context) {
+    return null
+  }
+
+  const ticketService = await getParticipantServiceForContext(
+    context,
+    participantQrId,
+    participantToken
+  )
+
+  if (!ticketService) {
     return null
   }
 
@@ -90,6 +102,10 @@ export async function redeemRewardForSession(session: Session, input: unknown) {
     rewardId: validatedInput.rewardId,
     idempotencyKey: validatedInput.idempotencyKey,
   })
+
+  if (result.status === "redeemed") {
+    invalidateRewardsCache()
+  }
 
   return result.status === "redeemed" || result.status === "already-redeemed"
     ? {

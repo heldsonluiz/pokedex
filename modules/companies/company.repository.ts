@@ -3,9 +3,12 @@ import "server-only"
 import { createHash } from "node:crypto"
 
 import { Timestamp } from "firebase-admin/firestore"
+import { unstable_cache } from "next/cache"
 import * as z from "zod"
 
+import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
 import { firestore } from "@/lib/firebase/admin"
+import { incrementParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
 import {
@@ -59,6 +62,9 @@ export type CompleteCompanyVisitResult =
       status: "not-found" | "inactive" | "profile-unavailable"
     }>
 
+type CachedCompany = Omit<Company, "createdAt" | "updatedAt"> &
+  Readonly<{ createdAt: number; updatedAt: number }>
+
 function getCompanyVisitId(
   eventId: string,
   participantId: string,
@@ -90,7 +96,7 @@ function parseCompanyVisitDocument(id: string, value: unknown): CompanyVisit {
   })
 }
 
-export async function findActiveCompanies(eventId: string): Promise<Company[]> {
+async function loadActiveCompanies(eventId: string): Promise<CachedCompany[]> {
   const validatedEventId = visitCompanyInputSchema.shape.eventId.parse(eventId)
   const snapshots = await firestore
     .collection(COMPANIES_COLLECTION)
@@ -101,6 +107,30 @@ export async function findActiveCompanies(eventId: string): Promise<Company[]> {
     .map((snapshot) => parseCompanyDocument(snapshot.id, snapshot.data()))
     .filter((company) => company.active)
     .sort((first, second) => first.name.localeCompare(second.name, "pt-BR"))
+    .map((company) => ({
+      ...company,
+      createdAt: company.createdAt.getTime(),
+      updatedAt: company.updatedAt.getTime(),
+    }))
+}
+
+const loadCachedActiveCompanies = unstable_cache(
+  loadActiveCompanies,
+  ["active-companies"],
+  {
+    revalidate: CACHE_SECONDS.EVENT_CATALOG,
+    tags: [CACHE_TAGS.COMPANIES],
+  }
+)
+
+export async function findActiveCompanies(eventId: string): Promise<Company[]> {
+  const companies = await loadCachedActiveCompanies(eventId)
+
+  return companies.map((company) => ({
+    ...company,
+    createdAt: new Date(company.createdAt),
+    updatedAt: new Date(company.updatedAt),
+  }))
 }
 
 export async function findCompanyById(
@@ -314,6 +344,13 @@ export async function completeCompanyVisit({
       xp: profile.xp + xpAwarded,
       xpReachedAt: now,
       updatedAt: now,
+    })
+    incrementParticipantSummary(transaction, {
+      eventId: target.eventId,
+      participantId: validatedParticipantId,
+      counter: "companiesVisitedCount",
+      amount: 1,
+      now,
     })
 
     return {

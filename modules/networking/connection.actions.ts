@@ -26,8 +26,6 @@ export async function connectFromScanAction(
 
     if (result.success) {
       revalidatePath("/connections")
-      revalidatePath("/home")
-      revalidatePath("/profile")
 
       return {
         success: true,
@@ -98,8 +96,6 @@ export async function mutateConnectionAction(
 
     if (result.success) {
       revalidatePath("/connections")
-      revalidatePath("/home")
-      revalidatePath("/profile")
 
       const messages: Record<string, string> = {
         CONNECTION_REMOVED: "Conexão removida.",

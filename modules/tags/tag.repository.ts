@@ -3,9 +3,12 @@ import "server-only"
 import { createHash } from "node:crypto"
 
 import { Timestamp } from "firebase-admin/firestore"
+import { unstable_cache } from "next/cache"
 import * as z from "zod"
 
+import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
 import { firestore } from "@/lib/firebase/admin"
+import { incrementParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
 import { discoverTagInputSchema, type Tag, tagFieldsSchema } from "./tag.schema"
@@ -55,6 +58,9 @@ export type CompleteTagDiscoveryResult =
       status: "not-found" | "inactive" | "profile-unavailable"
     }>
 
+type CachedTag = Omit<Tag, "createdAt" | "updatedAt"> &
+  Readonly<{ createdAt: number; updatedAt: number }>
+
 function getTagDiscoveryId(
   eventId: string,
   participantId: string,
@@ -86,7 +92,7 @@ function parseTagDiscoveryDocument(id: string, value: unknown): TagDiscovery {
   })
 }
 
-export async function findActiveTags(eventId: string): Promise<Tag[]> {
+async function loadActiveTags(eventId: string): Promise<CachedTag[]> {
   const validatedEventId = discoverTagInputSchema.shape.eventId.parse(eventId)
   const snapshots = await firestore
     .collection(TAGS_COLLECTION)
@@ -101,6 +107,26 @@ export async function findActiveTags(eventId: string): Promise<Tag[]> {
         first.order - second.order ||
         first.name.localeCompare(second.name, "pt-BR")
     )
+    .map((tag) => ({
+      ...tag,
+      createdAt: tag.createdAt.getTime(),
+      updatedAt: tag.updatedAt.getTime(),
+    }))
+}
+
+const loadCachedActiveTags = unstable_cache(loadActiveTags, ["active-tags"], {
+  revalidate: CACHE_SECONDS.EVENT_CATALOG,
+  tags: [CACHE_TAGS.TAGS],
+})
+
+export async function findActiveTags(eventId: string): Promise<Tag[]> {
+  const tags = await loadCachedActiveTags(eventId)
+
+  return tags.map((tag) => ({
+    ...tag,
+    createdAt: new Date(tag.createdAt),
+    updatedAt: new Date(tag.updatedAt),
+  }))
 }
 
 export async function findTagDiscoveriesByParticipant(
@@ -253,6 +279,13 @@ export async function completeTagDiscovery({
       xp: profile.xp + xpAwarded,
       xpReachedAt: now,
       updatedAt: now,
+    })
+    incrementParticipantSummary(transaction, {
+      eventId: target.eventId,
+      participantId: validatedParticipantId,
+      counter: "tagsDiscoveredCount",
+      amount: 1,
+      now,
     })
 
     return {

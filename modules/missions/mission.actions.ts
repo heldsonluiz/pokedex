@@ -40,9 +40,8 @@ async function runMissionAction(
     const result = await operation(session, input)
 
     if (result.success) {
-      revalidatePath("/home")
       revalidatePath("/missions")
-      revalidatePath("/profile")
+      revalidatePath("/passport")
     }
 
     return result

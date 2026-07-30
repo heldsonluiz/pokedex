@@ -1,12 +1,15 @@
 import * as z from "zod"
 
+import { storedRaffleProfileCursorSchema } from "./raffle.schema"
+
 export const raffleSimulationFieldsSchema = z.object({
   id: z.uuid(),
   eventId: z.string().trim().min(1).max(128),
   status: z.enum(["preparing", "ready", "archived"]),
   snapshotFormat: z.enum(["legacy", "chunked-v1"]).default("legacy"),
-  cursor: z.string().trim().min(1).max(128).nullable(),
+  cursor: storedRaffleProfileCursorSchema.nullable(),
   processedParticipants: z.number().int().nonnegative(),
+  skippedParticipants: z.number().int().nonnegative().default(0),
   rewardRedemptionEnabled: z.boolean(),
   snapshotAt: z.date(),
   createdAt: z.date(),

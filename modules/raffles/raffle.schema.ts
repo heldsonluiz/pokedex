@@ -1,5 +1,18 @@
 import * as z from "zod"
 
+import { RAFFLE_PREPARATION_BATCH_SIZE } from "@/config/raffles"
+
+export const raffleProfileCursorSchema = z.object({
+  xp: z.number().int().nonnegative(),
+  xpReachedAtMs: z.number().int().nonnegative().nullable(),
+  userId: z.string().trim().min(1).max(128),
+})
+
+export const storedRaffleProfileCursorSchema = z.union([
+  raffleProfileCursorSchema,
+  z.string().trim().min(1).max(128),
+])
+
 export const raffleEntryFieldsSchema = z.object({
   id: z.string().trim().length(64),
   eventId: z.string().trim().min(1).max(128),
@@ -25,7 +38,10 @@ export const raffleEntryChunkFieldsSchema = z.object({
   id: z.string().trim().length(64),
   eventId: z.string().trim().min(1).max(128),
   snapshotAt: z.date(),
-  participants: z.array(raffleSnapshotParticipantSchema).min(1).max(100),
+  participants: z
+    .array(raffleSnapshotParticipantSchema)
+    .min(1)
+    .max(RAFFLE_PREPARATION_BATCH_SIZE),
 })
 
 export const raffleFieldsSchema = z.object({
@@ -87,3 +103,6 @@ export type RaffleSnapshotParticipant = z.infer<
 export type RaffleEntryChunk = z.infer<typeof raffleEntryChunkFieldsSchema>
 export type Raffle = z.infer<typeof raffleFieldsSchema>
 export type RaffleAttempt = z.infer<typeof raffleAttemptFieldsSchema>
+export type RaffleProfileCursor = z.infer<
+  typeof storedRaffleProfileCursorSchema
+>

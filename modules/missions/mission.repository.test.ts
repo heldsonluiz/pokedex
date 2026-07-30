@@ -9,8 +9,6 @@ describe("mission repository", () => {
   it("loads the repository contracts", () => {
     expect(repository.completeMission).toBeTypeOf("function")
     expect(repository.findActiveMissions).toBeTypeOf("function")
-    expect(repository.findMissionCompletionsByParticipant).toBeTypeOf(
-      "function"
-    )
+    expect(repository.findMissionProgressByParticipant).toBeTypeOf("function")
   })
 })

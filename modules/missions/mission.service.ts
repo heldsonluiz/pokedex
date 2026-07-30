@@ -15,8 +15,7 @@ import { validateUserQrToken } from "@/modules/qr-code/user-qr-token"
 import {
   completeMission,
   findActiveMissions,
-  findCompletedActivityKeys,
-  findMissionCompletionsByParticipant,
+  findMissionProgressByParticipant,
 } from "./mission.repository"
 import {
   completeQrMissionInputSchema,
@@ -71,12 +70,12 @@ export async function listMissionsForSession(
     return []
   }
 
-  const [missions, companies, completions, activityKeys] = await Promise.all([
+  const [missions, companies, progress] = await Promise.all([
     findActiveMissions(profile.eventId),
     findActiveCompanies(profile.eventId),
-    findMissionCompletionsByParticipant(profile.eventId, profile.userId),
-    findCompletedActivityKeys(profile.eventId, profile.userId),
+    findMissionProgressByParticipant(profile.eventId, profile.userId),
   ])
+  const { completions, activityKeys } = progress
   const completionByMission = new Map(
     completions.map((completion) => [completion.activityId, completion])
   )

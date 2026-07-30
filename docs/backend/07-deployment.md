@@ -24,6 +24,11 @@ Antes do deploy:
 - documentação atualizada;
 - nenhuma credencial presente no repositório.
 
+Depois do encerramento e da conferência dos sorteios, simulações arquivadas
+podem ser removidas por uma rotina administrativa de exclusão recursiva.
+Preserve os registros durante o evento; nunca apague somente o documento pai de
+`raffleTestRuns`, pois as subcoleções continuariam armazenadas.
+
 ## Publicação segura
 
 - publique regras e índices na ordem compatível com o código;
