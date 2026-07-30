@@ -1,8 +1,18 @@
-import { UserRoundSearch } from "lucide-react"
+import {
+  ChevronRight,
+  ScanLine,
+  Sparkles,
+  UserRoundSearch,
+  UsersRound,
+} from "lucide-react"
 import type { Metadata } from "next"
+import Link from "next/link"
 
 import { EmptyState } from "@/components/layout/empty-state"
+import { buttonVariants } from "@/components/ui/button"
+import { SCORES } from "@/config/scores"
 import { requireAuth } from "@/lib/require-auth"
+import { cn } from "@/lib/utils"
 import { listConnectionsForSession } from "@/modules/networking/connection.service"
 import { ConnectionCard } from "@/modules/networking/connection-card"
 
@@ -20,25 +30,69 @@ export default async function ConnectionsPage({
   const [session, query] = await Promise.all([requireAuth(), searchParams])
   const connections = await listConnectionsForSession(session)
   const result = typeof query.result === "string" ? query.result : null
-  if (connections.length === 0) {
-    return (
-      <div className="flex min-h-full flex-col gap-6 p-6">
-        <ScanResultFeedback result={result} />
+
+  return (
+    <div className="space-y-6 p-6">
+      <section className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight">Conexões</h1>
+        <p className="text-sm leading-6 text-muted-foreground">
+          Conheça participantes e amplie sua rede durante o evento.
+        </p>
+      </section>
+
+      <ScanResultFeedback result={result} />
+
+      <ConnectionOverview count={connections.length} />
+
+      {connections.length === 0 ? (
         <EmptyState
-          className="min-h-0 flex-1 p-0"
+          className="min-h-56 p-4"
           icon={<UserRoundSearch className="size-8" aria-hidden="true" />}
           title="Nenhuma conexão ainda"
           description="Leia o QR Code de outro participante para criar sua primeira conexão."
         />
-      </div>
-    )
-  }
+      ) : (
+        <ConnectionSection title="Minha rede" items={connections} />
+      )}
+    </div>
+  )
+}
+
+function ConnectionOverview({ count }: Readonly<{ count: number }>) {
+  const earnedXp = count * SCORES.PARTICIPANT_CONNECTION
 
   return (
-    <div className="space-y-8 p-6">
-      <ScanResultFeedback result={result} />
-      <ConnectionSection title="Minhas conexões" items={connections} />
-    </div>
+    <section className="overflow-hidden rounded-3xl bg-(image:--gradient-immersive) p-5 text-white shadow-card">
+      <div className="flex items-start gap-4">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white/10">
+          <UsersRound className="size-6" aria-hidden="true" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium text-white/65">
+            Sua rede no evento
+          </p>
+          <p className="mt-1 text-3xl font-bold tabular-nums">
+            {count} {count === 1 ? "conexão" : "conexões"}
+          </p>
+          <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-primary/25 px-2.5 py-1 text-xs font-semibold">
+            <Sparkles className="size-3.5" aria-hidden="true" />
+            {earnedXp.toLocaleString("pt-BR")} XP conquistados
+          </p>
+        </div>
+      </div>
+
+      <Link
+        href="/scan"
+        className={cn(
+          buttonVariants({ variant: "secondary", size: "lg" }),
+          "mt-5 w-full"
+        )}
+      >
+        <ScanLine data-icon="inline-start" aria-hidden="true" />
+        Encontrar participante
+        <ChevronRight data-icon="inline-end" aria-hidden="true" />
+      </Link>
+    </section>
   )
 }
 
@@ -84,7 +138,7 @@ function ConnectionSection({
   return (
     <section className="space-y-3">
       <h2 className="text-lg font-semibold">{title}</h2>
-      <div className="space-y-3">
+      <div className="divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
         {items.map((connection) => (
           <ConnectionCard key={connection.id} connection={connection} />
         ))}
