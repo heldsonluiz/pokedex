@@ -10,7 +10,7 @@ import {
   UserCheck,
   UserX,
 } from "lucide-react"
-import type { ReactNode } from "react"
+import { type ReactNode, useActionState } from "react"
 import { useFormStatus } from "react-dom"
 
 import { Button } from "@/components/ui/button"
@@ -39,10 +39,12 @@ function RaffleSubmitButton({
   children,
   className,
   variant,
+  disabled = false,
 }: Readonly<{
   children: ReactNode
   className?: string
   variant?: "default" | "destructive"
+  disabled?: boolean
 }>) {
   const { pending } = useFormStatus()
 
@@ -51,7 +53,7 @@ function RaffleSubmitButton({
       type="submit"
       className={className}
       variant={variant}
-      disabled={pending}
+      disabled={disabled || pending}
     >
       {pending ? (
         <LoaderCircle className="animate-spin" aria-hidden="true" />
@@ -128,6 +130,7 @@ export function DrawRaffleButton({
           </DialogClose>
           <form action={drawRaffleAndNotify} className="flex-1">
             <input type="hidden" name="raffleId" value={raffleId} />
+            <input type="hidden" name="prizeName" value={prizeName} />
             <RaffleSubmitButton className="w-full">
               <Play aria-hidden="true" />
               Confirmar
@@ -199,49 +202,54 @@ export function RaffleCandidateActions({
   raffleId,
   attemptId,
   candidateName,
-}: Readonly<{ raffleId: string; attemptId: string; candidateName: string }>) {
+  prizeName,
+}: Readonly<{
+  raffleId: string
+  attemptId: string
+  candidateName: string
+  prizeName: string
+}>) {
+  const [, rerollAction, rerollPending] = useActionState(
+    async (_state: null, formData: FormData) => {
+      await rerollRaffleAndNotify(formData)
+      return null
+    },
+    null
+  )
+  const [, confirmAction, confirmPending] = useActionState(
+    async (_state: null, formData: FormData) => {
+      await confirmRaffleWinnerAndNotify(formData)
+      return null
+    },
+    null
+  )
+  const candidateActionPending = rerollPending || confirmPending
+
   return (
     <div className="grid grid-cols-2 gap-2">
-      <Dialog>
-        <DialogTrigger
-          render={<Button type="button" variant="outline" className="w-full" />}
+      <form action={rerollAction}>
+        <input type="hidden" name="raffleId" value={raffleId} />
+        <input type="hidden" name="attemptId" value={attemptId} />
+        <input type="hidden" name="prizeName" value={prizeName} />
+        <RaffleSubmitButton
+          className="w-full border-border bg-background text-foreground hover:bg-muted"
+          disabled={candidateActionPending}
         >
           <UserX aria-hidden="true" />
           Ausente
-        </DialogTrigger>
-        <DialogContent showCloseButton={false} className="overflow-x-hidden">
-          <DialogHeader>
-            <DialogTitle>Sortear outra pessoa?</DialogTitle>
-            <p className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-center font-heading text-base font-semibold text-primary">
-              {candidateName}
-            </p>
-            <DialogDescription>
-              Essa pessoa será marcada como ausente somente neste prêmio e
-              continuará elegível nos próximos sorteios.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex-row">
-            <DialogClose
-              render={
-                <Button type="button" variant="outline" className="flex-1" />
-              }
-            >
-              Cancelar
-            </DialogClose>
-            <form action={rerollRaffleAndNotify} className="min-w-0 flex-1">
-              <input type="hidden" name="raffleId" value={raffleId} />
-              <input type="hidden" name="attemptId" value={attemptId} />
-              <RaffleSubmitButton className="w-full">
-                <Dices aria-hidden="true" />
-                Sortear
-              </RaffleSubmitButton>
-            </form>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </RaffleSubmitButton>
+      </form>
 
       <Dialog>
-        <DialogTrigger render={<Button type="button" className="w-full" />}>
+        <DialogTrigger
+          render={
+            <Button
+              type="button"
+              className="w-full bg-emerald-600 text-white hover:bg-emerald-500"
+              disabled={candidateActionPending}
+            />
+          }
+        >
           <UserCheck aria-hidden="true" />
           Presente
         </DialogTrigger>
@@ -261,13 +269,13 @@ export function RaffleCandidateActions({
             >
               Cancelar
             </DialogClose>
-            <form
-              action={confirmRaffleWinnerAndNotify}
-              className="min-w-0 flex-1"
-            >
+            <form action={confirmAction} className="min-w-0 flex-1">
               <input type="hidden" name="raffleId" value={raffleId} />
               <input type="hidden" name="attemptId" value={attemptId} />
-              <RaffleSubmitButton className="w-full">
+              <RaffleSubmitButton
+                className="w-full bg-emerald-600 text-white hover:bg-emerald-500"
+                disabled={candidateActionPending}
+              >
                 <UserCheck aria-hidden="true" />
                 Confirmar
               </RaffleSubmitButton>

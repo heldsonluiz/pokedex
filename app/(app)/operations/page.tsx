@@ -420,6 +420,7 @@ export default async function OperationsPage() {
                           raffleId={raffle.id}
                           attemptId={raffle.currentAttemptId}
                           candidateName={raffle.currentCandidateName}
+                          prizeName={raffle.prizeName}
                         />
                       )}
                   </article>

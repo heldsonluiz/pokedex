@@ -16,14 +16,14 @@ export function RaffleLiveRefresh({
   children,
 }: Readonly<{ children: ReactNode }>) {
   const router = useRouter()
-  const [drawing, setDrawing] = useState(false)
+  const [drawingPrizeName, setDrawingPrizeName] = useState<string | null>(null)
   const [isRefreshing, startRefreshTransition] = useTransition()
   const refreshRequested = useRef(false)
 
   useEffect(() => {
     if (refreshRequested.current && !isRefreshing) {
       refreshRequested.current = false
-      setDrawing(false)
+      setDrawingPrizeName(null)
     }
   }, [isRefreshing])
 
@@ -36,11 +36,15 @@ export function RaffleLiveRefresh({
 
     channel.addEventListener("message", (event) => {
       if (event.data?.type === "raffle-drawing") {
-        setDrawing(true)
+        setDrawingPrizeName(
+          typeof event.data.prizeName === "string"
+            ? event.data.prizeName
+            : "o prêmio"
+        )
       }
 
       if (event.data?.type === "raffle-drawing-cancelled") {
-        setDrawing(false)
+        setDrawingPrizeName(null)
       }
 
       if (event.data?.type === "raffle-updated") {
@@ -52,25 +56,25 @@ export function RaffleLiveRefresh({
     return () => channel.close()
   }, [router])
 
-  if (drawing) {
+  if (drawingPrizeName) {
     return (
       <div className="flex w-full max-w-5xl flex-col items-center justify-center text-center">
-        <div className="relative flex size-36 items-center justify-center">
+        <div className="relative flex size-28 items-center justify-center">
           <span className="absolute inset-0 animate-ping rounded-full bg-primary/20" />
-          <span className="relative flex size-28 items-center justify-center rounded-full border border-primary/40 bg-primary/20 shadow-glow-primary">
+          <span className="relative flex size-22 items-center justify-center rounded-full border border-primary/40 bg-primary/20 shadow-glow-primary">
             <LoaderCircle
-              className="size-16 animate-spin text-secondary"
+              className="size-12 animate-spin text-secondary"
               aria-hidden
             />
           </span>
         </div>
-        <div className="mt-8 flex items-center gap-3 text-secondary">
-          <Dices className="size-7 animate-pulse" aria-hidden />
-          <p className="font-pixel-square text-2xl tracking-widest uppercase">
-            Sorteando...
+        <div className="mt-6 flex items-center gap-2.5 text-secondary">
+          <Dices className="size-6 animate-pulse" aria-hidden />
+          <p className="font-pixel-square text-xl tracking-widest uppercase">
+            Sorteando {drawingPrizeName}
           </p>
         </div>
-        <p className="mt-5 text-xl text-muted-foreground">
+        <p className="mt-4 text-lg text-muted-foreground">
           Cada ticket representa uma chance
         </p>
       </div>

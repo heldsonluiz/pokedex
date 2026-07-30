@@ -15,17 +15,19 @@ import { notifyRaffleLiveDisplay } from "./raffle-live-channel"
 
 async function runAndNotify(
   action: () => Promise<void>,
-  announceDrawing = false
+  drawingPrizeName?: string
 ) {
-  if (announceDrawing) {
-    notifyRaffleLiveDisplay("raffle-drawing")
+  if (drawingPrizeName) {
+    notifyRaffleLiveDisplay("raffle-drawing", {
+      prizeName: drawingPrizeName,
+    })
   }
 
   try {
     await action()
     notifyRaffleLiveDisplay("raffle-updated")
   } catch (error) {
-    if (announceDrawing) {
+    if (drawingPrizeName) {
       notifyRaffleLiveDisplay("raffle-drawing-cancelled")
     }
 
@@ -42,7 +44,12 @@ export async function processRaffleClosureBatchAndNotify() {
 }
 
 export async function drawRaffleAndNotify(formData: FormData) {
-  await runAndNotify(() => drawRaffleAction(formData), true)
+  const prizeName = formData.get("prizeName")
+
+  await runAndNotify(
+    () => drawRaffleAction(formData),
+    typeof prizeName === "string" ? prizeName : undefined
+  )
 }
 
 export async function confirmRaffleWinnerAndNotify(formData: FormData) {
@@ -50,7 +57,12 @@ export async function confirmRaffleWinnerAndNotify(formData: FormData) {
 }
 
 export async function rerollRaffleAndNotify(formData: FormData) {
-  await runAndNotify(() => rerollRaffleAction(formData), true)
+  const prizeName = formData.get("prizeName")
+
+  await runAndNotify(
+    () => rerollRaffleAction(formData),
+    typeof prizeName === "string" ? prizeName : undefined
+  )
 }
 
 export async function togglePostRaffleRedemptionsAndNotify(formData: FormData) {
