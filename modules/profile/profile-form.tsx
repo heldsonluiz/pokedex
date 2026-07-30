@@ -125,7 +125,7 @@ export function ProfileForm({
             Biografia
           </label>
           <span className="text-xs text-muted-foreground">
-            Até 200 caracteres
+            Opcional · até 200 caracteres
           </span>
         </div>
         <Textarea
@@ -144,6 +144,7 @@ export function ProfileForm({
           <label className="text-sm font-medium" htmlFor="role">
             Cargo ou atuação
           </label>
+          <span className="sr-only">Opcional</span>
           <Input
             id="role"
             autoComplete="organization-title"
@@ -159,6 +160,7 @@ export function ProfileForm({
           <label className="text-sm font-medium" htmlFor="company">
             Empresa
           </label>
+          <span className="sr-only">Opcional</span>
           <Input
             id="company"
             autoComplete="organization"
@@ -172,9 +174,12 @@ export function ProfileForm({
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium" htmlFor="link">
-          Link
-        </label>
+        <div className="flex items-center justify-between gap-3">
+          <label className="text-sm font-medium" htmlFor="link">
+            Link
+          </label>
+          <span className="text-xs text-muted-foreground">Opcional</span>
+        </div>
         <Input
           id="link"
           type="url"
@@ -209,7 +214,7 @@ export function ProfileForm({
         </p>
       )}
 
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <div className="grid grid-cols-2 gap-3">
         <Button
           type="button"
           variant="outline"

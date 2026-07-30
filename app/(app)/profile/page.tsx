@@ -1,6 +1,14 @@
-import { ExternalLink, Palette, Pencil, QrCode, UsersRound } from "lucide-react"
+import {
+  ChevronRight,
+  ExternalLink,
+  Palette,
+  Pencil,
+  QrCode,
+  UsersRound,
+} from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
+import type { ReactNode } from "react"
 
 import { SignOutButton } from "@/components/auth/sign-out-button"
 import { ThemeSelector } from "@/components/theme/theme-selector"
@@ -33,8 +41,15 @@ export default async function ProfilePage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6 p-6">
-      <section className="flex items-start gap-4">
-        <Avatar className="size-20">
+      <section className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight">Meu perfil</h1>
+        <p className="text-sm leading-6 text-muted-foreground">
+          Mostre quem você é e encontre pessoas com interesses em comum.
+        </p>
+      </section>
+
+      <section className="flex items-center gap-4 rounded-3xl bg-(image:--gradient-immersive) p-5 text-white shadow-card">
+        <Avatar className="size-20 shrink-0 ring-2 ring-white/20">
           {profile.avatarUrl && (
             <AvatarImage
               src={profile.avatarUrl}
@@ -46,9 +61,11 @@ export default async function ProfilePage() {
         </Avatar>
 
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-semibold">{profile.displayName}</h1>
+          <h2 className="truncate text-xl font-semibold">
+            {profile.displayName}
+          </h2>
 
-          <p className="text-sm text-muted-foreground">
+          <p className="mt-1 truncate text-sm text-white/70">
             {[profile.role, profile.company].filter(Boolean).join(" · ") ||
               "Complete suas informações"}
           </p>
@@ -56,7 +73,10 @@ export default async function ProfilePage() {
 
         <Link
           href="/profile/edit"
-          className={cn(buttonVariants({ variant: "outline", size: "icon" }))}
+          className={cn(
+            buttonVariants({ variant: "secondary", size: "icon" }),
+            "shrink-0"
+          )}
           aria-label="Editar perfil"
         >
           <Pencil aria-hidden="true" />
@@ -64,7 +84,7 @@ export default async function ProfilePage() {
       </section>
 
       {profile.bio && (
-        <Card>
+        <Card className="rounded-2xl">
           <CardHeader>
             <CardTitle>Sobre</CardTitle>
           </CardHeader>
@@ -76,7 +96,7 @@ export default async function ProfilePage() {
         </Card>
       )}
 
-      <Card>
+      <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle>Habilidades</CardTitle>
         </CardHeader>
@@ -101,7 +121,34 @@ export default async function ProfilePage() {
         </CardContent>
       </Card>
 
-      <Card>
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">Ações do perfil</h2>
+        <div className="divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
+          <ProfileAction
+            href="/profile/qr-code"
+            icon={<QrCode aria-hidden="true" />}
+            title="Mostrar meu QR Code"
+            description="Permita que outro participante se conecte com você."
+          />
+          <ProfileAction
+            href="/connections"
+            icon={<UsersRound aria-hidden="true" />}
+            title="Minhas conexões"
+            description="Veja as pessoas que você conheceu no evento."
+          />
+          {profile.link && (
+            <ProfileAction
+              href={profile.link}
+              icon={<ExternalLink aria-hidden="true" />}
+              title="Abrir link do perfil"
+              description="Acesse o endereço público informado no perfil."
+              external
+            />
+          )}
+        </div>
+      </section>
+
+      <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Palette className="size-5 text-primary" aria-hidden="true" />
@@ -115,38 +162,59 @@ export default async function ProfilePage() {
           <ThemeSelector />
         </CardContent>
       </Card>
-
-      {profile.link && (
-        <a
-          href={profile.link}
-          target="_blank"
-          rel="noreferrer"
-          className={cn(buttonVariants({ variant: "outline" }), "w-full")}
-        >
-          Abrir link do perfil
-          <ExternalLink data-icon="inline-end" aria-hidden="true" />
-        </a>
-      )}
-
-      <Link
-        href="/profile/qr-code"
-        className={cn(buttonVariants({ size: "lg" }), "w-full")}
-      >
-        <QrCode data-icon="inline-start" aria-hidden="true" />
-        Mostrar meu QR Code
-      </Link>
-
-      <Link
-        href="/connections"
-        className={cn(buttonVariants({ variant: "outline" }), "w-full")}
-      >
-        <UsersRound data-icon="inline-start" aria-hidden="true" />
-        Minhas conexões
-      </Link>
-
       <form action={signOutCurrentUser}>
         <SignOutButton className="w-full" />
       </form>
     </div>
+  )
+}
+
+function ProfileAction({
+  href,
+  icon,
+  title,
+  description,
+  external = false,
+}: Readonly<{
+  href: string
+  icon: ReactNode
+  title: string
+  description: string
+  external?: boolean
+}>) {
+  const content = (
+    <>
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary [&>svg]:size-5">
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-medium">{title}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">
+          {description}
+        </span>
+      </span>
+      <ChevronRight
+        className="size-5 shrink-0 text-muted-foreground"
+        aria-hidden="true"
+      />
+    </>
+  )
+
+  return external ? (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="flex min-h-18 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+    >
+      {content}
+    </a>
+  ) : (
+    <Link
+      href={href}
+      className="flex min-h-18 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+    >
+      {content}
+    </Link>
   )
 }

@@ -3,12 +3,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 export default function EditProfileLoading() {
   return (
     <div
-      className="space-y-6 p-4 px-8"
+      className="space-y-6 p-6"
       aria-label="Carregando edição do perfil"
       aria-busy="true"
     >
       <section className="space-y-2">
-        <Skeleton className="h-7 w-48" />
+        <Skeleton className="h-8 w-40" />
         <Skeleton className="h-4 w-full max-w-sm" />
       </section>
       <div className="space-y-5">
