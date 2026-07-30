@@ -8,7 +8,9 @@
 | `profiles`              | participante                | `userId`, `eventId`, dados públicos, `qrId`, `xp`, `xpReachedAt`, onboarding, timestamps |
 | `companies`             | patrocinadores              | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                        |
 | `tags`                  | itens escondidos            | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
-| `talks`                 | palestras                   | `eventId`, título, palestrante, horários, sala e liberação da avaliação                  |
+| `speakers`              | palestrantes                | `eventId`, nome, empresa, cargo, biografia, foto, redes sociais e visibilidade           |
+| `talks`                 | palestras e painéis         | `eventId`, conteúdo, formato, `speakerIds`, estado e liberação manual da avaliação       |
+| `scheduleSlots`         | faixas do cronograma        | `eventId`, início, fim e itens paralelos de palestra ou atividade geral                  |
 | `missions`              | missões                     | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
 | `ticketTransactions`    | movimentações de tickets    | evento, participante, tipo, quantidade, XP convertido, operador, referência e timestamp  |
 | `eventOperations`       | controles operacionais      | evento, conversões, resgates, fechamento e responsável                                   |
@@ -167,6 +169,39 @@ gravações.
 Somente perfis com `participant` recebem a projeção. Os valores de XP são
 obtidos das conclusões persistidas, preservando a recompensa efetivamente
 concedida. Tags bloqueadas continuam anônimas.
+
+### Palestrantes, palestras e cronograma
+
+Palestrante, palestra e posição no cronograma são conceitos separados.
+`speakers` armazena somente dados da pessoa: `name`, `company`, `title`,
+`miniBio`, `photo`, `socialMedia` e `isVisible`. Título, descrição, categoria e
+avaliação não pertencem ao palestrante. O ID do documento é a referência
+estável; um `speakerSlug` separado só deve existir se representar uma URL
+legível e diferente do ID.
+
+`talks` armazena `title`, `description`, `category`, `format`, `speakerIds`,
+`evaluationStatus` e `isActive`. `format` aceita inicialmente `talk`, `panel`
+ou `keynote`. A lista `speakerIds` permite vários participantes em um painel e
+permite que a mesma pessoa participe de várias apresentações sem manter uma
+lista duplicada de palestras no documento do palestrante.
+
+`evaluationStatus` aceita `locked`, `open` ou `closed`. Somente administradores
+alteram esse estado, e a liberação não depende do horário da apresentação. Não
+é necessário registrar quem ou quando liberou a avaliação.
+
+Cada documento de `scheduleSlots` representa uma faixa de horário com
+`startsAt`, `endsAt` e `items`. As datas usam `Timestamp`. Um item de
+`type: "talk"` contém `talkId`, `room` e `order`; os dados da apresentação e
+dos palestrantes são resolvidos pelas coleções correspondentes. Um item de
+`type: "activity"` contém `activityType`, `title` e `order` e representa
+credenciamento, abertura, intervalo, almoço ou encerramento sem criar uma
+palestra artificial.
+
+Todos os slots e itens possuem IDs únicos. Chaves dinâmicas como
+`"14:50-15:30"` não fazem parte do contrato porque repetem os horários e podem
+ficar inconsistentes. A separação permite montar futuramente uma página de
+cronograma com sessões paralelas sem recolocar título ou palestrantes dentro da
+agenda.
 
 ### Resumo individual
 
@@ -448,7 +483,7 @@ Use paginação em listas potencialmente grandes e selecione somente os dados ne
 - pontuação, scans, conexões e tickets são escritos pelo servidor;
 - criar uma conexão concede XP uma única vez; removê-la revoga a XP na mesma operação, sem apagar o histórico;
 - o onboarding e as movimentações de tickets usam chaves idempotentes e histórico auditável;
-- avaliações são liberadas após o encerramento configurado, concluem sua missão e são únicas por participante e palestra;
+- avaliações são liberadas manualmente por administradores, concluem sua missão e são únicas por participante e palestra;
 - operações concorrentes usam transações ou atualizações atômicas;
 - regras de segurança seguem menor privilégio;
 - dados públicos e privados do perfil devem ser separados na leitura ou projeção;

@@ -22,8 +22,9 @@
 | `/tickets`                    | gerenciar tickets       | saldo, XP conversível, conversão e histórico        |
 | `/operations`                 | operar o evento         | atendimento, bloqueios, brindes e sorteios          |
 | `/raffles/live`               | projetar os sorteios    | candidato, vencedor e andamento sem controles       |
-| `/talks`                      | mostrar agenda          | horários, palestrantes e status                     |
+| `/talks`                      | listar palestras        | conteúdo, palestrantes e status da avaliação        |
 | `/talks/[talkId]`             | detalhar palestra       | descrição, horário e avaliação identificada         |
+| `/schedule` (futura)          | mostrar o cronograma    | faixas, atividades, salas e sessões paralelas       |
 | `/qr/[eventId]/[type]/[qrId]` | tratar deep link de QR  | validação e redirecionamento seguro                 |
 
 O fluxo de perfil já permite consultar os dados persistidos em `/profile` e editar nome, biografia, atuação, empresa, link e de três a cinco habilidades em `/profile/edit`. Somente nome e skills são obrigatórios. Habilidades são pesquisadas por nome ou alias no catálogo estático e persistidas pelo slug. O formulário valida no cliente para feedback imediato e repete a validação na Server Action antes da persistência; erros esperados são apresentados junto ao campo correspondente.
@@ -205,7 +206,7 @@ Cada página deve tratar:
 - não revele IDs internos ou dados privados;
 - confirme ações irreversíveis;
 - ao remover uma conexão, informe que a XP recebida será revogada;
-- permita avaliar palestra somente depois do horário de encerramento configurado;
+- permita avaliar palestra somente enquanto a liberação administrativa estiver aberta;
 - após mutações, atualize a interface e revalide os dados relacionados.
 
 ## Próximo documento
