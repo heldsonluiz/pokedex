@@ -299,7 +299,7 @@ function PassportCollections({
         </TabsList>
 
         <TabsContent value="companies" className="pt-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
             {passport.companies.items.length === 0 && (
               <CollectionEmpty message="Nenhuma empresa disponível." />
             )}
@@ -312,20 +312,12 @@ function PassportCollections({
                   href={`/companies/${encodeURIComponent(company.id)}`}
                   className={
                     visited
-                      ? "relative flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl bg-[linear-gradient(145deg,var(--card)_55%,color-mix(in_oklab,var(--primary)_12%,var(--card)))] p-4 text-center shadow-sm ring-2 shadow-primary/10 ring-primary/35 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                      : "relative flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl bg-muted/40 p-4 text-center opacity-70 ring-1 ring-foreground/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                      ? "flex min-h-18 items-center gap-3 bg-primary/5 px-4 py-3 focus-visible:bg-muted focus-visible:outline-none"
+                      : "flex min-h-18 items-center gap-3 px-4 py-3 opacity-70 focus-visible:bg-muted focus-visible:outline-none"
                   }
                 >
-                  {visited && (
-                    <span
-                      className="absolute top-2 right-2 z-10 flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-background"
-                      aria-label="Empresa visitada, carimbo conquistado"
-                    >
-                      <Stamp className="size-5" aria-hidden="true" />
-                    </span>
-                  )}
                   <Avatar
-                    className={`size-20 rounded-xl ${visited ? "" : "grayscale"}`}
+                    className={`size-11 shrink-0 rounded-xl ${visited ? "" : "grayscale"}`}
                   >
                     <AvatarImage
                       src={visited ? company.stampImageUrl : company.logoUrl}
@@ -336,16 +328,25 @@ function PassportCollections({
                       <Building2 aria-hidden="true" />
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <p className="line-clamp-2 text-sm font-medium">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
                       {company.name}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {visited
-                        ? `Visitada · +${company.xpAwarded} XP`
-                        : "Ainda não visitada"}
+                      {visited ? "Estande visitado" : "Ainda não visitada"}
                     </p>
                   </div>
+                  <span className="shrink-0 text-right">
+                    <span className="block text-xs font-medium text-primary">
+                      +{company.xpAwarded} XP
+                    </span>
+                    {visited && (
+                      <Stamp
+                        className="mt-1 ml-auto size-4 text-success"
+                        aria-label="Carimbo conquistado"
+                      />
+                    )}
+                  </span>
                 </Link>
               )
             })}
