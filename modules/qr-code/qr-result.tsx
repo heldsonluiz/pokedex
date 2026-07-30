@@ -12,11 +12,15 @@ export function QrResult({
   title,
   description,
   children,
+  actionHref = "/home",
+  actionLabel = "Voltar para o início",
 }: Readonly<{
   status: QrResultStatus
   title: string
   description: string
   children?: ReactNode
+  actionHref?: string
+  actionLabel?: string
 }>) {
   const Icon =
     status === "loading"
@@ -26,41 +30,51 @@ export function QrResult({
         : AlertCircle
 
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-background p-6 text-center">
-      <span
-        className={cn(
-          "rounded-full p-4",
-          status === "success" && "bg-success/10 text-success",
-          status === "error" && "bg-destructive/10 text-destructive",
-          status === "loading" && "bg-secondary/10 text-secondary"
-        )}
-      >
-        <Icon
-          className={cn("size-8", status === "loading" && "animate-spin")}
-          aria-hidden="true"
-        />
-      </span>
-
-      <div
-        className="max-w-sm space-y-2"
-        role={status === "error" ? "alert" : "status"}
-      >
-        <h1 className="text-2xl font-semibold">{title}</h1>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-
-      {children}
-
-      {status !== "loading" && (
-        <Link
-          href="/home"
-          className={buttonVariants({
-            variant: children ? "outline" : "default",
-          })}
+    <main className="flex min-h-dvh items-center justify-center bg-[radial-gradient(circle_at_top,color-mix(in_oklab,var(--primary)_12%,transparent),transparent_45%)] p-6">
+      <section className="flex w-full max-w-sm flex-col items-center gap-6 rounded-3xl bg-card p-6 text-center shadow-card ring-1 ring-foreground/10">
+        <span
+          className={cn(
+            "flex size-16 items-center justify-center rounded-2xl",
+            status === "success" &&
+              "bg-[#8BFF3D]/15 text-[#3F7800] shadow-[0_0_22px_rgb(139_255_61/0.2)] dark:text-[#AFFF78]",
+            status === "error" && "bg-destructive/10 text-destructive",
+            status === "loading" &&
+              "bg-primary/10 text-primary shadow-[0_0_22px_color-mix(in_oklab,var(--primary)_18%,transparent)]"
+          )}
         >
-          Voltar para o início
-        </Link>
-      )}
+          <Icon
+            className={cn("size-8", status === "loading" && "animate-spin")}
+            aria-hidden="true"
+          />
+        </span>
+
+        <div
+          className="space-y-2"
+          role={status === "error" ? "alert" : "status"}
+        >
+          <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+          <p className="text-sm leading-6 text-muted-foreground">
+            {description}
+          </p>
+        </div>
+
+        {children}
+
+        {status !== "loading" && (
+          <Link
+            href={actionHref}
+            className={cn(
+              buttonVariants({
+                variant: children ? "outline" : "default",
+                size: "lg",
+              }),
+              "w-full"
+            )}
+          >
+            {actionLabel}
+          </Link>
+        )}
+      </section>
     </main>
   )
 }

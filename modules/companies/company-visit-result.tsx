@@ -109,6 +109,8 @@ export function CompanyVisitResult({
           ? `Você já recebeu ${state.result.xpAwarded} XP por esta empresa.`
           : `Você recebeu ${state.result.xpAwarded} XP e adicionou um novo carimbo ao passaporte.`
       }
+      actionHref="/companies"
+      actionLabel="Ver empresas"
     />
   )
 }

@@ -106,6 +106,8 @@ export function TagDiscoveryResult({
           ? `Você já recebeu ${state.result.xpAwarded} XP por esta tag.`
           : `Você encontrou uma nova tag e recebeu ${state.result.xpAwarded} XP.`
       }
+      actionHref="/tags"
+      actionLabel="Ver coleção de tags"
     >
       <Avatar className="size-28 rounded-3xl">
         <AvatarImage

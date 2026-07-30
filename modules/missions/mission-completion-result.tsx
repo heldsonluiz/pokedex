@@ -122,6 +122,8 @@ export function MissionCompletionResult({
           ? `Você já recebeu ${state.result.xpAwarded} XP por esta missão.`
           : `Você recebeu ${state.result.xpAwarded} XP por esta missão.`
       }
+      actionHref="/missions"
+      actionLabel="Ver missões"
     />
   )
 }

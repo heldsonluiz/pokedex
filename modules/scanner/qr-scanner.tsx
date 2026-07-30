@@ -285,11 +285,19 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
         />
 
         {status === "scanning" && (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-10">
-            <div className="aspect-square w-full max-w-72 rounded-3xl border-2 border-secondary shadow-[0_0_0_999px_rgb(2_6_23/55%)]">
-              <span className="sr-only">Área de leitura do QR Code</span>
+          <>
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-center px-6 pt-6">
+              <span className="rounded-full bg-black/55 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
+                {mode ? mode.title : "Scanner do evento"}
+              </span>
             </div>
-          </div>
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-10">
+              <div className="relative aspect-square w-full max-w-72 overflow-hidden rounded-3xl border-2 border-[#8BFF3D] shadow-[0_0_24px_rgb(139_255_61/0.45),0_0_0_999px_rgb(2_6_23/58%)]">
+                <span className="absolute inset-x-4 top-1/2 h-px bg-[#8BFF3D] shadow-[0_0_12px_#8BFF3D] motion-safe:animate-pulse" />
+                <span className="sr-only">Área de leitura do QR Code</span>
+              </div>
+            </div>
+          </>
         )}
 
         {status !== "scanning" && (
@@ -299,7 +307,7 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
           >
             {status === "idle" && (
               <>
-                <span className="rounded-full bg-secondary/15 p-4 text-secondary">
+                <span className="rounded-full bg-[#8BFF3D]/15 p-4 text-[#3F7800] dark:text-[#AFFF78]">
                   <Camera className="size-8" aria-hidden="true" />
                 </span>
                 <div className="max-w-sm space-y-2">
@@ -324,7 +332,7 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
               status === "processing") && (
               <>
                 <LoaderCircle
-                  className="size-9 animate-spin text-secondary"
+                  className="size-9 animate-spin text-[#3F7800] dark:text-[#AFFF78]"
                   aria-hidden="true"
                 />
                 <div className="space-y-2">
@@ -375,7 +383,7 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
 
       {status === "scanning" && (
         <div
-          className="shrink-0 space-y-1 px-6 py-4 text-center"
+          className="shrink-0 space-y-1 border-t border-border bg-card px-6 py-4 text-center"
           aria-live="polite"
         >
           <p className="font-medium">Aponte para o QR Code</p>
