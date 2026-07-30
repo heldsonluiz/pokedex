@@ -34,7 +34,8 @@ export default function HomeLoading() {
       <div className="space-y-3">
         <Skeleton className="h-6 w-36" />
         <Skeleton className="h-4 w-64 max-w-full" />
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
+          <Skeleton className="h-24 rounded-2xl" />
           <Skeleton className="h-24 rounded-2xl" />
           <Skeleton className="h-24 rounded-2xl" />
           <Skeleton className="h-24 rounded-2xl" />
