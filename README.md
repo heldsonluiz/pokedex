@@ -99,6 +99,10 @@ Executar todas as validações:
 pnpm check
 ```
 
+Os comandos administrativos de reset, seed de testes e preparação do
+Firestore para lançamento estão documentados em
+[`docs/project/08-database-maintenance-scripts.md`](./docs/project/08-database-maintenance-scripts.md).
+
 ## Convenções
 
 - **Arquivos:** `kebab-case`
