@@ -14,6 +14,9 @@ export function QrResult({
   children,
   actionHref = "/home",
   actionLabel = "Voltar para o início",
+  secondaryActionHref,
+  secondaryActionLabel,
+  icon,
 }: Readonly<{
   status: QrResultStatus
   title: string
@@ -21,6 +24,9 @@ export function QrResult({
   children?: ReactNode
   actionHref?: string
   actionLabel?: string
+  secondaryActionHref?: string
+  secondaryActionLabel?: string
+  icon?: ReactNode
 }>) {
   const Icon =
     status === "loading"
@@ -34,7 +40,8 @@ export function QrResult({
       <section className="flex w-full max-w-sm flex-col items-center gap-6 rounded-3xl bg-card p-6 text-center shadow-card ring-1 ring-foreground/10">
         <span
           className={cn(
-            "flex size-16 items-center justify-center rounded-2xl",
+            "flex items-center justify-center",
+            icon ? "size-28 rounded-3xl" : "size-16 rounded-2xl",
             status === "success" &&
               "bg-[#8BFF3D]/15 text-[#3F7800] shadow-[0_0_22px_rgb(139_255_61/0.2)] dark:text-[#AFFF78]",
             status === "error" && "bg-destructive/10 text-destructive",
@@ -42,10 +49,12 @@ export function QrResult({
               "bg-primary/10 text-primary shadow-[0_0_22px_color-mix(in_oklab,var(--primary)_18%,transparent)]"
           )}
         >
-          <Icon
-            className={cn("size-8", status === "loading" && "animate-spin")}
-            aria-hidden="true"
-          />
+          {icon ?? (
+            <Icon
+              className={cn("size-8", status === "loading" && "animate-spin")}
+              aria-hidden="true"
+            />
+          )}
         </span>
 
         <div
@@ -61,18 +70,31 @@ export function QrResult({
         {children}
 
         {status !== "loading" && (
-          <Link
-            href={actionHref}
-            className={cn(
-              buttonVariants({
-                variant: children ? "outline" : "default",
-                size: "lg",
-              }),
-              "w-full"
+          <div className="grid w-full gap-2">
+            {secondaryActionHref && secondaryActionLabel && (
+              <Link
+                href={secondaryActionHref}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" }),
+                  "w-full"
+                )}
+              >
+                {secondaryActionLabel}
+              </Link>
             )}
-          >
-            {actionLabel}
-          </Link>
+            <Link
+              href={actionHref}
+              className={cn(
+                buttonVariants({
+                  variant: children ? "outline" : "default",
+                  size: "lg",
+                }),
+                "w-full"
+              )}
+            >
+              {actionLabel}
+            </Link>
+          </div>
         )}
       </section>
     </main>

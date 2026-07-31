@@ -11,6 +11,8 @@ type TagDiscoveryState =
   | Readonly<{ status: "loading" }>
   | Readonly<{ status: "complete"; result: DiscoverTagActionResult }>
 
+const TAG_DISCOVERY_TIMEOUT_MS = 15_000
+
 const tagDiscoveryErrorMessages: Record<
   Extract<DiscoverTagActionResult, { success: false }>["code"],
   Readonly<{ title: string; description: string }>
@@ -45,27 +47,45 @@ export function TagDiscoveryResult({
   eventId,
   qrId,
 }: Readonly<{ eventId: string; qrId: string }>) {
-  const startedRef = useRef(false)
+  const requestRef = useRef<Promise<DiscoverTagActionResult> | null>(null)
   const [state, setState] = useState<TagDiscoveryState>({
     status: "loading",
   })
 
   useEffect(() => {
-    if (startedRef.current) {
-      return
-    }
-
-    startedRef.current = true
     let active = true
+    requestRef.current ??= discoverTagAction({ eventId, qrId })
 
-    void discoverTagAction({ eventId, qrId }).then((result) => {
+    const timeoutId = window.setTimeout(() => {
       if (active) {
-        setState({ status: "complete", result })
+        setState({
+          status: "complete",
+          result: { success: false, code: "UNEXPECTED_ERROR" },
+        })
       }
-    })
+    }, TAG_DISCOVERY_TIMEOUT_MS)
+
+    void requestRef.current
+      .then((result) => {
+        if (active) {
+          setState({ status: "complete", result })
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setState({
+            status: "complete",
+            result: { success: false, code: "UNEXPECTED_ERROR" },
+          })
+        }
+      })
+      .finally(() => {
+        window.clearTimeout(timeoutId)
+      })
 
     return () => {
       active = false
+      window.clearTimeout(timeoutId)
     }
   }, [eventId, qrId])
 
@@ -96,6 +116,18 @@ export function TagDiscoveryResult({
   return (
     <QrResult
       status="success"
+      icon={
+        <Avatar className="size-full rounded-3xl">
+          <AvatarImage
+            src={state.result.imageUrl}
+            alt=""
+            className="rounded-3xl object-cover"
+          />
+          <AvatarFallback className="rounded-3xl">TAG</AvatarFallback>
+        </Avatar>
+      }
+      secondaryActionHref="/scan"
+      secondaryActionLabel="Voltar para o scanner"
       title={
         alreadyDiscovered
           ? `${state.result.tagName} já foi encontrada`
@@ -106,17 +138,6 @@ export function TagDiscoveryResult({
           ? `Você já recebeu ${state.result.xpAwarded} XP por esta tag.`
           : `Você encontrou uma nova tag e recebeu ${state.result.xpAwarded} XP.`
       }
-      actionHref="/tags"
-      actionLabel="Ver coleção de tags"
-    >
-      <Avatar className="size-28 rounded-3xl">
-        <AvatarImage
-          src={state.result.imageUrl}
-          alt={`Imagem da tag ${state.result.tagName}`}
-          className="rounded-3xl object-contain"
-        />
-        <AvatarFallback className="rounded-3xl">TAG</AvatarFallback>
-      </Avatar>
-    </QrResult>
+    />
   )
 }

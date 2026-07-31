@@ -11,6 +11,14 @@ import Link from "next/link"
 import { EmptyState } from "@/components/layout/empty-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
 import {
@@ -174,32 +182,69 @@ function TagSlot({ item }: Readonly<{ item: TagCollectionItem }>) {
   }
 
   return (
-    <article className="relative flex min-h-44 flex-col items-center gap-2 rounded-2xl bg-card p-3 text-center ring-1 ring-foreground/10">
-      <CheckCircle2
-        className="absolute top-3 right-3 size-4 text-success"
-        aria-label="Encontrada"
-      />
-      <Avatar className="size-16 rounded-2xl">
-        <AvatarImage
-          src={item.imageUrl}
-          alt={`Imagem da tag ${item.name}`}
-          className="rounded-2xl object-contain"
+    <Dialog>
+      <DialogTrigger
+        render={
+          <button
+            type="button"
+            className="relative flex min-h-44 w-full touch-manipulation flex-col items-center gap-2 rounded-2xl bg-card p-3 text-center ring-1 ring-foreground/10 transition-colors hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            aria-label={`Ver detalhes da tag ${item.name}`}
+          />
+        }
+      >
+        <CheckCircle2
+          className="absolute top-3 right-3 size-4 text-success"
+          aria-label="Encontrada"
         />
-        <AvatarFallback className="rounded-2xl">TAG</AvatarFallback>
-      </Avatar>
+        <Avatar className="size-16 rounded-2xl">
+          <AvatarImage
+            src={item.imageUrl}
+            alt=""
+            className="rounded-2xl object-contain"
+          />
+          <AvatarFallback className="rounded-2xl">TAG</AvatarFallback>
+        </Avatar>
 
-      <div className="min-w-0">
-        <h3 className="line-clamp-2 text-sm font-semibold">{item.name}</h3>
-        {item.description && (
-          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-            {item.description}
-          </p>
-        )}
-      </div>
+        <span className="min-w-0">
+          <span className="line-clamp-2 text-sm font-semibold">
+            {item.name}
+          </span>
+          {item.description && (
+            <span className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+              {item.description}
+            </span>
+          )}
+        </span>
 
-      <p className="mt-auto text-xs font-medium text-primary">
-        +{item.xpAwarded} XP
-      </p>
-    </article>
+        <span className="mt-auto text-xs font-medium text-primary">
+          +{item.xpAwarded} XP
+        </span>
+      </DialogTrigger>
+
+      <DialogContent>
+        <DialogHeader className="items-center px-8 text-center">
+          <Avatar className="size-24 rounded-3xl">
+            <AvatarImage
+              src={item.imageUrl}
+              alt={`Imagem da tag ${item.name}`}
+              className="rounded-3xl object-contain"
+            />
+            <AvatarFallback className="rounded-3xl">TAG</AvatarFallback>
+          </Avatar>
+          <DialogTitle className="text-xl leading-snug">
+            {item.name}
+          </DialogTitle>
+        </DialogHeader>
+
+        <DialogDescription className="leading-6 whitespace-pre-wrap">
+          {item.description || "Esta tag não possui uma descrição cadastrada."}
+        </DialogDescription>
+
+        <p className="inline-flex w-fit items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary">
+          <Sparkles className="size-4" aria-hidden="true" />+{item.xpAwarded} XP
+          conquistados
+        </p>
+      </DialogContent>
+    </Dialog>
   )
 }
