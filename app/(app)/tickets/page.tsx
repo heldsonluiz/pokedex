@@ -7,6 +7,7 @@ import { TICKET_EXCHANGE_RATE_XP } from "@/config/tickets"
 import { requireAuth } from "@/lib/require-auth"
 import { getTicketsForSession } from "@/modules/tickets/ticket.service"
 import { TicketConversionForm } from "@/modules/tickets/ticket-conversion-form"
+import { TicketIntroductionDialog } from "@/modules/tickets/ticket-introduction-dialog"
 
 export const metadata: Metadata = { title: "Tickets" }
 export const dynamic = "force-dynamic"
@@ -42,6 +43,10 @@ export default async function TicketsPage() {
 
   return (
     <div className="space-y-6 p-6">
+      <TicketIntroductionDialog
+        storageScope={`${tickets.eventId}:${tickets.participantId}`}
+      />
+
       <section className="space-y-1">
         <h1 className="text-2xl font-bold tracking-tight">Seus tickets</h1>
         <p className="text-sm leading-6 text-muted-foreground">
