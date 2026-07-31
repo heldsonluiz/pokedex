@@ -66,13 +66,6 @@ const explorationItems = [
     className:
       "bg-[#FF3DF2]/15 text-[#9B0091] shadow-[0_0_18px_color-mix(in_oklab,#FF3DF2_20%,transparent)] dark:text-[#FF78F5]",
   },
-  {
-    href: "/profile/qr-code?source=home",
-    label: "Meu QR Code",
-    icon: QrCode,
-    className:
-      "bg-[#8CFF52]/15 text-[#357A12] shadow-[0_0_18px_color-mix(in_oklab,#8CFF52_20%,transparent)] dark:text-[#8CFF52]",
-  },
 ] as const
 
 const objectiveIcons = {
@@ -208,6 +201,17 @@ export default async function HomePage() {
         </div>
       </Link>
 
+      <Link
+        href="/profile/qr-code?source=home"
+        className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-card px-4 py-3 text-sm font-medium ring-1 ring-foreground/10 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      >
+        <QrCode
+          className="size-5 text-[#357A12] dark:text-[#8CFF52]"
+          aria-hidden="true"
+        />
+        Mostrar meu QR Code
+      </Link>
+
       <NextObjective objective={objective} />
 
       <ParticipantSummaryCard summary={summary} totals={catalogTotals} />
@@ -222,7 +226,7 @@ export default async function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {explorationItems.map(({ href, label, icon: Icon, className }) => (
             <Link
               key={href}
