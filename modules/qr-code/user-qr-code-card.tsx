@@ -4,6 +4,7 @@ import { RefreshCw } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
+import { QR_CODE_CONFIG } from "@/config/qr-code"
 
 import type { UserQrCode } from "./user-qr-code.service"
 
@@ -28,8 +29,12 @@ export function UserQrCodeCard({
   const [qrCode, setQrCode] = useState<UserQrCode>(initialQrCode)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [remainingSeconds, setRemainingSeconds] = useState(60)
-  const [validitySeconds, setValiditySeconds] = useState(60)
+  const [remainingSeconds, setRemainingSeconds] = useState<number>(
+    QR_CODE_CONFIG.USER_TOKEN_DURATION_SECONDS
+  )
+  const [validitySeconds, setValiditySeconds] = useState<number>(
+    QR_CODE_CONFIG.USER_TOKEN_DURATION_SECONDS
+  )
 
   const loadQrCode = useCallback(async (signal?: AbortSignal) => {
     setIsLoading(true)
@@ -78,7 +83,12 @@ export function UserQrCodeCard({
     }
     updateCountdown()
     const countdownInterval = window.setInterval(updateCountdown, 1_000)
-    const refreshDelay = Math.max(0, expiresAt - Date.now() - 10_000)
+    const refreshDelay = Math.max(
+      0,
+      expiresAt -
+        Date.now() -
+        QR_CODE_CONFIG.USER_TOKEN_REFRESH_LEAD_SECONDS * 1_000
+    )
     const refreshTimeout = window.setTimeout(() => {
       void loadQrCode()
     }, refreshDelay)

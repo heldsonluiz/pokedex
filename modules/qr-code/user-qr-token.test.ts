@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { QR_CODE_CONFIG } from "@/config/qr-code"
+
 vi.mock("@/env", () => ({
   env: {
     QR_SIGNING_SECRET: "test-signing-secret-with-at-least-32-characters",
@@ -95,7 +97,13 @@ describe("participant QR Code token", () => {
         token,
         eventId: EVENT_ID,
         qrId: QR_ID,
-        now: new Date(NOW.getTime() + 66_000),
+        now: new Date(
+          NOW.getTime() +
+            (QR_CODE_CONFIG.USER_TOKEN_DURATION_SECONDS +
+              QR_CODE_CONFIG.CLOCK_TOLERANCE_SECONDS +
+              1) *
+              1_000
+        ),
       })
     ).toEqual({ valid: false, code: "QR_EXPIRED" })
   })
@@ -104,7 +112,9 @@ describe("participant QR Code token", () => {
     const { token } = createUserQrToken({
       eventId: EVENT_ID,
       qrId: QR_ID,
-      now: new Date(NOW.getTime() + 6_000),
+      now: new Date(
+        NOW.getTime() + (QR_CODE_CONFIG.CLOCK_TOLERANCE_SECONDS + 1) * 1_000
+      ),
     })
 
     expect(

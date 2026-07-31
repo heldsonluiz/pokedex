@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { reviewMissionAction } from "@/modules/missions/mission.actions"
@@ -140,6 +141,17 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
           query.set("participant", result.participantName ?? "Participante")
           query.set("mission", result.missionTitle)
           query.set("xp", String(result.xpAwarded))
+          if (result.code === "MISSION_COMPLETED") {
+            toast.success(`Missão “${result.missionTitle}” validada`, {
+              description: `${result.participantName ?? "Participante"} recebeu ${result.xpAwarded} XP.`,
+              duration: 5_000,
+            })
+          } else {
+            toast.info(`Missão “${result.missionTitle}” já estava validada`, {
+              description: "Nenhum XP adicional foi concedido.",
+              duration: 5_000,
+            })
+          }
         }
 
         router.push(`/missions?${query.toString()}`)
