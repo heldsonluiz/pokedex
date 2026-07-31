@@ -28,7 +28,8 @@ type LiveConnectionStatus =
 export function RaffleLiveRefresh({
   children,
   eventId,
-}: Readonly<{ children: ReactNode; eventId: string }>) {
+  stageKey,
+}: Readonly<{ children: ReactNode; eventId: string; stageKey: string }>) {
   const router = useRouter()
   const [drawingPrizeName, setDrawingPrizeName] = useState<string | null>(null)
   const [connectionStatus, setConnectionStatus] =
@@ -183,15 +184,93 @@ export function RaffleLiveRefresh({
   ) : (
     children
   )
+  const contentKey = drawingPrizeName ? `drawing:${drawingPrizeName}` : stageKey
 
   return (
     <>
-      {content}
+      <RaffleStageTransition transitionKey={contentKey}>
+        {content}
+      </RaffleStageTransition>
       <LiveConnectionIndicator
         status={connectionStatus}
         onRetry={retryConnection}
       />
     </>
+  )
+}
+
+function RaffleStageTransition({
+  children,
+  transitionKey,
+}: Readonly<{ children: ReactNode; transitionKey: string }>) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const displayedKeyRef = useRef(transitionKey)
+  const requestedContentRef = useRef(children)
+  const [displayedContent, setDisplayedContent] = useState(children)
+
+  useEffect(() => {
+    requestedContentRef.current = children
+  }, [children])
+
+  useEffect(() => {
+    if (displayedKeyRef.current === transitionKey) return
+
+    const container = containerRef.current
+    let cancelled = false
+    let exitAnimation: Animation | undefined
+    let enterAnimation: Animation | undefined
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches
+
+    async function transition() {
+      if (container?.animate && !reduceMotion) {
+        exitAnimation = container.animate(
+          [
+            { opacity: 1, transform: "translateY(0) scale(1)" },
+            { opacity: 0, transform: "translateY(-8px) scale(0.985)" },
+          ],
+          { duration: 180, easing: "ease-in", fill: "forwards" }
+        )
+        await exitAnimation.finished.catch(() => undefined)
+        exitAnimation.cancel()
+      }
+
+      if (cancelled) return
+      displayedKeyRef.current = transitionKey
+      setDisplayedContent(requestedContentRef.current)
+
+      if (container?.animate && !reduceMotion) {
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => resolve())
+        )
+
+        if (cancelled) return
+        enterAnimation = container.animate(
+          [
+            { opacity: 0, transform: "translateY(8px) scale(0.985)" },
+            { opacity: 1, transform: "translateY(0) scale(1)" },
+          ],
+          { duration: 320, easing: "ease-out", fill: "both" }
+        )
+        await enterAnimation.finished.catch(() => undefined)
+        enterAnimation.cancel()
+      }
+    }
+
+    void transition()
+
+    return () => {
+      cancelled = true
+      exitAnimation?.cancel()
+      enterAnimation?.cancel()
+    }
+  }, [transitionKey])
+
+  return (
+    <div ref={containerRef} className="flex w-full justify-center">
+      {displayedContent}
+    </div>
   )
 }
 
