@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { QrResult } from "@/modules/qr-code/qr-result"
 
 import {
@@ -12,6 +13,8 @@ import {
 type State =
   | Readonly<{ status: "loading" }>
   | Readonly<{ status: "complete"; result: MissionActionResult }>
+
+const MISSION_COMPLETION_TIMEOUT_MS = 15_000
 
 const errors: Record<
   Extract<MissionActionResult, { success: false }>["code"],
@@ -67,21 +70,41 @@ export function MissionCompletionResult({
   eventId,
   qrId,
 }: Readonly<{ eventId: string; qrId: string }>) {
-  const started = useRef(false)
+  const requestRef = useRef<Promise<MissionActionResult> | null>(null)
   const [state, setState] = useState<State>({ status: "loading" })
 
   useEffect(() => {
-    if (started.current) return
-
-    started.current = true
     let active = true
+    requestRef.current ??= completeQrMissionAction({ eventId, qrId })
 
-    void completeQrMissionAction({ eventId, qrId }).then((result) => {
-      if (active) setState({ status: "complete", result })
-    })
+    const timeoutId = window.setTimeout(() => {
+      if (active) {
+        setState({
+          status: "complete",
+          result: { success: false, code: "UNEXPECTED_ERROR" },
+        })
+      }
+    }, MISSION_COMPLETION_TIMEOUT_MS)
+
+    void requestRef.current
+      .then((result) => {
+        if (active) setState({ status: "complete", result })
+      })
+      .catch(() => {
+        if (active) {
+          setState({
+            status: "complete",
+            result: { success: false, code: "UNEXPECTED_ERROR" },
+          })
+        }
+      })
+      .finally(() => {
+        window.clearTimeout(timeoutId)
+      })
 
     return () => {
       active = false
+      window.clearTimeout(timeoutId)
     }
   }, [eventId, qrId])
 
@@ -112,6 +135,20 @@ export function MissionCompletionResult({
   return (
     <QrResult
       status="success"
+      icon={
+        state.result.missionImageUrl ? (
+          <Avatar className="size-full rounded-3xl">
+            <AvatarImage
+              src={state.result.missionImageUrl}
+              alt=""
+              className="rounded-3xl object-cover"
+            />
+            <AvatarFallback className="rounded-3xl">MIS</AvatarFallback>
+          </Avatar>
+        ) : undefined
+      }
+      secondaryActionHref="/scan"
+      secondaryActionLabel="Voltar para o scanner"
       title={
         repeated
           ? "Missão já concluída"
@@ -122,8 +159,6 @@ export function MissionCompletionResult({
           ? `Você já recebeu ${state.result.xpAwarded} XP por esta missão.`
           : `Você recebeu ${state.result.xpAwarded} XP por esta missão.`
       }
-      actionHref="/missions"
-      actionLabel="Ver missões"
     />
   )
 }

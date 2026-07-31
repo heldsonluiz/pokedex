@@ -219,7 +219,7 @@ function MissionRow({ mission }: Readonly<{ mission: MissionListItem }>) {
               className={cn(
                 "mt-1 flex items-center justify-end",
                 mission.status === "available" &&
-                  "text-[#3F7800] dark:text-[#8BFF3D]",
+                  "text-[#00788A] drop-shadow-[0_0_6px_#00E5FF] dark:text-[#66F3FF]",
                 mission.status === "blocked" && "text-muted-foreground",
                 mission.status === "completed" && "text-success"
               )}
@@ -237,10 +237,20 @@ function MissionRow({ mission }: Readonly<{ mission: MissionListItem }>) {
 function MissionImage({
   mission,
   featured = false,
-}: Readonly<{ mission: MissionListItem; featured?: boolean }>) {
+  dialog = false,
+}: Readonly<{
+  mission: MissionListItem
+  featured?: boolean
+  dialog?: boolean
+}>) {
   return (
-    <Avatar className={cn("rounded-xl", featured ? "size-16" : "size-11")}>
-      {mission.imageUrl && (
+    <Avatar
+      className={cn(
+        "rounded-xl",
+        dialog ? "size-28" : featured ? "size-16" : "size-11"
+      )}
+    >
+      {mission.status === "completed" && mission.imageUrl && (
         <AvatarImage
           src={mission.imageUrl}
           alt=""
@@ -251,7 +261,8 @@ function MissionImage({
         className={cn(
           "rounded-xl",
           mission.status === "available" &&
-            "bg-[#8BFF3D]/20 text-[#3F7800] dark:text-[#C5FF9D]"
+            "bg-[#00E5FF]/15 text-[#00788A] shadow-[0_0_18px_color-mix(in_oklab,#00E5FF_20%,transparent)] dark:text-[#66F3FF]",
+          mission.status === "completed" && "bg-success/15 text-success"
         )}
       >
         {mission.status === "blocked" ? (
@@ -277,10 +288,10 @@ function MissionDialog({
     <Dialog>
       <DialogTrigger render={trigger} />
       <DialogContent>
-        <DialogHeader className="pr-10">
-          <div className="flex items-start gap-3">
-            <MissionImage mission={mission} featured />
-            <div className="min-w-0 flex-1">
+        <DialogHeader className="px-8">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <MissionImage mission={mission} dialog />
+            <div className="min-w-0">
               <Badge
                 variant={mission.status === "completed" ? "default" : "outline"}
               >
