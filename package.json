@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:mobile": "node --env-file=.env.mobile scripts/dev-mobile.mjs",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
@@ -16,7 +17,11 @@
     "db:reset-participant": "node scripts/reset-participant.mjs",
     "db:seed-test": "node scripts/reset-and-seed-test-data.mjs",
     "db:prepare-launch": "node scripts/prepare-production-database.mjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "qrImg:local": "node --env-file=.env.local scripts/generate-event-qr-images-png.mjs",
+    "qrImg:mobile": "node --env-file=.env.local --env-file=.env.mobile scripts/generate-event-qr-images-png.mjs",
+    "qrPdf:local": "node --env-file=.env.local scripts/generate-qr-pdf-from-public-images.mjs",
+    "qrPdf:mobile": "node --env-file=.env.local --env-file=.env.mobile scripts/generate-qr-pdf-from-public-images.mjs"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -69,6 +74,7 @@
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "sharp": "^0.32.0"
   }
 }

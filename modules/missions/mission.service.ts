@@ -44,6 +44,7 @@ export type MissionOperationResult =
       success: true
       code: "MISSION_COMPLETED" | "MISSION_ALREADY_COMPLETED"
       missionTitle: string
+      missionDescription: string
       missionImageUrl: string | null
       participantName?: string
       xpAwarded: number
@@ -233,6 +234,7 @@ function mapCompletionResult(
         success: true,
         code: "MISSION_COMPLETED",
         missionTitle: result.mission.title,
+        missionDescription: result.mission.description,
         missionImageUrl: result.mission.imageUrl,
         xpAwarded: result.completion.xpAwarded,
       }
@@ -241,6 +243,7 @@ function mapCompletionResult(
         success: true,
         code: "MISSION_ALREADY_COMPLETED",
         missionTitle: result.mission.title,
+        missionDescription: result.mission.description,
         missionImageUrl: result.mission.imageUrl,
         xpAwarded: result.completion.xpAwarded,
       }

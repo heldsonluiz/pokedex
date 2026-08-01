@@ -1,5 +1,6 @@
 "use client"
 
+import { LoaderCircle } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -123,7 +124,9 @@ export function TagDiscoveryResult({
             alt=""
             className="rounded-3xl object-cover"
           />
-          <AvatarFallback className="rounded-3xl">TAG</AvatarFallback>
+          <AvatarFallback className="rounded-3xl">
+            <LoaderCircle className="animate-spin" />
+          </AvatarFallback>
         </Avatar>
       }
       secondaryActionHref="/scan"
@@ -138,6 +141,7 @@ export function TagDiscoveryResult({
           ? `Você já recebeu ${state.result.xpAwarded} XP por esta tag.`
           : `Você encontrou uma nova tag e recebeu ${state.result.xpAwarded} XP.`
       }
+      subtitle={alreadyDiscovered ? "" : `${state.result.tagDescription}`}
     />
   )
 }

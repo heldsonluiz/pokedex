@@ -119,6 +119,9 @@ export function CompanyVisitResult({
   return (
     <QrResult
       status="success"
+
+      secondaryActionHref="/scan"
+      secondaryActionLabel="Voltar para o scanner"
       title={
         alreadyVisited
           ? `${state.result.companyName} já está no seu passaporte`

@@ -10,6 +10,7 @@ type QrResultStatus = "error" | "loading" | "success"
 export function QrResult({
   status,
   title,
+  subtitle,
   description,
   children,
   actionHref = "/home",
@@ -20,6 +21,7 @@ export function QrResult({
 }: Readonly<{
   status: QrResultStatus
   title: string
+  subtitle?: string
   description: string
   children?: ReactNode
   actionHref?: string
@@ -62,6 +64,11 @@ export function QrResult({
           role={status === "error" ? "alert" : "status"}
         >
           <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+          {subtitle && (
+            <p className="mx-auto mb-4 text-sm leading-6 text-primary">
+              {subtitle}
+            </p>
+          )}
           <p className="text-sm leading-6 text-muted-foreground">
             {description}
           </p>

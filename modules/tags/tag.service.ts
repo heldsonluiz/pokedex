@@ -18,6 +18,7 @@ export type TagDiscoveryOperationResult =
       success: true
       code: "TAG_DISCOVERED" | "TAG_ALREADY_DISCOVERED"
       tagName: string
+      tagDescription: string
       imageUrl: string
       xpAwarded: number
     }>
@@ -117,6 +118,7 @@ export async function discoverTagForSession(
         success: true,
         code: "TAG_DISCOVERED",
         tagName: result.tag.name,
+        tagDescription: result.tag.description,
         imageUrl: result.tag.imageUrl,
         xpAwarded: result.discovery.xpAwarded,
       }
@@ -124,6 +126,7 @@ export async function discoverTagForSession(
       return {
         success: true,
         code: "TAG_ALREADY_DISCOVERED",
+        tagDescription: result.tag.description,
         tagName: result.tag.name,
         imageUrl: result.tag.imageUrl,
         xpAwarded: result.discovery.xpAwarded,

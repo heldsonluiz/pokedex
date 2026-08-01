@@ -12,6 +12,7 @@ export type DiscoverTagActionResult =
       success: true
       code: "TAG_DISCOVERED" | "TAG_ALREADY_DISCOVERED"
       tagName: string
+      tagDescription: string
       imageUrl: string
       xpAwarded: number
     }>

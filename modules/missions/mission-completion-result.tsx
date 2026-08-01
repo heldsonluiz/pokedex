@@ -1,5 +1,6 @@
 "use client"
 
+import { LoaderCircle } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -143,7 +144,9 @@ export function MissionCompletionResult({
               alt=""
               className="rounded-3xl object-cover"
             />
-            <AvatarFallback className="rounded-3xl">MIS</AvatarFallback>
+            <AvatarFallback className="rounded-3xl">
+              <LoaderCircle className="animate-spin" />
+            </AvatarFallback>
           </Avatar>
         ) : undefined
       }
@@ -159,6 +162,7 @@ export function MissionCompletionResult({
           ? `Você já recebeu ${state.result.xpAwarded} XP por esta missão.`
           : `Você recebeu ${state.result.xpAwarded} XP por esta missão.`
       }
+      subtitle={repeated ? "" : `${state.result.missionDescription}`}
     />
   )
 }
