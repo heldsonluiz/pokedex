@@ -36,14 +36,23 @@ O fluxo de perfil já permite consultar os dados persistidos em `/profile` e edi
 
 `/onboarding` apresenta cinco etapas com imagem WebP otimizada, título, descrição, indicador e ação de avanço. O passo atual permanece no parâmetro `step`, sobrevivendo a refresh. O gesto horizontal para a esquerda avança e para a direita retorna, sem botão visual de voltar; a próxima imagem é pré-carregada. Imagem e textos saem na direção do movimento e a etapa seguinte entra pelo lado oposto em uma transição curta. A última etapa encaminha para `/onboarding/profile`, que reutiliza o formulário de perfil. Voltar do setup retorna ao início das etapas; cancelar encerra a sessão; salvar um perfil válido conclui o onboarding e encaminha para `/home`.
 
-`/home` usa dados reais do perfil para apresentar saudação e avatar e lê a
-projeção individual leve para mostrar totais de conexões, empresas visitadas,
-tags descobertas e missões concluídas. O scanner é a ação principal; o QR Code
-do participante e os destinos de Missões, Passaporte e Perfil aparecem como
-atalhos. Ao abrir o QR Code pela Home, a origem controlada `source=home` faz o
-retorno levar novamente ao início; acessos sem essa origem retornam ao Perfil.
-A página possui skeleton estrutural e erro recuperável para suas leituras. A
-ação de logout fica em `/profile`, junto às demais ações de conta.
+`/home` usa dados reais do perfil para apresentar saudação, avatar, nível e
+progresso até a próxima faixa. A projeção individual leve fornece as contagens
+do participante, enquanto os catálogos públicos em cache fornecem somente seus
+totais; a página não repete consultas às conclusões individuais.
+
+O Passaporte é o principal resumo visual e mostra o percentual real de
+empresas, tags e missões concluídas. Em seguida, uma recomendação contextual
+prioriza empresas, missões e tags ainda incompletas e usa networking quando a
+jornada está em dia. O resumo rápido leva às quatro coleções e uma seção
+separada promove palestras, ranking e tickets. Scanner, Missões, Passaporte e
+Perfil continuam permanentemente disponíveis na navegação inferior. A página
+possui skeleton estrutural e erro recuperável para suas leituras; o logout fica
+em `/profile`.
+
+O Perfil também oferece as preferências de aparência `Sistema`, `Claro` e
+`Escuro`. A escolha é persistida somente no navegador e vale para as rotas que
+seguem o tema global; experiências imersivas podem continuar escuras.
 
 A Home também oferece acesso ao catálogo de empresas. `/companies` lista
 somente empresas ativas do evento atual, ordenadas pelo nome, e mostra quantas
@@ -114,12 +123,16 @@ carregamento.
 `/missions` projeta a experiência conforme as permissões do perfil.
 Participantes veem disponibilidade, pré-requisitos, conclusão e XP.
 Reviewers/admins escolhem uma missão presencial e escaneiam o QR temporário do
-participante. Cards bloqueados, disponíveis e concluídos usam tratamentos
-visuais distintos; o estado disponível recebe somente borda, ícone e degradê
-discreto no verde neon `#8BFF3D`, sem preencher todo o card. Bloqueios
-apresentam nominalmente as visitas ou missões pendentes. Missões presenciais
-disponíveis oferecem um atalho para o QR do participante, preservando
-`/missions` como destino de retorno.
+participante. A primeira missão disponível recebe destaque; na ausência dela, o
+destaque explica qual missão está mais próxima de ser desbloqueada. A lista
+compacta mantém disponíveis e bloqueadas na ordem configurada e leva as
+concluídas ao final.
+
+Tocar no destaque ou em qualquer linha abre um dialog com descrição, XP, modo
+de validação e todos os pré-requisitos. Missões presenciais disponíveis
+oferecem nele um atalho para o QR do participante, preservando `/missions` como
+destino de retorno. A interface não apresenta cronômetro nem progresso parcial,
+pois o contrato atual registra somente conclusão binária.
 
 `/passport` agrega empresas visitadas, Tags descobertas e missões concluídas.
 O cabeçalho apresenta progresso geral e XP registrado nessas atividades; o

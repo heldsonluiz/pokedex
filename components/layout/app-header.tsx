@@ -35,7 +35,7 @@ export function AppHeader({
       {showBack && (
         <button
           type="button"
-          className="-ml-2 inline-flex size-10 items-center justify-center rounded-full transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          className="-ml-2 inline-flex size-11 items-center justify-center rounded-full transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           aria-label="Voltar"
           onClick={() => (backHref ? router.push(backHref) : router.back())}
         >
@@ -47,7 +47,7 @@ export function AppHeader({
         {greeting && (
           <p className="truncate text-xs text-muted-foreground">{greeting}</p>
         )}
-        <h1 className="truncate text-lg font-bold tracking-tight">{title}</h1>
+        <p className="truncate text-lg font-bold tracking-tight">{title}</p>
       </div>
 
       {actions && (

@@ -140,21 +140,28 @@ export function AuthenticatedAppShell({
               backHref: "/missions",
               theme: "dark" as const,
             }
-          : pathname.startsWith("/companies/")
+          : pathname.startsWith("/connections/")
             ? {
-                title: "Empresa",
+                title: "Perfil da conexão",
                 showHeader: true,
                 showNavigation: false,
-                backHref: "/companies",
+                backHref: "/connections",
               }
-            : pathname.startsWith("/talks/")
+            : pathname.startsWith("/companies/")
               ? {
-                  title: "Palestra",
+                  title: "Empresa",
                   showHeader: true,
                   showNavigation: false,
-                  backHref: "/talks",
+                  backHref: "/companies",
                 }
-              : fallbackLayout)
+              : pathname.startsWith("/talks/")
+                ? {
+                    title: "Palestra",
+                    showHeader: true,
+                    showNavigation: false,
+                    backHref: "/talks",
+                  }
+                : fallbackLayout)
   const qrCodeSource =
     pathname === "/profile/qr-code" ? searchParams.get("source") : null
   const backHref =

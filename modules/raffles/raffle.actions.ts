@@ -11,10 +11,23 @@ import {
   drawRaffleForSession,
   processRaffleClosureForSession,
   processRaffleSimulationForSession,
+  publishRaffleLiveSignalForSession,
   rerollRaffleForSession,
   startRaffleSimulationForSession,
   updatePostRaffleRedemptionsForSession,
 } from "./raffle.service"
+
+async function publishRaffleLiveSignalSafely(
+  session: Awaited<ReturnType<typeof requireAuth>>,
+  phase: "drawing" | "updated",
+  prizeName?: string
+) {
+  try {
+    await publishRaffleLiveSignalForSession(session, phase, prizeName)
+  } catch (error) {
+    console.error("Failed to publish raffle live signal", error)
+  }
+}
 
 export async function beginRaffleClosureAction() {
   const session = await requireAuth()
@@ -24,6 +37,7 @@ export async function beginRaffleClosureAction() {
     throw new Error("Operation is not authorized")
   }
 
+  await publishRaffleLiveSignalSafely(session, "updated")
   revalidatePath("/operations")
   revalidatePath("/tickets")
 }
@@ -36,6 +50,7 @@ export async function processRaffleClosureBatchAction() {
     throw new Error("Operation is not authorized")
   }
 
+  await publishRaffleLiveSignalSafely(session, "updated")
   revalidatePath("/operations")
   revalidatePath("/tickets")
 }
@@ -43,7 +58,17 @@ export async function processRaffleClosureBatchAction() {
 export async function drawRaffleAction(formData: FormData) {
   const session = await requireAuth()
   const raffleId = String(formData.get("raffleId") ?? "")
-  const result = await drawRaffleForSession(session, raffleId)
+  const prizeName = String(formData.get("prizeName") ?? "")
+
+  await publishRaffleLiveSignalSafely(session, "drawing", prizeName)
+
+  let result: Awaited<ReturnType<typeof drawRaffleForSession>>
+
+  try {
+    result = await drawRaffleForSession(session, raffleId)
+  } finally {
+    await publishRaffleLiveSignalSafely(session, "updated")
+  }
 
   if (!result) {
     throw new Error("Operation is not authorized")
@@ -66,6 +91,7 @@ export async function confirmRaffleWinnerAction(formData: FormData) {
     throw new Error("Raffle winner cannot be confirmed")
   }
 
+  await publishRaffleLiveSignalSafely(session, "updated")
   revalidatePath("/operations")
 }
 
@@ -73,7 +99,17 @@ export async function rerollRaffleAction(formData: FormData) {
   const session = await requireAuth()
   const raffleId = String(formData.get("raffleId") ?? "")
   const attemptId = String(formData.get("attemptId") ?? "")
-  const result = await rerollRaffleForSession(session, raffleId, attemptId)
+  const prizeName = String(formData.get("prizeName") ?? "")
+
+  await publishRaffleLiveSignalSafely(session, "drawing", prizeName)
+
+  let result: Awaited<ReturnType<typeof rerollRaffleForSession>>
+
+  try {
+    result = await rerollRaffleForSession(session, raffleId, attemptId)
+  } finally {
+    await publishRaffleLiveSignalSafely(session, "updated")
+  }
 
   if (!result || result.status === "unavailable") {
     throw new Error("Raffle cannot be rerolled")
@@ -102,6 +138,7 @@ export async function startRaffleSimulationAction() {
     throw new Error("Raffle simulation cannot be started")
   }
 
+  await publishRaffleLiveSignalSafely(session, "updated")
   revalidatePath("/operations")
 }
 
@@ -113,6 +150,7 @@ export async function processRaffleSimulationBatchAction() {
     throw new Error("Raffle simulation cannot be processed")
   }
 
+  await publishRaffleLiveSignalSafely(session, "updated")
   revalidatePath("/operations")
 }
 
@@ -124,5 +162,6 @@ export async function archiveRaffleSimulationAction() {
     throw new Error("Raffle simulation cannot be archived")
   }
 
+  await publishRaffleLiveSignalSafely(session, "updated")
   revalidatePath("/operations")
 }

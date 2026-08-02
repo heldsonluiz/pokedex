@@ -14,15 +14,13 @@ export default async function EditProfilePage() {
   const profile = await requireProfileForSession(session)
 
   return (
-    <div className="p-4 px-8">
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-white">
-          Atualize seu perfil
-        </h2>
-        <p className="mt-2 text-sm text-slate-300">
+    <div className="space-y-6 p-6">
+      <section className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight">Editar perfil</h1>
+        <p className="text-sm leading-6 text-muted-foreground">
           Essas informações serão usadas durante o evento.
         </p>
-      </div>
+      </section>
       <ProfileForm
         defaultValues={{
           displayName: profile.displayName,

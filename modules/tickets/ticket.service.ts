@@ -29,6 +29,8 @@ export type ParticipantTickets =
   | Readonly<{ available: false }>
   | Readonly<{
       available: true
+      eventId: string
+      participantId: string
       ticketBalance: number
       xp: number
       convertedXp: number
@@ -61,6 +63,8 @@ export async function getTicketsForSession(
 
   return {
     available: true,
+    eventId: profile.eventId,
+    participantId: profile.userId,
     ticketBalance: profile.ticketBalance,
     xp: profile.xp,
     convertedXp: profile.convertedXp,

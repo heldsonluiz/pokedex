@@ -103,6 +103,44 @@ Erros estruturais estáveis incluem `INVALID_QR`, `INVALID_ORIGIN`, `INVALID_EVE
 
 O parser e a assinatura possuem testes automatizados para URLs válidas, quatro tipos de alvo, origem externa, credenciais embutidas, outro evento, tipo desconhecido, UUID inválido, token ausente, parâmetros inesperados, tamanho máximo, assinatura ou payload alterados, expiração e tolerância de relógio.
 
+## Material para impressão
+
+O script `scripts/generate-event-qr-pdf.mjs` consulta o Firestore e gera
+`artifacts/event-qr-codes-a4.pdf`, um PDF multipágina em tamanho A4. O material
+é separado por categoria e inclui:
+
+- empresas ativas com `qrId`;
+- tags ativas com `qrId`;
+- missões ativas com `validationType: "qr"` e `qrId`.
+
+Entidades inativas e missões validadas por reviewer não são incluídas. Cada
+quadro reproduz o material individual: tipo, nome, QR Code vetorial, instrução
+de leitura e nome do evento, sem expor a URL ou o ID interno. Empresas são
+distribuídas em uma grade 2×2, com cada quadro próximo do tamanho A6. Tags e
+missões usam uma grade 3×3. Linhas finas nos espaços entre os quadros ajudam no
+corte sem invadir a margem de segurança dos QR Codes.
+
+Para gerar ou atualizar o arquivo:
+
+```bash
+node --env-file=.env.local scripts/generate-event-qr-pdf.mjs
+```
+
+As URLs são construídas com `EVENT_ID` e `NEXT_PUBLIC_APP_URL` do ambiente
+carregado. Portanto, um PDF gerado com `NEXT_PUBLIC_APP_URL` apontando para
+`http://localhost:3000` serve apenas para testes locais. O material definitivo
+deve ser regenerado depois que a origem pública de produção estiver
+configurada.
+
+Antes de distribuir o material:
+
+1. confirme a origem informada pelo gerador;
+2. teste ao menos um código de empresa, tag e missão no ambiente pretendido;
+3. imprima em papel A4 com escala de 100%, sem redimensionamento automático;
+4. mantenha contraste e área branca ao redor dos códigos;
+5. regenere o PDF sempre que uma entidade for ativada, desativada ou tiver seu
+   `qrId` alterado.
+
 ## Segurança
 
 - nunca confie no conteúdo lido;

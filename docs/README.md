@@ -17,6 +17,7 @@ O objetivo é centralizar as decisões, padrões, fluxos e requisitos necessári
 - [Variáveis de ambiente](./project/05-environment.md)
 - [Roadmap](./project/06-roadmap.md)
 - [Fluxo de desenvolvimento](./project/07-development-workflow.md)
+- [Scripts de reset e seed do Firestore](./project/08-database-maintenance-scripts.md)
 
 ## Frontend
 

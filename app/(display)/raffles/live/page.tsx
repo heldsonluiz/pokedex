@@ -1,10 +1,11 @@
 import { CheckCircle2, Dices, FlaskConical, Trophy } from "lucide-react"
 import type { Metadata } from "next"
+import Image from "next/image"
 import { notFound } from "next/navigation"
 
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
-import { getRaffleOperationsForSession } from "@/modules/raffles/raffle.service"
+import { getRaffleLiveForSession } from "@/modules/raffles/raffle.service"
 import { RaffleLiveRefresh } from "@/modules/raffles/raffle-live-refresh"
 
 export const metadata: Metadata = {
@@ -15,7 +16,7 @@ export const dynamic = "force-dynamic"
 
 export default async function RaffleLivePage() {
   const session = await requireAuth()
-  const operations = await getRaffleOperationsForSession(session)
+  const operations = await getRaffleLiveForSession(session)
 
   if (!operations) {
     notFound()
@@ -41,9 +42,16 @@ export default async function RaffleLivePage() {
       (first, second) =>
         (second.drawnAt?.getTime() ?? 0) - (first.drawnAt?.getTime() ?? 0)
     )[0]
-  const allDrawn =
-    raffles.length > 0 && raffles.every((raffle) => raffle.status === "drawn")
-
+  const stageKey =
+    closureStatus !== "closed"
+      ? "preparing"
+      : currentCandidate
+        ? `candidate:${currentCandidate.id}:${currentCandidate.currentAttemptId}`
+        : latestWinner
+          ? `winner:${latestWinner.id}:${latestWinner.drawnAt?.getTime()}`
+          : pendingRaffle
+            ? "waiting"
+            : "completed"
   return (
     <div className="dark h-dvh overflow-hidden bg-[#05020d] text-foreground">
       <div className="relative flex h-dvh min-h-0 flex-col overflow-hidden">
@@ -82,7 +90,7 @@ export default async function RaffleLivePage() {
 
         <main className="relative grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_minmax(24rem,34rem)] gap-[clamp(1.5rem,3vw,3.5rem)] px-[clamp(1.5rem,4vw,5rem)] pb-[clamp(1.5rem,3dvh,3rem)]">
           <section className="flex min-h-0 items-center justify-center">
-            <RaffleLiveRefresh>
+            <RaffleLiveRefresh eventId={operations.eventId} stageKey={stageKey}>
               <div className="w-full max-w-5xl text-center">
                 {closureStatus !== "closed" ? (
                   <>
@@ -98,7 +106,7 @@ export default async function RaffleLivePage() {
                     <p className="font-pixel-square text-lg text-secondary">
                       Presença sendo confirmada
                     </p>
-                    <h2 className="mt-4 bg-gradient-to-r from-white via-secondary to-white bg-clip-text text-[clamp(3rem,10dvh,7rem)] leading-[0.95] font-black tracking-tight text-transparent">
+                    <h2 className="mt-4 bg-linear-to-r from-white via-secondary to-white bg-clip-text text-[clamp(2.5rem,8dvh,5.5rem)] leading-[0.95] font-black tracking-tight text-transparent">
                       {currentCandidate.currentCandidateName}
                     </h2>
                     <p className="mt-5 text-[clamp(1rem,2.5dvh,1.5rem)] text-muted-foreground">
@@ -113,30 +121,30 @@ export default async function RaffleLivePage() {
                     <p className="mt-5 font-pixel-square text-lg text-success">
                       Vencedor confirmado
                     </p>
-                    <h2 className="mt-4 text-[clamp(3rem,10dvh,7rem)] leading-[0.95] font-black tracking-tight">
+                    <h2 className="mt-4 text-[clamp(2.5rem,8dvh,5.5rem)] leading-[0.95] font-black tracking-tight">
                       {latestWinner.winnerName}
                     </h2>
                     <p className="mt-5 text-[clamp(1rem,2.5dvh,1.5rem)] text-muted-foreground">
                       {latestWinner.prizeName}
                     </p>
-                    {!allDrawn && pendingRaffle && (
-                      <p className="mt-7 text-base text-secondary">
-                        Próximo prêmio: {pendingRaffle.prizeName}
-                      </p>
-                    )}
                   </>
                 ) : pendingRaffle ? (
-                  <>
-                    <p className="font-pixel-square text-lg text-secondary">
-                      Próximo prêmio
+                  <div className="mx-auto flex max-w-4xl flex-col items-center">
+                    <Image
+                      src="/images/mascot/states/raffle-waiting-vampire.png"
+                      alt="Mascote do evento jogando tickets para o alto"
+                      width={1536}
+                      height={1024}
+                      priority
+                      className="max-h-[34dvh] w-auto object-contain drop-shadow-[0_24px_40px_rgb(109_40_217/0.28)]"
+                    />
+                    <p className="mt-5 font-pixel-square text-lg text-secondary">
+                      Prepare seus tickets
                     </p>
-                    <h2 className="mt-4 text-[clamp(3rem,10dvh,7rem)] leading-[0.95] font-black tracking-tight">
-                      {pendingRaffle.prizeName}
+                    <h2 className="mt-3 text-[clamp(1.5rem,3.5dvh,2.5rem)] leading-none font-black tracking-tight">
+                      Aguardando o início do sorteio
                     </h2>
-                    <p className="mt-5 text-xl text-muted-foreground">
-                      Aguardando o sorteio
-                    </p>
-                  </>
+                  </div>
                 ) : (
                   <>
                     <CheckCircle2 className="mx-auto size-20 text-success" />

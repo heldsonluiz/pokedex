@@ -113,12 +113,18 @@ Escala de altura para controles:
 
 | Tamanho   | Altura | Uso                                |
 | --------- | ------ | ---------------------------------- |
-| `xs`      | 32px   | ações compactas e auxiliares       |
-| `sm`      | 36px   | controles secundários              |
-| `default` | 40px   | botões, inputs e selects padrão    |
-| `lg`      | 44px   | ações principais de maior destaque |
+| `xs`      | 36px   | ações compactas e auxiliares       |
+| `sm`      | 40px   | controles secundários com texto    |
+| `default` | 44px   | botões, inputs e selects padrão    |
+| `lg`      | 48px   | ações principais de maior destaque |
 
 Variantes de ícone seguem as mesmas dimensões. Controles `xs` e `sm` devem ser usados apenas quando a área clicável ou o contexto preserve usabilidade adequada.
+
+Como a aplicação é majoritariamente móvel, ações principais e controles
+somente com ícone usam pelo menos 44px. Diálogos limitam sua altura ao viewport
+dinâmico e permitem rolagem interna com texto ampliado. Mudanças assíncronas
+relevantes, como scanner e progresso do onboarding, são anunciadas por regiões
+ao vivo sem expor ícones decorativos.
 
 Todos os componentes interativos devem oferecer:
 
@@ -128,6 +134,25 @@ Todos os componentes interativos devem oferecer:
 - rótulo ou nome acessível;
 - feedback sem depender apenas de cor.
 
+No tema claro, os tokens de texto `success` e `destructive` usam tons mais
+escuros que suas referências decorativas para preservar contraste sobre
+`background` e `card`. No tema escuro, os tons mais luminosos são mantidos. O
+header contextual não cria um segundo `h1`; o título principal pertence ao
+conteúdo da página. Erros urgentes usam `role="alert"` e confirmações usam
+`role="status"`.
+
+## Temas
+
+A aplicação oferece as preferências `Sistema`, `Claro` e `Escuro`. A escolha é
+controlada pelo `ThemeProvider`, armazenada localmente pelo `next-themes` e não
+gera gravações no Firestore. `Sistema` é o padrão e acompanha a preferência do
+dispositivo.
+
+O seletor fica no Perfil porque a preferência pertence ao dispositivo, não ao
+evento. Fluxos imersivos, como autenticação, onboarding, scanner e QR Code,
+podem manter o tema escuro localmente mesmo quando a preferência global for
+clara.
+
 ## Movimento e feedback
 
 - animações devem ser curtas e comunicar mudança de estado;
@@ -135,6 +160,27 @@ Todos os componentes interativos devem oferecer:
 - use skeleton para carregamento estrutural e spinner para ações curtas;
 - mensagens devem explicar erro e próxima ação;
 - estados vazios devem orientar o usuário.
+
+Rotas que dependem de dados do servidor devem fornecer um `loading.tsx`
+compatível com a estrutura final. O skeleton reserva aproximadamente o espaço
+do conteúdo real para reduzir mudanças bruscas de layout, usa
+`aria-busy="true"` com um nome acessível e não inicia consultas adicionais.
+
+Erros de carregamento de rota usam o estado compartilhado
+`RouteErrorState`: título contextual, orientação curta e uma ação para tentar
+novamente. A região usa `role="alert"` para que a falha também seja comunicada
+por tecnologias assistivas.
+
+Ausências de conteúdo que ocupam a região principal usam `EmptyState`, mantendo
+altura, espaçamento e hierarquia tipográfica consistentes. O texto deve explicar
+se o próximo passo depende do participante ou da organização; vazios internos
+de cards e coleções permanecem compactos.
+
+Entidades e endereços inexistentes usam `NotFoundState`. Dentro da área
+autenticada, o estado preserva o shell e retorna à Home; uma URL global
+desconhecida oferece retorno ao fluxo de acesso. A ilustração compartilhada do
+mascote é decorativa, possui fundo transparente e não repete a mensagem para
+tecnologias assistivas.
 
 ## Checklist
 

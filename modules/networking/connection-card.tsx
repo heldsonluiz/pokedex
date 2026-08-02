@@ -1,11 +1,11 @@
 "use client"
 
-import { LoaderCircle, Mail, UserMinus } from "lucide-react"
+import { ChevronRight, LoaderCircle, UserMinus } from "lucide-react"
+import Link from "next/link"
 import { useActionState } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import {
   Dialog,
   DialogClose,
@@ -46,10 +46,14 @@ export function ConnectionCard({
   const { participant } = connection
 
   return (
-    <Card>
-      <CardContent className="space-y-4">
-        <div className="flex items-center gap-3">
-          <Avatar>
+    <article className="px-4 py-3">
+      <div className="flex min-h-14 items-center gap-3">
+        <Link
+          href={`/connections/${encodeURIComponent(connection.id)}`}
+          className="flex min-w-0 flex-1 items-center gap-3 rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          aria-label={`Abrir perfil de ${participant.displayName}`}
+        >
+          <Avatar className="size-11">
             {participant.avatarUrl && (
               <AvatarImage
                 src={participant.avatarUrl}
@@ -61,46 +65,49 @@ export function ConnectionCard({
             </AvatarFallback>
           </Avatar>
 
-          <div className="min-w-0 flex-1">
-            <h3 className="truncate font-semibold">
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-semibold">
               {participant.displayName}
-            </h3>
-            <p className="truncate text-sm text-muted-foreground">
+            </span>
+            <span className="block truncate text-xs text-muted-foreground">
               {[participant.role, participant.company]
                 .filter(Boolean)
                 .join(" · ") || "Participante"}
-            </p>
-          </div>
+            </span>
+            {participant.email && (
+              <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                {participant.email}
+              </span>
+            )}
+          </span>
 
-          <ConnectionRemovalDialog
-            connectionId={connection.id}
-            participantName={participant.displayName}
-            formAction={formAction}
-            isPending={isPending}
+          <ChevronRight
+            className="size-5 shrink-0 text-muted-foreground"
+            aria-hidden="true"
           />
-        </div>
+        </Link>
 
-        {participant.email && (
-          <p className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Mail className="size-4 shrink-0" aria-hidden="true" />
-            <span className="truncate">{participant.email}</span>
-          </p>
-        )}
+        <ConnectionRemovalDialog
+          connectionId={connection.id}
+          participantName={participant.displayName}
+          formAction={formAction}
+          isPending={isPending}
+        />
+      </div>
 
-        {state.message && (
-          <p
-            className={
-              state.success
-                ? "text-sm text-success"
-                : "text-sm text-destructive"
-            }
-            role="status"
-          >
-            {state.message}
-          </p>
-        )}
-      </CardContent>
-    </Card>
+      {state.message && (
+        <p
+          className={
+            state.success
+              ? "mt-2 text-xs text-success"
+              : "mt-2 text-xs text-destructive"
+          }
+          role={state.success ? "status" : "alert"}
+        >
+          {state.message}
+        </p>
+      )}
+    </article>
   )
 }
 
@@ -122,8 +129,8 @@ function ConnectionRemovalDialog({
           <Button
             type="button"
             variant="destructive"
-            size="icon-sm"
-            className="border border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/20"
+            size="icon"
+            className="size-10 border border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/20"
             aria-label={`Remover conexão com ${participantName}`}
           />
         }

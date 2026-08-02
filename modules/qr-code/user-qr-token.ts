@@ -4,11 +4,10 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto"
 
 import * as z from "zod"
 
+import { QR_CODE_CONFIG } from "@/config/qr-code"
 import { env } from "@/env"
 
 const USER_QR_TOKEN_VERSION = 3
-const USER_QR_TOKEN_DURATION_SECONDS = 60
-const CLOCK_TOLERANCE_SECONDS = 5
 const TOKEN_PAYLOAD_LENGTH = 17
 const TOKEN_SIGNATURE_LENGTH = 16
 const TOKEN_LENGTH = TOKEN_PAYLOAD_LENGTH + TOKEN_SIGNATURE_LENGTH
@@ -92,7 +91,9 @@ export function createUserQrToken({
 
   return {
     token,
-    expiresAt: new Date((issuedAt + USER_QR_TOKEN_DURATION_SECONDS) * 1000),
+    expiresAt: new Date(
+      (issuedAt + QR_CODE_CONFIG.USER_TOKEN_DURATION_SECONDS) * 1000
+    ),
   }
 }
 
@@ -146,14 +147,14 @@ export function validateUserQrToken({
     }
 
     const issuedAt = payload.readUInt32BE(1)
-    const expiresAt = issuedAt + USER_QR_TOKEN_DURATION_SECONDS
+    const expiresAt = issuedAt + QR_CODE_CONFIG.USER_TOKEN_DURATION_SECONDS
     const currentTime = Math.floor(now.getTime() / 1000)
 
-    if (currentTime < issuedAt - CLOCK_TOLERANCE_SECONDS) {
+    if (currentTime < issuedAt - QR_CODE_CONFIG.CLOCK_TOLERANCE_SECONDS) {
       return { valid: false, code: "INVALID_QR" }
     }
 
-    if (currentTime > expiresAt + CLOCK_TOLERANCE_SECONDS) {
+    if (currentTime > expiresAt + QR_CODE_CONFIG.CLOCK_TOLERANCE_SECONDS) {
       return { valid: false, code: "QR_EXPIRED" }
     }
 

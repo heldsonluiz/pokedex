@@ -7,18 +7,25 @@ export type AppPermission =
   | "edit-content"
   | "access-staff"
   | "serve-participants"
+  | "view-raffle-display"
   | "manage-event-operations"
 
 const PERMISSIONS_BY_ROLE: Record<AccessRole, readonly AppPermission[]> = {
   participant: ["participate"],
   staff: ["access-staff"],
-  reviewer: ["access-staff", "review-missions", "serve-participants"],
+  reviewer: [
+    "access-staff",
+    "review-missions",
+    "serve-participants",
+    "view-raffle-display",
+  ],
   editor: ["access-staff", "edit-content"],
   admin: [
     "access-staff",
     "review-missions",
     "edit-content",
     "serve-participants",
+    "view-raffle-display",
     "manage-event-operations",
   ],
 }

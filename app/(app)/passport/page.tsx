@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   Clock3,
   LockKeyhole,
+  Sparkles,
   Stamp,
   Tags,
   Target,
@@ -79,57 +80,22 @@ export default async function PassportPage({
   const progress = (passport.completedCount / passport.totalCount) * 100
 
   return (
-    <div className="space-y-7 p-6">
-      <section className="space-y-4">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight">
-            Sua jornada no evento
-          </h1>
-          <p className="text-sm leading-6 text-muted-foreground">
-            Reúna carimbos, encontre Tags e conclua missões.
-          </p>
-        </div>
-
-        <div className="rounded-2xl bg-(image:--gradient-primary-card) p-5 text-primary-foreground shadow-glow-primary">
-          <div className="flex flex-wrap gap-3">
-            <span className="text-sm font-medium">Progresso geral</span>
-            <span className="ml-auto text-sm tabular-nums">
-              {passport.completedCount} de {passport.totalCount}
-            </span>
-            <div
-              className="h-1.5 w-full overflow-hidden rounded-full bg-primary-foreground/20"
-              role="progressbar"
-              aria-label="Progresso geral do passaporte"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={Math.round(progress)}
-            >
-              <div
-                className="h-full rounded-full bg-secondary transition-[width]"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </div>
-          <div className="mt-5 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-xs text-primary-foreground/70">
-                XP registrado no passaporte
-              </p>
-              <p className="mt-1 text-3xl font-bold tabular-nums">
-                {passport.xpEarned}
-              </p>
-            </div>
-            <Trophy className="size-9 text-secondary" aria-hidden="true" />
-          </div>
-        </div>
+    <div className="space-y-6 p-6">
+      <section className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight">Seu passaporte</h1>
+        <p className="text-sm leading-6 text-muted-foreground">
+          Reúna carimbos, encontre Tags e conclua missões.
+        </p>
       </section>
+
+      <PassportOverview passport={passport} progress={progress} />
 
       <ProgressSummary passport={passport} />
 
       {passport.recentAchievements.length > 0 && (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">Últimas conquistas</h2>
-          <div className="space-y-2">
+          <div className="divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
             {passport.recentAchievements.map((achievement) => (
               <AchievementRow key={achievement.key} achievement={achievement} />
             ))}
@@ -142,6 +108,60 @@ export default async function PassportPage({
         initialCollection={initialCollection}
       />
     </div>
+  )
+}
+
+function PassportOverview({
+  passport,
+  progress,
+}: Readonly<{ passport: ParticipantPassport; progress: number }>) {
+  return (
+    <section className="relative overflow-hidden rounded-3xl bg-(image:--gradient-primary-card) p-5 text-primary-foreground shadow-glow-primary">
+      <Stamp
+        className="absolute -right-6 -bottom-8 size-40 rotate-[-12deg] text-primary-foreground/12"
+        strokeWidth={1.25}
+        aria-hidden="true"
+      />
+
+      <div className="relative">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-primary-foreground/75">
+              Progresso geral
+            </p>
+            <p className="mt-1 font-pixel-square text-5xl font-bold tabular-nums">
+              {Math.round(progress)}%
+            </p>
+            <p className="mt-1 text-xs text-primary-foreground/70">
+              {passport.completedCount} de {passport.totalCount} atividades
+            </p>
+          </div>
+          <span className="flex size-12 items-center justify-center rounded-2xl bg-primary-foreground/15">
+            <Trophy className="size-6 text-secondary" aria-hidden="true" />
+          </span>
+        </div>
+
+        <div
+          className="mt-5 h-2 overflow-hidden rounded-full bg-primary-foreground/20"
+          role="progressbar"
+          aria-label="Progresso geral do passaporte"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(progress)}
+        >
+          <div
+            className="h-full rounded-full bg-success transition-[width] duration-500 motion-reduce:transition-none"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        <p className="mt-4 inline-flex items-center gap-1 rounded-full bg-primary-foreground/15 px-2.5 py-1 text-xs font-semibold">
+          <Sparkles className="size-3.5" aria-hidden="true" />
+          {passport.xpEarned.toLocaleString("pt-BR")} XP em atividades do
+          passaporte
+        </p>
+      </div>
+    </section>
   )
 }
 
@@ -190,12 +210,12 @@ function ProgressSummary({
   ]
 
   return (
-    <section className="grid grid-cols-2 gap-2" aria-label="Resumo da jornada">
+    <section className="grid grid-cols-3 gap-2" aria-label="Resumo da jornada">
       {summaries.map(({ value, label, icon: Icon, completed, total }) => (
         <Link
           key={value}
           href={`/passport?collection=${value}#passport-collections`}
-          className="flex min-w-0 flex-col items-center gap-2 rounded-xl bg-card p-3 text-center ring-1 ring-foreground/10 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          className="flex min-w-0 flex-col items-center gap-2 rounded-2xl bg-card px-2 py-3 text-center ring-1 ring-foreground/10 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           aria-label={`Ver coleção de ${label}: ${completed} de ${total}`}
         >
           <Icon className="size-5 text-primary" aria-hidden="true" />
@@ -221,7 +241,7 @@ function AchievementRow({
   }[achievement.type]
 
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
+    <div className="flex min-h-16 items-center gap-3 px-4 py-3">
       <Avatar className="size-11 rounded-lg">
         {achievement.imageUrl && (
           <AvatarImage
@@ -257,14 +277,30 @@ function PassportCollections({
     <section id="passport-collections" className="scroll-mt-4 space-y-3">
       <h2 className="text-lg font-semibold">Coleções</h2>
       <PassportTabs initialValue={initialCollection}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="companies">Empresas</TabsTrigger>
-          <TabsTrigger value="tags">Tags</TabsTrigger>
-          <TabsTrigger value="missions">Missões</TabsTrigger>
+        <TabsList className="grid h-11 w-full grid-cols-3 rounded-xl">
+          <TabsTrigger value="companies">
+            Empresas
+            <span className="text-[10px] opacity-65">
+              {passport.companies.completedCount}/
+              {passport.companies.totalCount}
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="tags">
+            Tags
+            <span className="text-[10px] opacity-65">
+              {passport.tags.discoveredCount}/{passport.tags.totalCount}
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="missions">
+            Missões
+            <span className="text-[10px] opacity-65">
+              {passport.missions.completedCount}/{passport.missions.totalCount}
+            </span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="companies" className="pt-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
             {passport.companies.items.length === 0 && (
               <CollectionEmpty message="Nenhuma empresa disponível." />
             )}
@@ -277,20 +313,12 @@ function PassportCollections({
                   href={`/companies/${encodeURIComponent(company.id)}`}
                   className={
                     visited
-                      ? "relative flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl bg-[linear-gradient(145deg,var(--card)_55%,color-mix(in_oklab,var(--primary)_12%,var(--card)))] p-4 text-center shadow-sm ring-2 shadow-primary/10 ring-primary/35 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                      : "relative flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl bg-muted/40 p-4 text-center opacity-70 ring-1 ring-foreground/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                      ? "flex min-h-18 items-center gap-3 bg-primary/5 px-4 py-3 focus-visible:bg-muted focus-visible:outline-none"
+                      : "flex min-h-18 items-center gap-3 px-4 py-3 opacity-70 focus-visible:bg-muted focus-visible:outline-none"
                   }
                 >
-                  {visited && (
-                    <span
-                      className="absolute top-2 right-2 z-10 flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-background"
-                      aria-label="Empresa visitada, carimbo conquistado"
-                    >
-                      <Stamp className="size-5" aria-hidden="true" />
-                    </span>
-                  )}
                   <Avatar
-                    className={`size-20 rounded-xl ${visited ? "" : "grayscale"}`}
+                    className={`size-11 shrink-0 rounded-xl ${visited ? "" : "grayscale"}`}
                   >
                     <AvatarImage
                       src={visited ? company.stampImageUrl : company.logoUrl}
@@ -301,16 +329,25 @@ function PassportCollections({
                       <Building2 aria-hidden="true" />
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <p className="line-clamp-2 text-sm font-medium">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
                       {company.name}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {visited
-                        ? `Visitada · +${company.xpAwarded} XP`
-                        : "Ainda não visitada"}
+                      {visited ? "Estande visitado" : "Ainda não visitada"}
                     </p>
                   </div>
+                  <span className="shrink-0 text-right">
+                    <span className="block text-xs font-medium text-primary">
+                      +{company.xpAwarded} XP
+                    </span>
+                    {visited && (
+                      <Stamp
+                        className="mt-1 ml-auto size-4 text-success"
+                        aria-label="Carimbo conquistado"
+                      />
+                    )}
+                  </span>
                 </Link>
               )
             })}
@@ -364,22 +401,22 @@ function PassportCollections({
         </TabsContent>
 
         <TabsContent value="missions" className="pt-3">
-          <div className="space-y-2">
+          <div className="divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
             {passport.missions.items.length === 0 && (
               <CollectionEmpty message="Nenhuma missão disponível." />
             )}
             {passport.missions.items.map((mission) => (
               <div
                 key={mission.id}
-                className="flex items-center gap-3 rounded-xl bg-card p-4 ring-1 ring-foreground/10"
+                className="flex min-h-16 items-center gap-3 px-4 py-3"
               >
                 {mission.status === "completed" ? (
                   <CheckCircle2
-                    className="size-5 shrink-0 text-primary"
+                    className="size-5 shrink-0 text-success"
                     aria-hidden="true"
                   />
                 ) : (
-                  <LockKeyhole
+                  <Target
                     className="size-5 shrink-0 text-muted-foreground"
                     aria-hidden="true"
                   />
@@ -391,7 +428,7 @@ function PassportCollections({
                   <p className="text-xs text-muted-foreground">
                     {mission.status === "completed"
                       ? "Missão concluída"
-                      : "Ainda não concluída"}
+                      : "Missão pendente"}
                   </p>
                 </div>
                 <span className="text-xs font-medium text-primary">

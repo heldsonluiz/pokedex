@@ -6,7 +6,7 @@ export const tagFieldsSchema = z
     eventId: z.string().trim().min(1).max(128),
     qrId: z.string().uuid(),
     name: z.string().trim().min(2).max(120),
-    description: z.string().trim().max(500).nullable(),
+    description: z.string().trim().max(500),
     imageUrl: z.url(),
     active: z.boolean(),
     order: z.number().int().nonnegative(),

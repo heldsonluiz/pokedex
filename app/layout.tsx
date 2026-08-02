@@ -5,6 +5,8 @@ import { GeistPixelSquare } from "geist/font/pixel"
 import { GeistSans } from "geist/font/sans"
 import type { Metadata, Viewport } from "next"
 
+import { ThemeProvider } from "@/providers/theme-provider"
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -45,8 +47,18 @@ export default function RootLayout({
     <html
       lang="pt-BR"
       className={`${GeistSans.variable} ${GeistMono.variable} ${GeistPixelSquare.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   )
 }

@@ -1,4 +1,5 @@
 import {
+  CircleStop,
   Clock3,
   LockKeyhole,
   MapPinned,
@@ -9,6 +10,7 @@ import {
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
+import { EmptyState } from "@/components/layout/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
@@ -49,40 +51,37 @@ export default async function TalkOperationsPage() {
       </section>
 
       {orderedTalks.length === 0 ? (
-        <section className="flex min-h-72 flex-col items-center justify-center gap-3 text-center">
-          <span className="rounded-full bg-primary/10 p-4 text-primary">
-            <Mic2 className="size-8" aria-hidden="true" />
-          </span>
-          <div className="space-y-1">
-            <h2 className="font-semibold">Nenhuma palestra ativa</h2>
-            <p className="text-sm text-muted-foreground">
-              As palestras aparecerão aqui quando forem cadastradas.
-            </p>
-          </div>
-        </section>
+        <EmptyState
+          className="min-h-72 py-6"
+          icon={<Mic2 className="size-8" aria-hidden="true" />}
+          title="Nenhuma palestra ativa"
+          description="As palestras aparecerão aqui quando forem cadastradas."
+          headingLevel="h2"
+        />
       ) : (
         <section className="space-y-3" aria-label="Palestras para administrar">
           {orderedTalks.map((talk) => (
             <article
               key={talk.id}
-              className={cn(
-                "space-y-4 rounded-2xl bg-card p-4 ring-1 ring-foreground/10",
-                talk.evaluationStatus === "closed" && "bg-muted/40 opacity-75"
-              )}
+              className="space-y-4 rounded-2xl bg-card p-4 ring-1 ring-foreground/10"
             >
               <div className="flex items-start gap-3">
                 <span
                   className={cn(
                     "flex size-11 shrink-0 items-center justify-center rounded-xl",
                     talk.evaluationStatus === "open"
-                      ? "bg-success/10 text-success"
-                      : "bg-muted text-muted-foreground"
+                      ? "bg-success/15 text-success"
+                      : talk.evaluationStatus === "locked"
+                        ? "bg-amber-500/15 text-amber-600 dark:text-amber-300"
+                        : "bg-destructive/15 text-destructive"
                   )}
                 >
                   {talk.evaluationStatus === "open" ? (
                     <UnlockKeyhole className="size-5" aria-hidden="true" />
-                  ) : (
+                  ) : talk.evaluationStatus === "locked" ? (
                     <LockKeyhole className="size-5" aria-hidden="true" />
+                  ) : (
+                    <CircleStop className="size-5" aria-hidden="true" />
                   )}
                 </span>
 
@@ -96,7 +95,7 @@ export default async function TalkOperationsPage() {
                           ? "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300"
                           : talk.evaluationStatus === "open"
                             ? "border-success/40 bg-success/10 text-success"
-                            : undefined
+                            : "border-destructive/40 bg-destructive/10 text-destructive"
                       }
                     >
                       {talk.evaluationStatus === "locked" && "Bloqueada"}

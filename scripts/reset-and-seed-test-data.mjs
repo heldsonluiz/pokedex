@@ -1,0 +1,233 @@
+/**
+ * Recria integralmente o Firestore com a massa de testes do projeto.
+ *
+ * O script apaga todas as coleções e subcoleções, esvazia public/images/qr e
+ * artifacts e cria participantes, conexões, empresas, tags, missões,
+ * palestrantes, palestras e programação. Não remove contas do Firebase
+ * Authentication nem arquivos do Storage.
+ *
+ * Simular, sem apagar ou gravar documentos:
+ *   npm run db:seed-test
+ *
+ * Ao final da simulação, o terminal exibirá o comando completo para recriar a
+ * base. Confira projeto e evento e então copie e execute a linha inteira, que
+ * incluirá --apply e uma confirmação exclusiva dessa operação.
+ *
+ * A limpeza e o seed não são uma única transação. Não interrompa o processo
+ * após confirmar; se houver uma falha, corrija a causa e execute-o novamente.
+ */
+import { createHash, randomUUID } from "node:crypto"
+
+import { Timestamp } from "firebase-admin/firestore"
+
+import { createCatalogFixture } from "./fixtures/event-test-data.mjs"
+import {
+  applyDatabaseCleanup,
+  assertDestructiveConfirmation,
+  createDatabaseCleanupPlan,
+  initializeFirestore,
+  loadLocalEnvironment,
+  parseArguments,
+  requireEnvironment,
+  writeDocuments,
+} from "./lib/firestore-admin.mjs"
+
+await loadLocalEnvironment()
+const args = parseArguments()
+const eventId = requireEnvironment("EVENT_ID")
+const appOrigin = new URL(requireEnvironment("NEXT_PUBLIC_APP_URL"))
+const { firestore, projectId } = initializeFirestore()
+console.log("Mapeando documentos do Firestore...")
+const cleanupPlan = await createDatabaseCleanupPlan(firestore, {
+  onCollectionRead: ({ scope, current, total, name, documents }) =>
+    console.log(
+      `${scope === "root" ? "Coleção" : "Subcoleção de simulação"} ${current}/${total}: ${name} (${documents} documentos).`
+    ),
+})
+const expected = `RESET_AND_SEED:${projectId}:${eventId}`
+
+console.log(
+  JSON.stringify(
+    {
+      mode: args.apply ? "APLICAÇÃO" : "SIMULAÇÃO (nenhuma gravação)",
+      projectId,
+      eventId,
+      existingDocumentsToDelete: cleanupPlan.references.length,
+      generatedFilesToDelete: Object.fromEntries(
+        cleanupPlan.generatedDirectories.map((item) => [
+          item.displayPath,
+          item.files,
+        ])
+      ),
+      seed: {
+        participants: 150,
+        companies: 8,
+        missions: 10,
+        raffles: 6,
+        rewards: 6,
+        tags: 22,
+        talks: 24,
+      },
+    },
+    null,
+    2
+  )
+)
+
+if (
+  !assertDestructiveConfirmation({
+    args,
+    expected,
+    action: "Recriação da base de testes",
+  })
+) {
+  console.log(
+    `\nPara aplicar: npm run db:seed-test -- --apply --confirm "${expected}"`
+  )
+  process.exit(0)
+}
+
+const now = Timestamp.now()
+const documents = createCatalogFixture({ eventId, appOrigin, now })
+const skills = [
+  "javascript",
+  "python",
+  "java",
+  "react",
+  "typescript",
+  "nodejs",
+  "flutter",
+  "docker",
+]
+const participants = []
+for (let index = 1; index <= 150; index += 1) {
+  const id = `test-participant-${String(index).padStart(3, "0")}`
+  const xp = (index * 137) % 4300
+  const profile = {
+    userId: id,
+    eventId,
+    displayName: `Participante Teste ${String(index).padStart(3, "0")}`,
+    email: `participante.${String(index).padStart(3, "0")}@example.test`,
+    avatarUrl: `https://api.dicebear.com/9.x/pixel-art/svg?seed=${id}`,
+    bio: "Perfil fictício criado exclusivamente para testes.",
+    role: "Participante",
+    company: null,
+    link: null,
+    skills: [
+      skills[index % skills.length],
+      skills[(index + 2) % skills.length],
+      skills[(index + 4) % skills.length],
+    ],
+    accessRoles: ["participant"],
+    ticketBalance: index % 11,
+    convertedXp: (index % 8) * 200,
+    onboardingTicketGranted: true,
+    qrId: randomUUID(),
+    onboardingCompleted: true,
+    xp,
+    xpReachedAt: now,
+    createdAt: now,
+    updatedAt: now,
+  }
+  participants.push(profile)
+  documents.push({ collection: "profiles", id, data: profile })
+  const summaryId = createHash("sha256")
+    .update(JSON.stringify([eventId, id, "summary"]))
+    .digest("hex")
+  documents.push({
+    collection: "participantSummaries",
+    id: summaryId,
+    data: {
+      eventId,
+      participantId: id,
+      connectionsCount: 0,
+      companiesVisitedCount: 0,
+      tagsDiscoveredCount: 0,
+      missionsCompletedCount: 0,
+      initializedAt: now,
+      updatedAt: now,
+    },
+  })
+}
+
+// Um anel e conexões extras criam uma rede reproduzível sem duplicar pares.
+const pairs = new Set()
+for (let index = 0; index < participants.length; index += 1) {
+  for (const distance of [1, 7, 19]) {
+    const pair = [
+      participants[index].userId,
+      participants[(index + distance) % participants.length].userId,
+    ].sort()
+    pairs.add(JSON.stringify(pair))
+  }
+}
+const connectionCounts = new Map(participants.map((item) => [item.userId, 0]))
+for (const serialized of pairs) {
+  const pair = JSON.parse(serialized)
+  const id = createHash("sha256")
+    .update(JSON.stringify([eventId, ...pair]))
+    .digest("hex")
+  documents.push({
+    collection: "connections",
+    id,
+    data: {
+      id,
+      eventId,
+      participantIds: pair,
+      requesterId: pair[0],
+      recipientId: pair[1],
+      status: "accepted",
+      requestCount: 1,
+      xpAwardedPerParticipant: 5,
+      firstRequestedAt: now,
+      lastRequestedAt: now,
+      acceptedAt: now,
+      rejectedAt: null,
+      removedAt: null,
+      removedBy: null,
+      xpGrantedAt: now,
+      xpRevokedAt: null,
+      createdAt: now,
+      updatedAt: now,
+    },
+  })
+  for (const id of pair) connectionCounts.set(id, connectionCounts.get(id) + 1)
+}
+for (const document of documents.filter(
+  (item) => item.collection === "participantSummaries"
+)) {
+  document.data.connectionsCount = connectionCounts.get(
+    document.data.participantId
+  )
+}
+documents.push({
+  collection: "eventOperations",
+  id: eventId,
+  data: {
+    eventId,
+    ticketConversionEnabled: true,
+    rewardRedemptionEnabled: true,
+    raffleClosureStatus: "open",
+    raffleClosureCursor: null,
+    raffleProcessedParticipants: 0,
+    raffleSkippedParticipants: 0,
+    raffleSnapshotAt: null,
+    raffleClosedAt: null,
+    updatedAt: now,
+    updatedBy: "test-seed",
+  },
+})
+
+// A massa inteira é construída antes da primeira operação destrutiva. Assim,
+// erros de configuração ou de geração falham enquanto a base original existe.
+await applyDatabaseCleanup(firestore, cleanupPlan, {
+  onDeleteBatch: ({ deleted, total }) =>
+    console.log(`Firestore: ${deleted}/${total} documentos removidos.`),
+  onDirectoryCleared: ({ displayPath }) =>
+    console.log(`Diretório esvaziado: ${displayPath}.`),
+})
+await writeDocuments(firestore, documents, {
+  onBatchCommitted: ({ written, total }) =>
+    console.log(`Seed: ${written}/${total} documentos gravados.`),
+})
+console.log(`Base de testes recriada: ${documents.length} documentos gravados.`)

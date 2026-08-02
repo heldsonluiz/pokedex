@@ -13,6 +13,7 @@ import {
 import { validateUserQrToken } from "@/modules/qr-code/user-qr-token"
 
 import {
+  findConnectionById,
   findConnectionsByParticipant,
   removeConnection,
   requestConnection,
@@ -174,4 +175,54 @@ export async function listConnectionsForSession(
       }
     })
   )
+}
+
+export async function getConnectedProfileForSession(
+  session: Session,
+  connectionId: string
+) {
+  const { connectionId: validatedConnectionId } =
+    connectionMutationInputSchema.parse({ connectionId })
+  const profile = await requireProfileForSession(session)
+  const connection = await findConnectionById(validatedConnectionId)
+
+  if (
+    !connection ||
+    connection.eventId !== profile.eventId ||
+    connection.status !== "accepted" ||
+    !connection.participantIds.includes(profile.userId)
+  ) {
+    return null
+  }
+
+  const connectedParticipantId = connection.participantIds.find(
+    (participantId) => participantId !== profile.userId
+  )
+
+  if (!connectedParticipantId) {
+    return null
+  }
+
+  const connectedProfile = await getProfileByUserId(connectedParticipantId)
+
+  if (
+    !connectedProfile ||
+    connectedProfile.eventId !== profile.eventId ||
+    !connectedProfile.onboardingCompleted ||
+    !hasPermission(connectedProfile, "participate")
+  ) {
+    return null
+  }
+
+  return {
+    connectionId: connection.id,
+    displayName: connectedProfile.displayName,
+    avatarUrl: connectedProfile.avatarUrl,
+    email: connectedProfile.email,
+    bio: connectedProfile.bio,
+    role: connectedProfile.role,
+    company: connectedProfile.company,
+    link: connectedProfile.link,
+    skills: connectedProfile.skills,
+  }
 }

@@ -4,6 +4,7 @@ import { RefreshCw } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
+import { QR_CODE_CONFIG } from "@/config/qr-code"
 
 import type { UserQrCode } from "./user-qr-code.service"
 
@@ -28,7 +29,12 @@ export function UserQrCodeCard({
   const [qrCode, setQrCode] = useState<UserQrCode>(initialQrCode)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [remainingSeconds, setRemainingSeconds] = useState(60)
+  const [remainingSeconds, setRemainingSeconds] = useState<number>(
+    QR_CODE_CONFIG.USER_TOKEN_DURATION_SECONDS
+  )
+  const [validitySeconds, setValiditySeconds] = useState<number>(
+    QR_CODE_CONFIG.USER_TOKEN_DURATION_SECONDS
+  )
 
   const loadQrCode = useCallback(async (signal?: AbortSignal) => {
     setIsLoading(true)
@@ -46,12 +52,12 @@ export function UserQrCodeCard({
       }
 
       setQrCode(body)
-      setRemainingSeconds(
-        Math.max(
-          0,
-          Math.ceil((new Date(body.expiresAt).getTime() - Date.now()) / 1_000)
-        )
+      const nextRemainingSeconds = Math.max(
+        0,
+        Math.ceil((new Date(body.expiresAt).getTime() - Date.now()) / 1_000)
       )
+      setRemainingSeconds(nextRemainingSeconds)
+      setValiditySeconds(Math.max(1, nextRemainingSeconds))
     } catch (loadError) {
       if (
         loadError instanceof DOMException &&
@@ -75,8 +81,14 @@ export function UserQrCodeCard({
         Math.max(0, Math.ceil((expiresAt - Date.now()) / 1_000))
       )
     }
+    updateCountdown()
     const countdownInterval = window.setInterval(updateCountdown, 1_000)
-    const refreshDelay = Math.max(0, expiresAt - Date.now() - 10_000)
+    const refreshDelay = Math.max(
+      0,
+      expiresAt -
+        Date.now() -
+        QR_CODE_CONFIG.USER_TOKEN_REFRESH_LEAD_SECONDS * 1_000
+    )
     const refreshTimeout = window.setTimeout(() => {
       void loadQrCode()
     }, refreshDelay)
@@ -102,9 +114,9 @@ export function UserQrCodeCard({
   }
 
   return (
-    <div className="space-y-4 text-center">
+    <div className="space-y-4 text-center text-white">
       <div
-        className="mx-auto aspect-square w-full max-w-80 overflow-hidden rounded-2xl bg-white p-3 shadow-card [&_svg]:h-full [&_svg]:w-full"
+        className="mx-auto aspect-square w-full max-w-72 overflow-hidden rounded-2xl bg-white p-3 shadow-[0_12px_36px_rgb(0_0_0/0.3)] ring-4 ring-white/15 [&_svg]:h-full [&_svg]:w-full"
         aria-label="QR Code temporário do participante"
         dangerouslySetInnerHTML={{ __html: qrCode.svg }}
       />
@@ -113,14 +125,29 @@ export function UserQrCodeCard({
         <p className="text-sm font-medium">
           Código válido por {remainingSeconds} segundos
         </p>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <div
+          className="mx-auto mt-2 h-1.5 max-w-56 overflow-hidden rounded-full bg-white/15"
+          role="progressbar"
+          aria-label="Tempo restante do QR Code"
+          aria-valuemin={0}
+          aria-valuemax={validitySeconds}
+          aria-valuenow={remainingSeconds}
+        >
+          <div
+            className="h-full rounded-full bg-[#8BFF3D] transition-[width] duration-1000 motion-reduce:transition-none"
+            style={{
+              width: `${Math.min(100, (remainingSeconds / validitySeconds) * 100)}%`,
+            }}
+          />
+        </div>
+        <p className="mt-2 text-xs text-white/65">
           O código é renovado automaticamente antes de expirar.
         </p>
       </div>
 
       <Button
         type="button"
-        variant="outline"
+        variant="secondary"
         disabled={isLoading}
         onClick={() => void loadQrCode()}
       >

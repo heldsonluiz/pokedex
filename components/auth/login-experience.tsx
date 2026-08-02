@@ -83,8 +83,8 @@ export function LoginExperience({
         <Image
           src="/images/brand/devfest-logo.png"
           alt="DevFest Triângulo"
-          width={194}
-          height={60}
+          width={200}
+          height={62}
           className="h-auto w-48"
         />
       </header>

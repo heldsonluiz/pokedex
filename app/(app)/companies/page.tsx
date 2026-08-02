@@ -1,9 +1,15 @@
-import { Building2, CheckCircle2, ChevronRight } from "lucide-react"
+import {
+  Building2,
+  CheckCircle2,
+  ChevronRight,
+  Sparkles,
+  Stamp,
+} from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { EmptyState } from "@/components/layout/empty-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { requireAuth } from "@/lib/require-auth"
 import {
   type CompanyListItem,
@@ -22,23 +28,25 @@ export default async function CompaniesPage() {
 
   if (companies.length === 0) {
     return (
-      <section className="flex min-h-full flex-col items-center justify-center gap-4 p-6 text-center">
-        <span className="rounded-full bg-primary/10 p-4 text-primary">
-          <Building2 className="size-8" aria-hidden="true" />
-        </span>
-        <div className="max-w-sm space-y-2">
-          <h1 className="text-xl font-semibold">Nenhuma empresa disponível</h1>
-          <p className="text-sm leading-6 text-muted-foreground">
-            As empresas participantes aparecerão aqui quando estiverem ativas.
-          </p>
-        </div>
-      </section>
+      <EmptyState
+        icon={<Building2 className="size-8" aria-hidden="true" />}
+        title="Nenhuma empresa disponível"
+        description="As empresas participantes aparecerão aqui quando estiverem ativas."
+      />
     )
   }
 
   const visitedCount = companies.filter(
     (company) => company.visitedAt !== null
   ).length
+  const orderedCompanies = [...companies].sort(
+    (first, second) =>
+      Number(first.visitedAt !== null) - Number(second.visitedAt !== null)
+  )
+  const nextCompany = orderedCompanies.find(
+    (company) => company.visitedAt === null
+  )
+  const progress = Math.round((visitedCount / companies.length) * 100)
 
   return (
     <div className="space-y-6 p-6">
@@ -49,17 +57,92 @@ export default async function CompaniesPage() {
         <p className="text-sm leading-6 text-muted-foreground">
           Visite as empresas, leia seus QR Codes e complete seu passaporte.
         </p>
-        <p className="text-sm font-medium text-primary">
-          {visitedCount} de {companies.length} empresas visitadas
-        </p>
       </section>
 
-      <section className="space-y-3" aria-label="Empresas participantes">
-        {companies.map((company) => (
-          <CompanyCard key={company.id} company={company} />
-        ))}
+      <section className="space-y-2" aria-label="Progresso nos estandes">
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <p className="font-medium">Seu progresso</p>
+          <p className="text-muted-foreground tabular-nums">
+            {visitedCount} de {companies.length} visitadas
+          </p>
+        </div>
+        <div
+          className="h-2 overflow-hidden rounded-full bg-muted"
+          role="progressbar"
+          aria-label="Empresas visitadas"
+          aria-valuemin={0}
+          aria-valuemax={companies.length}
+          aria-valuenow={visitedCount}
+        >
+          <div
+            className="h-full rounded-full bg-success transition-[width] duration-500 motion-reduce:transition-none"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </section>
+
+      <section className="space-y-3" aria-labelledby="company-highlight-title">
+        <h2
+          id="company-highlight-title"
+          className="text-sm font-semibold text-muted-foreground"
+        >
+          {nextCompany ? "Próximo estande" : "Passaporte completo"}
+        </h2>
+        {nextCompany ? (
+          <FeaturedCompany company={nextCompany} />
+        ) : (
+          <div className="flex items-center gap-4 rounded-3xl bg-(image:--gradient-primary-card) p-5 text-primary-foreground shadow-glow-primary">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary-foreground/15">
+              <Stamp className="size-6" aria-hidden="true" />
+            </span>
+            <div>
+              <h3 className="font-semibold">Todos os carimbos conquistados</h3>
+              <p className="mt-1 text-sm text-primary-foreground/75">
+                Você visitou todos os estandes disponíveis.
+              </p>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <section className="space-y-3" aria-labelledby="all-companies-title">
+        <h2 id="all-companies-title" className="text-lg font-semibold">
+          Todos os estandes
+        </h2>
+        <div className="divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
+          {orderedCompanies.map((company) => (
+            <CompanyCard key={company.id} company={company} />
+          ))}
+        </div>
       </section>
     </div>
+  )
+}
+
+function FeaturedCompany({ company }: Readonly<{ company: CompanyListItem }>) {
+  return (
+    <Link
+      href={`/companies/${encodeURIComponent(company.id)}`}
+      className="group block rounded-3xl bg-(image:--gradient-immersive) p-5 text-white shadow-card transition-transform focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none active:scale-[0.99]"
+    >
+      <div className="flex items-start gap-4">
+        <CompanyLogo company={company} featured />
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium text-white/65">Visite agora</p>
+          <h3 className="mt-1 text-lg font-semibold">{company.name}</h3>
+          <p className="mt-1 line-clamp-2 text-sm leading-5 text-white/70">
+            {company.description ?? "Conheça o estande e complete a visita."}
+          </p>
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/25 px-2.5 py-1 text-xs font-semibold">
+              <Sparkles className="size-3.5" aria-hidden="true" />+
+              {company.xpAwarded} XP
+            </span>
+            <ChevronRight className="size-5 text-white/70" aria-hidden="true" />
+          </div>
+        </div>
+      </div>
+    </Link>
   )
 }
 
@@ -69,40 +152,56 @@ function CompanyCard({ company }: Readonly<{ company: CompanyListItem }>) {
   return (
     <Link
       href={`/companies/${encodeURIComponent(company.id)}`}
-      className="flex items-center gap-4 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      className={`flex min-h-18 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none ${
+        visited ? "bg-success/5" : ""
+      }`}
     >
-      <Avatar className="size-16 rounded-xl">
-        <AvatarImage
-          src={company.logoUrl}
-          alt={`Logo da ${company.name}`}
-          className="rounded-xl object-contain"
-        />
-        <AvatarFallback className="rounded-xl">
-          <Building2 aria-hidden="true" />
-        </AvatarFallback>
-      </Avatar>
+      <CompanyLogo company={company} />
 
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <h2 className="font-semibold">{company.name}</h2>
-          {visited && (
-            <Badge variant="secondary">
-              <CheckCircle2 data-icon="inline-start" aria-hidden="true" />
-              Visitada
-            </Badge>
-          )}
-        </div>
-
-        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-          {company.description ??
-            `Visite o estande e ganhe ${company.xpAwarded} XP.`}
+        <h2 className="truncate text-sm font-semibold">{company.name}</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {visited
+            ? "Estande visitado"
+            : `Visite e ganhe ${company.xpAwarded} XP`}
         </p>
       </div>
 
-      <ChevronRight
-        className="size-5 shrink-0 text-muted-foreground"
-        aria-hidden="true"
-      />
+      <span className="shrink-0 text-right">
+        <span className="block text-xs font-semibold text-primary">
+          +{company.xpAwarded} XP
+        </span>
+        <span className="mt-1 flex justify-end">
+          {visited ? (
+            <CheckCircle2 className="size-4 text-success" aria-hidden="true" />
+          ) : (
+            <ChevronRight
+              className="size-4 text-muted-foreground"
+              aria-hidden="true"
+            />
+          )}
+        </span>
+      </span>
     </Link>
+  )
+}
+
+function CompanyLogo({
+  company,
+  featured = false,
+}: Readonly<{ company: CompanyListItem; featured?: boolean }>) {
+  return (
+    <Avatar
+      className={`${featured ? "size-16" : "size-11"} shrink-0 rounded-xl bg-white`}
+    >
+      <AvatarImage
+        src={company.logoUrl}
+        alt={`Logo da ${company.name}`}
+        className="rounded-xl object-contain"
+      />
+      <AvatarFallback className="rounded-xl">
+        <Building2 aria-hidden="true" />
+      </AvatarFallback>
+    </Avatar>
   )
 }

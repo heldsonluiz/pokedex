@@ -166,17 +166,16 @@ export function OnboardingCarousel({
       </div>
 
       <div className="space-y-6 pt-6">
-        <div
-          className="flex justify-center gap-2"
-          aria-label={`Etapa ${currentStep + 1} de ${onboardingSteps.length}`}
-        >
+        <p className="sr-only" aria-live="polite">
+          Etapa {currentStep + 1} de {onboardingSteps.length}
+        </p>
+        <div className="flex justify-center gap-2" aria-hidden="true">
           {onboardingSteps.map((onboardingStep, index) => (
             <span
               className={cn(
                 "h-2 rounded-full transition-all",
                 index === currentStep ? "w-8 bg-primary" : "w-2 bg-muted"
               )}
-              aria-hidden="true"
               key={onboardingStep.title}
             />
           ))}

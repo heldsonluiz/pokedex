@@ -13,6 +13,8 @@ type CompanyVisitState =
   | Readonly<{ status: "loading" }>
   | Readonly<{ status: "complete"; result: VisitCompanyActionResult }>
 
+const COMPANY_VISIT_TIMEOUT_MS = 15_000
+
 const companyVisitErrorMessages: Record<
   Extract<VisitCompanyActionResult, { success: false }>["code"],
   Readonly<{ title: string; description: string }>
@@ -48,27 +50,45 @@ export function CompanyVisitResult({
   eventId,
   qrId,
 }: Readonly<{ eventId: string; qrId: string }>) {
-  const startedRef = useRef(false)
+  const requestRef = useRef<Promise<VisitCompanyActionResult> | null>(null)
   const [state, setState] = useState<CompanyVisitState>({
     status: "loading",
   })
 
   useEffect(() => {
-    if (startedRef.current) {
-      return
-    }
-
-    startedRef.current = true
     let active = true
+    requestRef.current ??= visitCompanyAction({ eventId, qrId })
 
-    void visitCompanyAction({ eventId, qrId }).then((result) => {
+    const timeoutId = window.setTimeout(() => {
       if (active) {
-        setState({ status: "complete", result })
+        setState({
+          status: "complete",
+          result: { success: false, code: "UNEXPECTED_ERROR" },
+        })
       }
-    })
+    }, COMPANY_VISIT_TIMEOUT_MS)
+
+    void requestRef.current
+      .then((result) => {
+        if (active) {
+          setState({ status: "complete", result })
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setState({
+            status: "complete",
+            result: { success: false, code: "UNEXPECTED_ERROR" },
+          })
+        }
+      })
+      .finally(() => {
+        window.clearTimeout(timeoutId)
+      })
 
     return () => {
       active = false
+      window.clearTimeout(timeoutId)
     }
   }, [eventId, qrId])
 
@@ -99,6 +119,9 @@ export function CompanyVisitResult({
   return (
     <QrResult
       status="success"
+
+      secondaryActionHref="/scan"
+      secondaryActionLabel="Voltar para o scanner"
       title={
         alreadyVisited
           ? `${state.result.companyName} já está no seu passaporte`
