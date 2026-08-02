@@ -207,7 +207,9 @@ function MissionRow({ mission }: Readonly<{ mission: MissionListItem }>) {
               <span className="mt-1 block text-xs text-muted-foreground">
                 {mission.validationType === "reviewer"
                   ? "Validação presencial"
-                  : "Encontre o QR Code"}
+                  : mission.validationType === "automatic"
+                    ? "Progresso automático"
+                    : "Encontre o QR Code"}
               </span>
             )}
           </span>
@@ -320,7 +322,9 @@ function MissionDialog({
             <p className="mt-1 text-sm leading-5 text-muted-foreground">
               {mission.validationType === "reviewer"
                 ? "Realize a atividade e apresente seu QR Code para uma pessoa da organização."
-                : "Encontre e leia o QR Code desta missão durante o evento."}
+                : mission.validationType === "automatic"
+                  ? "Continue participando. A missão será concluída automaticamente quando você atingir a meta."
+                  : "Encontre e leia o QR Code desta missão durante o evento."}
             </p>
           </div>
           {mission.blockedBy.length > 0 && (
@@ -366,6 +370,8 @@ function MissionDialog({
 }
 
 function formatBlocker(prerequisite: MissionListItem["blockedBy"][number]) {
+  if (prerequisite.type === "progress") return prerequisite.label
+
   return prerequisite.type === "company"
     ? `Visite ${prerequisite.label}`
     : `Complete “${prerequisite.label}”`

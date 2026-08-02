@@ -37,6 +37,27 @@ describe("mission schema", () => {
     ).toBe(true)
   })
 
+  it("accepts an automatic progress mission without a QR code", () => {
+    const result = missionFieldsSchema.safeParse({
+      ...baseMission,
+      validationType: "automatic",
+      progressRequirement: { type: "connections", target: 10 },
+      qrId: null,
+    })
+
+    expect(result.success).toBe(true)
+  })
+
+  it("requires a progress target for automatic missions", () => {
+    expect(
+      missionFieldsSchema.safeParse({
+        ...baseMission,
+        validationType: "automatic",
+        qrId: null,
+      }).success
+    ).toBe(false)
+  })
+
   it("rejects inconsistent validation configuration", () => {
     expect(
       missionFieldsSchema.safeParse({

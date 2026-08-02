@@ -1,6 +1,25 @@
 import * as z from "zod"
 
-export const missionValidationTypeSchema = z.enum(["qr", "reviewer"])
+export const missionValidationTypeSchema = z.enum([
+  "qr",
+  "reviewer",
+  "automatic",
+])
+
+export const missionProgressRequirementSchema = z.discriminatedUnion("type", [
+  z
+    .object({
+      type: z.literal("connections"),
+      target: z.number().int().positive(),
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("companies"),
+      target: z.union([z.number().int().positive(), z.literal("all")]),
+    })
+    .strict(),
+])
 
 export const missionPrerequisiteSchema = z.discriminatedUnion("type", [
   z
@@ -26,6 +45,9 @@ export const missionFieldsSchema = z
     description: z.string().trim().min(1).max(1_000),
     imageUrl: z.url().nullable(),
     validationType: missionValidationTypeSchema,
+    progressRequirement: missionProgressRequirementSchema
+      .nullable()
+      .default(null),
     prerequisites: z.array(missionPrerequisiteSchema).max(20).default([]),
     active: z.boolean(),
     order: z.number().int().nonnegative(),
@@ -48,6 +70,44 @@ export const missionFieldsSchema = z
         code: "custom",
         path: ["qrId"],
         message: "Reviewer missions must not have a public QR identifier",
+      })
+    }
+
+    if (mission.validationType === "automatic" && mission.qrId) {
+      context.addIssue({
+        code: "custom",
+        path: ["qrId"],
+        message: "Automatic missions must not have a public QR identifier",
+      })
+    }
+
+    if (
+      mission.validationType === "automatic" &&
+      !mission.progressRequirement
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["progressRequirement"],
+        message: "Automatic missions must define a progress requirement",
+      })
+    }
+
+    if (mission.validationType !== "automatic" && mission.progressRequirement) {
+      context.addIssue({
+        code: "custom",
+        path: ["progressRequirement"],
+        message: "Only automatic missions may define a progress requirement",
+      })
+    }
+
+    if (
+      mission.validationType === "automatic" &&
+      mission.prerequisites.length > 0
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["prerequisites"],
+        message: "Automatic missions must use only their progress requirement",
       })
     }
   })
