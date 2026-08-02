@@ -6,7 +6,7 @@ recriar a massa de testes e preparar o Firestore para o lançamento.
 | Comando                | Finalidade                                     | Escopo destrutivo          |
 | ---------------------- | ---------------------------------------------- | -------------------------- |
 | `db:reset-participant` | restaurar uma conta para repetir o fluxo       | um participante e relações |
-| `db:seed-test`         | apagar o Firestore e recriar a massa de testes | banco inteiro              |
+| `db:seed`              | apagar o Firestore e recriar a massa de testes | banco inteiro              |
 | `db:prepare-launch`    | apagar o Firestore antes do cadastro real      | banco inteiro              |
 
 Os scripts não alteram o Firebase Authentication nem o Firebase Storage. Eles
@@ -132,16 +132,28 @@ Arquivos:
 
 ### Simular
 
+Produção, usando exclusivamente as variáveis de `.env`:
+
 ```bash
-npm run db:seed-test
+pnpm db:seed
+```
+
+Ambiente local, usando exclusivamente as variáveis de `.env.local`:
+
+```bash
+pnpm db:seed --local
 ```
 
 ### Aplicar
 
 ```bash
-npm run db:seed-test -- \
-  --apply \
-  --confirm "RESET_AND_SEED:projeto:evento"
+pnpm db:seed --apply --confirm "RESET_AND_SEED:projeto:evento"
+```
+
+Para aplicar no ambiente local, preserve `--local` no comando:
+
+```bash
+pnpm db:seed --local --apply --confirm "RESET_AND_SEED:projeto:evento"
 ```
 
 O script monta e valida a massa em memória antes da primeira exclusão. Depois,
@@ -155,7 +167,7 @@ esvazia os materiais locais gerados e grava a nova massa.
 - resumos individuais coerentes com as conexões;
 - 8 empresas ativas;
 - 22 tags com imagens pixel art;
-- 10 missões por QR ou reviewer, incluindo pré-requisitos;
+- 15 missões por QR, reviewer ou progresso automático, incluindo pré-requisitos;
 - 6 brindes ativos com custos, estoques e limites variados;
 - 6 prêmios de sorteio ativos em estado pendente;
 - 26 palestrantes;
@@ -168,6 +180,12 @@ esvazia os materiais locais gerados e grava a nova massa.
 As imagens ficam em `public/images/test-data`. As URLs persistidas usam
 `NEXT_PUBLIC_APP_URL`, portanto essa variável precisa representar a origem em
 que os assets serão servidos.
+
+Empresas, tags e missões formam um catálogo determinístico. Seus IDs de
+documento, IDs públicos de QR Code, textos, imagens, ordem, pontuação e regras
+permanecem iguais entre execuções do seed. Apenas metadados da nova execução,
+como `createdAt` e `updatedAt`, são atualizados. Com isso, os materiais de QR
+Code continuam apontando para as mesmas entidades depois de recriar a base.
 
 Os e-mails terminados em `@example.test` são apenas dados do Firestore. Eles não
 representam contas Google e não podem autenticar.

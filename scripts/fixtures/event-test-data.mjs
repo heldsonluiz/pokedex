@@ -1,7 +1,22 @@
-import { randomUUID } from "node:crypto"
+import { createHash } from "node:crypto"
 
 const asset = (origin, folder, slug) =>
-  new URL(`/images/test-data/${folder}/${slug}.png`, origin).toString()
+  new URL(`/images/assets/${folder}/${slug}.png`, origin).toString()
+
+function deterministicUuid(type, slug) {
+  const hash = createHash("sha256")
+    .update(`devfest-triangulo-2026:${type}:${slug}`)
+    .digest("hex")
+  const variant = ((Number.parseInt(hash[16], 16) & 0x3) | 0x8).toString(16)
+
+  return [
+    hash.slice(0, 8),
+    hash.slice(8, 12),
+    `5${hash.slice(13, 16)}`,
+    `${variant}${hash.slice(17, 20)}`,
+    hash.slice(20, 32),
+  ].join("-")
+}
 
 export const TEST_COMPANIES = [
   ["aurora-cloud", "Aurora Cloud"],
@@ -192,6 +207,41 @@ export const TEST_MISSIONS = [
       { type: "mission", activityId: "desafio-byte-forge" },
     ],
   },
+  {
+    id: "conecte-10-participantes",
+    title: "Conecte-se com 10 participantes",
+    validationType: "automatic",
+    description: "Crie conexões com 10 participantes diferentes do evento.",
+    progressRequirement: { type: "connections", target: 10 },
+  },
+  {
+    id: "conecte-20-participantes",
+    title: "Conecte-se com 20 participantes",
+    validationType: "automatic",
+    description: "Amplie sua rede para 20 participantes diferentes.",
+    progressRequirement: { type: "connections", target: 20 },
+  },
+  {
+    id: "conecte-50-participantes",
+    title: "Conecte-se com 50 participantes",
+    validationType: "automatic",
+    description: "Alcance 50 conexões diferentes durante o evento.",
+    progressRequirement: { type: "connections", target: 50 },
+  },
+  {
+    id: "visite-3-empresas",
+    title: "Visite 3 empresas",
+    validationType: "automatic",
+    description: "Escaneie o QR Code de três empresas participantes.",
+    progressRequirement: { type: "companies", target: 3 },
+  },
+  {
+    id: "visite-todas-empresas",
+    title: "Visite todas as empresas",
+    validationType: "automatic",
+    description: "Complete seu passaporte visitando todas as empresas ativas.",
+    progressRequirement: { type: "companies", target: "all" },
+  },
 ]
 
 export const TEST_REWARDS = [
@@ -335,7 +385,7 @@ export function createCatalogFixture({ eventId, appOrigin, now }) {
     data: {
       id,
       eventId,
-      qrId: randomUUID(),
+      qrId: deterministicUuid("company", id),
       name,
       description: `${name} apresenta tecnologia, comunidade e desafios para participantes.`,
       logoUrl: `https://api.dicebear.com/9.x/shapes/svg?seed=${encodeURIComponent(name)}`,
@@ -352,7 +402,7 @@ export function createCatalogFixture({ eventId, appOrigin, now }) {
     data: {
       id,
       eventId,
-      qrId: randomUUID(),
+      qrId: deterministicUuid("tag", id),
       name,
       description,
       imageUrl: asset(appOrigin, "tags", id),
@@ -369,11 +419,18 @@ export function createCatalogFixture({ eventId, appOrigin, now }) {
     data: {
       id: mission.id,
       eventId,
-      qrId: mission.validationType === "qr" ? randomUUID() : null,
+      qrId:
+        mission.validationType === "qr"
+          ? deterministicUuid("mission", mission.id)
+          : null,
       title: mission.title,
       description: mission.description,
-      imageUrl: asset(appOrigin, "missions", mission.id),
+      imageUrl:
+        mission.validationType === "automatic"
+          ? null
+          : asset(appOrigin, "missions", mission.id),
       validationType: mission.validationType,
+      progressRequirement: mission.progressRequirement ?? null,
       prerequisites: mission.prerequisites ?? [],
       active: true,
       order,
@@ -432,7 +489,6 @@ export function createCatalogFixture({ eventId, appOrigin, now }) {
       collection: "speakers",
       id,
       data: {
-        id,
         eventId,
         name,
         company: `Tech Company ${index + 1}`,
@@ -455,7 +511,6 @@ export function createCatalogFixture({ eventId, appOrigin, now }) {
       collection: "talks",
       id,
       data: {
-        id,
         eventId,
         title,
         description: `Uma conversa prática sobre ${title.toLocaleLowerCase("pt-BR")}.`,
