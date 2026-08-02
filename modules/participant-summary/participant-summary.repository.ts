@@ -100,7 +100,10 @@ function getParticipantSummaryId(eventId: string, participantId: string) {
     .digest("hex")
 }
 
-function getParticipantSummaryRef(eventId: string, participantId: string) {
+export function getParticipantSummaryRef(
+  eventId: string,
+  participantId: string
+) {
   return firestore
     .collection(SUMMARIES_COLLECTION)
     .doc(getParticipantSummaryId(eventId, participantId))

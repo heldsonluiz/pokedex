@@ -24,10 +24,12 @@ export default async function EditProfilePage() {
       <ProfileForm
         defaultValues={{
           displayName: profile.displayName,
+          gender: profile.gender ?? "",
           bio: profile.bio ?? "",
           role: profile.role ?? "",
           company: profile.company ?? "",
-          link: profile.link ?? "",
+          linkedinUsername: profile.linkedinUsername ?? "",
+          website: profile.website ?? "",
           skills: [...profile.skills],
         }}
         submitAction={updateProfileAction}

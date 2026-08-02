@@ -5,6 +5,7 @@ import type { Session } from "next-auth"
 import { SCORES } from "@/config/scores"
 import { env } from "@/env"
 import { findActiveCompanies } from "@/modules/companies/company.repository"
+import { findOrInitializeParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
 import { hasPermission } from "@/modules/profile/profile.authorization"
 import {
   getProfileByPublicQrId,
@@ -13,6 +14,7 @@ import {
 import { validateUserQrToken } from "@/modules/qr-code/user-qr-token"
 
 import {
+  completeEligibleAutomaticMissions,
   completeMission,
   findActiveMissions,
   findMissionProgressByParticipant,
@@ -27,13 +29,13 @@ export type MissionListItem = Readonly<{
   title: string
   description: string
   imageUrl: string | null
-  validationType: "qr" | "reviewer"
+  validationType: "qr" | "reviewer" | "automatic"
   status: "available" | "blocked" | "completed"
   xpAwarded: number
   completedAt: Date | null
   blockedBy: ReadonlyArray<
     Readonly<{
-      type: "company" | "mission"
+      type: "company" | "mission" | "progress"
       label: string
     }>
   >
@@ -72,11 +74,45 @@ export async function listMissionsForSession(
     return []
   }
 
-  const [missions, companies, progress] = await Promise.all([
+  const [missions, companies, initialProgress, summary] = await Promise.all([
     findActiveMissions(profile.eventId),
     findActiveCompanies(profile.eventId),
     findMissionProgressByParticipant(profile.eventId, profile.userId),
+    findOrInitializeParticipantSummary(profile.eventId, profile.userId),
   ])
+  const completedMissionIds = new Set(
+    initialProgress.completions.map((completion) => completion.activityId)
+  )
+  const eligibleAutomaticMissions = missions.filter((mission) => {
+    if (
+      mission.validationType !== "automatic" ||
+      !mission.progressRequirement ||
+      completedMissionIds.has(mission.id)
+    ) {
+      return false
+    }
+
+    const requirement = mission.progressRequirement
+    const target =
+      requirement.target === "all" ? companies.length : requirement.target
+    const current =
+      requirement.type === "connections"
+        ? summary.connectionsCount
+        : summary.companiesVisitedCount
+
+    return target > 0 && current >= target
+  })
+  const automaticCompletions = await completeEligibleAutomaticMissions({
+    eventId: profile.eventId,
+    participantId: profile.userId,
+    missions: eligibleAutomaticMissions,
+    activeCompanyCount: companies.length,
+    defaultXpAwarded: SCORES.MISSION_COMPLETION,
+  })
+  const progress =
+    automaticCompletions > 0
+      ? await findMissionProgressByParticipant(profile.eventId, profile.userId)
+      : initialProgress
   const { completions, activityKeys } = progress
   const completionByMission = new Map(
     completions.map((completion) => [completion.activityId, completion])
@@ -90,20 +126,40 @@ export async function listMissionsForSession(
 
   return missions.map((mission) => {
     const completion = completionByMission.get(mission.id)
-    const blockedBy = mission.prerequisites
-      .filter(
-        (prerequisite) =>
-          !activityKeys.has(`${prerequisite.type}:${prerequisite.activityId}`)
-      )
-      .map((prerequisite) => ({
-        type: prerequisite.type,
-        label:
-          prerequisite.type === "company"
-            ? (companyNames.get(prerequisite.activityId) ??
-              "Visita a uma empresa")
-            : (missionNames.get(prerequisite.activityId) ??
-              "Conclusão de outra missão"),
-      }))
+    const blockedBy: Array<MissionListItem["blockedBy"][number]> =
+      mission.prerequisites
+        .filter(
+          (prerequisite) =>
+            !activityKeys.has(`${prerequisite.type}:${prerequisite.activityId}`)
+        )
+        .map((prerequisite) => ({
+          type: prerequisite.type,
+          label:
+            prerequisite.type === "company"
+              ? (companyNames.get(prerequisite.activityId) ??
+                "Visita a uma empresa")
+              : (missionNames.get(prerequisite.activityId) ??
+                "Conclusão de outra missão"),
+        }))
+    const progressRequirement = mission.progressRequirement
+
+    if (progressRequirement && !completion) {
+      const target =
+        progressRequirement.target === "all"
+          ? companies.length
+          : progressRequirement.target
+      const current =
+        progressRequirement.type === "connections"
+          ? summary.connectionsCount
+          : summary.companiesVisitedCount
+      const activityLabel =
+        progressRequirement.type === "connections" ? "conexões" : "empresas"
+
+      blockedBy.push({
+        type: "progress",
+        label: `${Math.min(current, target)} de ${target} ${activityLabel}`,
+      })
+    }
 
     return {
       id: mission.id,

@@ -2,13 +2,16 @@ import "server-only"
 
 import { createHash } from "node:crypto"
 
-import { Timestamp } from "firebase-admin/firestore"
+import { FieldValue, Timestamp } from "firebase-admin/firestore"
 import { unstable_cache } from "next/cache"
 import * as z from "zod"
 
 import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
 import { firestore } from "@/lib/firebase/admin"
-import { incrementParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
+import {
+  getParticipantSummaryRef,
+  incrementParticipantSummary,
+} from "@/modules/participant-summary/participant-summary.repository"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
 import {
@@ -32,6 +35,7 @@ const missionDocumentSchema = z.object({
   description: missionFieldsSchema.shape.description,
   imageUrl: missionFieldsSchema.shape.imageUrl,
   validationType: missionFieldsSchema.shape.validationType,
+  progressRequirement: missionFieldsSchema.shape.progressRequirement,
   prerequisites: missionFieldsSchema.shape.prerequisites,
   active: missionFieldsSchema.shape.active,
   order: missionFieldsSchema.shape.order,
@@ -72,6 +76,13 @@ export type CompleteMissionResult =
 
 type CachedMission = Omit<Mission, "createdAt" | "updatedAt"> &
   Readonly<{ createdAt: number; updatedAt: number }>
+
+const automaticMissionSummarySchema = z.object({
+  eventId: z.string().trim().min(1).max(128),
+  participantId: z.string().trim().min(1).max(128),
+  connectionsCount: z.number().int().nonnegative().default(0),
+  companiesVisitedCount: z.number().int().nonnegative().default(0),
+})
 
 function getCompletionId(
   eventId: string,
@@ -388,5 +399,151 @@ export async function completeMission({
         completedAt: now.toDate(),
       }),
     }
+  })
+}
+
+export async function completeEligibleAutomaticMissions({
+  eventId,
+  participantId,
+  missions,
+  activeCompanyCount,
+  defaultXpAwarded,
+}: {
+  eventId: string
+  participantId: string
+  missions: Mission[]
+  activeCompanyCount: number
+  defaultXpAwarded: number
+}): Promise<number> {
+  const validatedEventId =
+    completeQrMissionInputSchema.shape.eventId.parse(eventId)
+  const validatedParticipantId =
+    profileScoreSchema.shape.userId.parse(participantId)
+  const validatedCompanyCount = z
+    .number()
+    .int()
+    .nonnegative()
+    .parse(activeCompanyCount)
+  const validatedDefaultXp = z.number().int().positive().parse(defaultXpAwarded)
+  const automaticMissions = missions.filter(
+    (mission) =>
+      mission.eventId === validatedEventId &&
+      mission.active &&
+      mission.validationType === "automatic"
+  )
+
+  if (automaticMissions.length === 0) return 0
+
+  const profileRef = firestore
+    .collection(PROFILES_COLLECTION)
+    .doc(validatedParticipantId)
+  const summaryRef = getParticipantSummaryRef(
+    validatedEventId,
+    validatedParticipantId
+  )
+  const completionRefs = automaticMissions.map((mission) =>
+    firestore
+      .collection(COMPLETIONS_COLLECTION)
+      .doc(
+        getCompletionId(
+          validatedEventId,
+          validatedParticipantId,
+          "mission",
+          mission.id
+        )
+      )
+  )
+
+  return firestore.runTransaction(async (transaction) => {
+    const [profileSnapshot, summarySnapshot, ...completionSnapshots] =
+      await Promise.all([
+        transaction.get(profileRef),
+        transaction.get(summaryRef),
+        ...completionRefs.map((reference) => transaction.get(reference)),
+      ])
+
+    if (!profileSnapshot.exists || !summarySnapshot.exists) return 0
+
+    const profile = profileScoreSchema.parse(profileSnapshot.data())
+    const summary = automaticMissionSummarySchema.parse(summarySnapshot.data())
+
+    if (
+      profile.userId !== validatedParticipantId ||
+      profile.eventId !== validatedEventId ||
+      !profile.onboardingCompleted ||
+      !profile.accessRoles.includes("participant") ||
+      summary.eventId !== validatedEventId ||
+      summary.participantId !== validatedParticipantId
+    ) {
+      return 0
+    }
+
+    const eligibleMissions = automaticMissions.filter((mission, index) => {
+      if (completionSnapshots[index].exists || !mission.progressRequirement) {
+        return false
+      }
+
+      const requirement = mission.progressRequirement
+      const target =
+        requirement.target === "all"
+          ? validatedCompanyCount
+          : requirement.target
+      const current =
+        requirement.type === "connections"
+          ? summary.connectionsCount
+          : summary.companiesVisitedCount
+
+      return target > 0 && current >= target
+    })
+
+    if (eligibleMissions.length === 0) return 0
+
+    const now = Timestamp.now()
+    const totalXp = eligibleMissions.reduce(
+      (sum, mission) => sum + (mission.xpAwarded ?? validatedDefaultXp),
+      0
+    )
+
+    for (const mission of eligibleMissions) {
+      const completionId = getCompletionId(
+        validatedEventId,
+        validatedParticipantId,
+        "mission",
+        mission.id
+      )
+      transaction.create(
+        firestore.collection(COMPLETIONS_COLLECTION).doc(completionId),
+        {
+          eventId: validatedEventId,
+          participantId: validatedParticipantId,
+          activityType: "mission",
+          activityId: mission.id,
+          qrId: null,
+          validationType: "automatic",
+          validatedBy: null,
+          validatedAt: null,
+          xpAwarded: mission.xpAwarded ?? validatedDefaultXp,
+          completedAt: now,
+        }
+      )
+    }
+
+    transaction.update(profileRef, {
+      xp: profile.xp + totalXp,
+      xpReachedAt: now,
+      updatedAt: now,
+    })
+    transaction.set(
+      summaryRef,
+      {
+        eventId: validatedEventId,
+        participantId: validatedParticipantId,
+        missionsCompletedCount: FieldValue.increment(eligibleMissions.length),
+        updatedAt: now,
+      },
+      { merge: true }
+    )
+
+    return eligibleMissions.length
   })
 }

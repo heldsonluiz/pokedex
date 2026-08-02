@@ -222,7 +222,9 @@ export async function getConnectedProfileForSession(
     bio: connectedProfile.bio,
     role: connectedProfile.role,
     company: connectedProfile.company,
-    link: connectedProfile.link,
+    gender: connectedProfile.gender,
+    linkedinUsername: connectedProfile.linkedinUsername,
+    website: connectedProfile.website,
     skills: connectedProfile.skills,
   }
 }

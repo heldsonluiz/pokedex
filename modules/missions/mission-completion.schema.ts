@@ -8,7 +8,7 @@ export const missionCompletionFieldsSchema = z
     activityType: z.literal("mission"),
     activityId: z.string().trim().min(1).max(128),
     qrId: z.string().uuid().nullable(),
-    validationType: z.enum(["qr", "reviewer"]),
+    validationType: z.enum(["qr", "reviewer", "automatic"]),
     validatedBy: z.string().trim().min(1).max(128).nullable(),
     validatedAt: z.date().nullable(),
     xpAwarded: z.number().int().positive(),

@@ -46,7 +46,10 @@ export const APPLICATION_COLLECTIONS = [
   "tags",
 ]
 
-export async function loadLocalEnvironment(filename = ".env.local") {
+export async function loadLocalEnvironment(
+  filename = ".env.local",
+  { override = false } = {}
+) {
   let content
 
   try {
@@ -58,7 +61,7 @@ export async function loadLocalEnvironment(filename = ".env.local") {
 
   for (const line of content.split(/\r?\n/u)) {
     const match = line.match(/^\s*([A-Z][A-Z0-9_]*)\s*=\s*(.*)\s*$/u)
-    if (!match || process.env[match[1]]) continue
+    if (!match || (!override && process.env[match[1]])) continue
 
     let value = match[2]
     if (
@@ -77,13 +80,18 @@ export function requireEnvironment(name) {
   return value
 }
 
-export function parseArguments(argv = process.argv.slice(2)) {
+export function parseArguments(
+  argv = process.argv.slice(2),
+  { booleanArguments = ["apply"] } = {}
+) {
   const result = { apply: false }
+  const booleanArgumentSet = new Set(booleanArguments)
 
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index]
-    if (argument === "--apply") {
-      result.apply = true
+    const argumentName = argument.slice(2)
+    if (booleanArgumentSet.has(argumentName)) {
+      result[argumentName] = true
       continue
     }
     if (!argument.startsWith("--")) {

@@ -14,10 +14,10 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run lint && npm run test && npm run format:check",
-    "db:reset-participant": "node scripts/reset-participant.mjs",
-    "db:seed-test": "node scripts/reset-and-seed-test-data.mjs",
-    "db:prepare-launch": "node scripts/prepare-production-database.mjs",
     "prepare": "husky",
+    "db:reset-participant": "node scripts/reset-participant.mjs",
+    "db:seed": "node scripts/reset-and-seed-test-data.mjs",
+    "db:prepare-launch": "node scripts/prepare-production-database.mjs",
     "generate-qr-images": "node scripts/generate-qr-images.mjs",
     "generate-qr-pdf": "node scripts/generate-qr-pdf-from-public-images.mjs"
   },

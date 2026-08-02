@@ -8,6 +8,8 @@ import { QR_CODE_CONFIG } from "@/config/qr-code"
 
 import type { UserQrCode } from "./user-qr-code.service"
 
+const MAX_SAFE_TIMEOUT_MS = 2_147_000_000
+
 function isUserQrCodeResponse(value: unknown): value is UserQrCode {
   if (!value || typeof value !== "object") {
     return false
@@ -21,6 +23,28 @@ function isUserQrCodeResponse(value: unknown): value is UserQrCode {
     "expiresAt" in value &&
     typeof value.expiresAt === "string"
   )
+}
+
+function formatRemainingTime(totalSeconds: number) {
+  if (totalSeconds < 60) {
+    return `${totalSeconds} ${totalSeconds === 1 ? "segundo" : "segundos"}`
+  }
+
+  const totalMinutes = Math.ceil(totalSeconds / 60)
+
+  if (totalMinutes < 60) {
+    return `${totalMinutes} ${totalMinutes === 1 ? "minuto" : "minutos"}`
+  }
+
+  const totalHours = Math.ceil(totalMinutes / 60)
+
+  if (totalHours < 48) {
+    return `${totalHours} ${totalHours === 1 ? "hora" : "horas"}`
+  }
+
+  const totalDays = Math.ceil(totalHours / 24)
+
+  return `${totalDays} dias`
 }
 
 export function UserQrCodeCard({
@@ -76,26 +100,39 @@ export function UserQrCodeCard({
 
   useEffect(() => {
     const expiresAt = new Date(qrCode.expiresAt).getTime()
+    let refreshTimeout: number | undefined
     const updateCountdown = () => {
       setRemainingSeconds(
         Math.max(0, Math.ceil((expiresAt - Date.now()) / 1_000))
       )
     }
     updateCountdown()
-    const countdownInterval = window.setInterval(updateCountdown, 1_000)
-    const refreshDelay = Math.max(
-      0,
-      expiresAt -
+    const countdownInterval = window.setInterval(updateCountdown, 60_000)
+
+    function scheduleRefresh() {
+      const refreshDelay =
+        expiresAt -
         Date.now() -
         QR_CODE_CONFIG.USER_TOKEN_REFRESH_LEAD_SECONDS * 1_000
-    )
-    const refreshTimeout = window.setTimeout(() => {
-      void loadQrCode()
-    }, refreshDelay)
+
+      if (refreshDelay <= 0) {
+        void loadQrCode()
+        return
+      }
+
+      refreshTimeout = window.setTimeout(
+        scheduleRefresh,
+        Math.min(refreshDelay, MAX_SAFE_TIMEOUT_MS)
+      )
+    }
+
+    scheduleRefresh()
 
     return () => {
       window.clearInterval(countdownInterval)
-      window.clearTimeout(refreshTimeout)
+      if (refreshTimeout !== undefined) {
+        window.clearTimeout(refreshTimeout)
+      }
     }
   }, [loadQrCode, qrCode])
 
@@ -123,7 +160,7 @@ export function UserQrCodeCard({
 
       <div aria-live="polite">
         <p className="text-sm font-medium">
-          Código válido por {remainingSeconds} segundos
+          Código válido por {formatRemainingTime(remainingSeconds)}
         </p>
         <div
           className="mx-auto mt-2 h-1.5 max-w-56 overflow-hidden rounded-full bg-white/15"

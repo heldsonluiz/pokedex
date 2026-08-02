@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
 import { signOutCurrentUser } from "@/modules/auth/auth.actions"
+import { getLinkedinProfileUrl } from "@/modules/profile/profile.schema"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
 import { findSkillBySlug } from "@/modules/profile/profile-skills"
 
@@ -136,12 +137,21 @@ export default async function ProfilePage() {
             title="Minhas conexões"
             description="Veja as pessoas que você conheceu no evento."
           />
-          {profile.link && (
+          {profile.linkedinUsername && (
             <ProfileAction
-              href={profile.link}
+              href={getLinkedinProfileUrl(profile.linkedinUsername)}
               icon={<ExternalLink aria-hidden="true" />}
-              title="Abrir link do perfil"
-              description="Acesse o endereço público informado no perfil."
+              title="Abrir LinkedIn"
+              description="Acesse o perfil profissional no LinkedIn."
+              external
+            />
+          )}
+          {profile.website && (
+            <ProfileAction
+              href={profile.website}
+              icon={<ExternalLink aria-hidden="true" />}
+              title="Abrir website"
+              description="Acesse o website informado no perfil."
               external
             />
           )}

@@ -7,7 +7,11 @@
  * Authentication nem arquivos do Storage.
  *
  * Simular, sem apagar ou gravar documentos:
- *   npm run db:seed-test
+ * Produção, carregando .env:
+ *   pnpm db:seed
+ *
+ * Local, carregando .env.local:
+ *   pnpm db:seed --local
  *
  * Ao final da simulação, o terminal exibirá o comando completo para recriar a
  * base. Confira projeto e evento e então copie e execute a linha inteira, que
@@ -32,8 +36,11 @@ import {
   writeDocuments,
 } from "./lib/firestore-admin.mjs"
 
-await loadLocalEnvironment()
-const args = parseArguments()
+const args = parseArguments(process.argv.slice(2), {
+  booleanArguments: ["apply", "local"],
+})
+const environmentFile = args.local ? ".env.local" : ".env"
+await loadLocalEnvironment(environmentFile, { override: true })
 const eventId = requireEnvironment("EVENT_ID")
 const appOrigin = new URL(requireEnvironment("NEXT_PUBLIC_APP_URL"))
 const { firestore, projectId } = initializeFirestore()
@@ -50,6 +57,9 @@ console.log(
   JSON.stringify(
     {
       mode: args.apply ? "APLICAÇÃO" : "SIMULAÇÃO (nenhuma gravação)",
+      environment: args.local ? "local" : "produção",
+      environmentFile,
+      appOrigin: appOrigin.origin,
       projectId,
       eventId,
       existingDocumentsToDelete: cleanupPlan.references.length,
@@ -62,7 +72,7 @@ console.log(
       seed: {
         participants: 150,
         companies: 8,
-        missions: 10,
+        missions: 15,
         raffles: 6,
         rewards: 6,
         tags: 22,
@@ -82,7 +92,7 @@ if (
   })
 ) {
   console.log(
-    `\nPara aplicar: npm run db:seed-test -- --apply --confirm "${expected}"`
+    `\nPara aplicar: pnpm db:seed${args.local ? " --local" : ""} --apply --confirm "${expected}"`
   )
   process.exit(0)
 }
@@ -109,10 +119,12 @@ for (let index = 1; index <= 150; index += 1) {
     displayName: `Participante Teste ${String(index).padStart(3, "0")}`,
     email: `participante.${String(index).padStart(3, "0")}@example.test`,
     avatarUrl: `https://api.dicebear.com/9.x/pixel-art/svg?seed=${id}`,
+    gender: "Prefiro não me identificar",
     bio: "Perfil fictício criado exclusivamente para testes.",
     role: "Participante",
     company: null,
-    link: null,
+    linkedinUsername: null,
+    website: null,
     skills: [
       skills[index % skills.length],
       skills[(index + 2) % skills.length],

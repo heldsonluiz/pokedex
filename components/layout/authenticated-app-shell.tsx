@@ -13,6 +13,7 @@ import { BottomNavigation } from "./bottom-navigation"
 type RouteLayout = {
   title: string
   showHeader?: boolean
+  showBack?: boolean
   showNavigation: boolean
   backHref?: string
   theme?: "light" | "dark"
@@ -25,7 +26,9 @@ const routeLayouts: Record<string, RouteLayout> = {
   },
   "/missions": {
     title: "Missões",
-    showNavigation: true,
+    showHeader: true,
+    showBack: true,
+    showNavigation: false,
   },
   "/scan": {
     title: "Scanner",
@@ -34,25 +37,27 @@ const routeLayouts: Record<string, RouteLayout> = {
   },
   "/passport": {
     title: "Passaporte",
-    showNavigation: true,
+    showHeader: true,
+    showBack: true,
+    showNavigation: false,
   },
   "/ranking": {
     title: "Ranking",
     showHeader: true,
     showNavigation: false,
-    backHref: "/home",
+    showBack: true,
   },
   "/tickets": {
     title: "Tickets",
     showHeader: true,
     showNavigation: false,
-    backHref: "/home",
+    showBack: true,
   },
   "/talks": {
     title: "Palestras",
     showHeader: true,
     showNavigation: false,
-    backHref: "/home",
+    showBack: true,
   },
   "/operations": {
     title: "Operações",
@@ -86,19 +91,19 @@ const routeLayouts: Record<string, RouteLayout> = {
     title: "Conexões",
     showHeader: true,
     showNavigation: false,
-    backHref: "/profile",
+    showBack: true,
   },
   "/companies": {
     title: "Empresas",
     showHeader: true,
     showNavigation: false,
-    backHref: "/home",
+    showBack: true,
   },
   "/tags": {
     title: "Tags",
     showHeader: true,
     showNavigation: false,
-    backHref: "/home",
+    showBack: true,
   },
 }
 
@@ -179,7 +184,7 @@ export function AuthenticatedAppShell({
           routeLayout.showHeader ? (
             <AppHeader
               title={routeLayout.title}
-              showBack={Boolean(backHref)}
+              showBack={routeLayout.showBack ?? Boolean(backHref)}
               backHref={backHref}
             />
           ) : undefined

@@ -20,6 +20,24 @@ export const accessRolesSchema = z
     "Stored profile contains duplicated access roles"
   )
 
+export const GENDER_OPTIONS = [
+  "Mulher cis",
+  "Homem cis",
+  "Mulher trans",
+  "Homem trans",
+  "Pessoa não-binária",
+  "Prefiro não me identificar",
+] as const
+
+export const genderSchema = z.enum(GENDER_OPTIONS, {
+  error: "Selecione uma opção de gênero",
+})
+
+const profileGenderInputSchema = z
+  .union([genderSchema, z.literal("")])
+  .refine((value) => value !== "", "Selecione uma opção de gênero")
+  .transform((value) => genderSchema.parse(value))
+
 export const profileIdentitySchema = z.object({
   userId: z.string().trim().min(1),
   eventId: z.string().trim().min(1),
@@ -61,21 +79,34 @@ function isHttpUrl(value: string) {
     return false
   }
 }
-const httpUrlSchema = z
-  .url()
-  .refine(isHttpUrl, "Informe um link HTTP ou HTTPS válido")
 
-const optionalLinkSchema = z
-  .union([
-    z
-      .string()
-      .trim()
-      .refine((value) => !value || isHttpUrl(value), {
-        message: "Informe um link HTTP ou HTTPS válido",
-      }),
-    z.null(),
-  ])
+const linkedinUsernameSchema = z
+  .string()
+  .trim()
+  .max(100, "O usuário do LinkedIn deve ter no máximo 100 caracteres")
+  .regex(
+    /^[a-zA-Z0-9-]+$/,
+    "Informe apenas o nome do usuário, sem a URL do LinkedIn"
+  )
+
+const optionalLinkedinUsernameSchema = z
+  .union([z.literal(""), linkedinUsernameSchema, z.null()])
   .transform((value) => value || null)
+
+function normalizeWebsite(value: string) {
+  const normalized = /^[a-z][a-z\d+.-]*:\/\//i.test(value)
+    ? value
+    : `https://${value}`
+
+  return isHttpUrl(normalized) ? normalized : null
+}
+
+const optionalWebsiteSchema = z
+  .union([z.string().trim(), z.null()])
+  .refine((value) => !value || normalizeWebsite(value) !== null, {
+    message: "Informe um endereço de website válido",
+  })
+  .transform((value) => (value ? normalizeWebsite(value) : null))
 
 const skillSchema = z
   .string()
@@ -110,19 +141,27 @@ export const profileUpdateSchema = z
       .string()
       .trim()
       .min(3, "O nome deve ter no mínimo 3 caracteres"),
+    gender: profileGenderInputSchema,
     bio: optionalBioSchema,
     role: optionalRoleSchema,
     company: optionalCompanySchema,
-    link: optionalLinkSchema,
+    linkedinUsername: optionalLinkedinUsernameSchema,
+    website: optionalWebsiteSchema,
     skills: selectedSkillsSchema,
   })
   .strict()
 
 export const storedProfileFieldsSchema = z.object({
+  gender: genderSchema.nullable().default(null),
   bio: z.string().trim().max(200).nullable().default(null),
   role: z.string().trim().max(80).nullable().default(null),
   company: z.string().trim().max(100).nullable().default(null),
-  link: httpUrlSchema.nullable().default(null),
+  linkedinUsername: linkedinUsernameSchema.nullable().default(null),
+  website: z
+    .url()
+    .refine(isHttpUrl, "Stored website must use HTTP or HTTPS")
+    .nullable()
+    .default(null),
   skills: storedSkillsSchema.default([]),
   accessRoles: accessRolesSchema.default(["participant"]),
   ticketBalance: z.number().int().nonnegative().default(0),
@@ -138,3 +177,7 @@ export type ProfileUpdateInput = z.input<typeof profileUpdateSchema>
 
 export type ProfileIdentity = z.infer<typeof profileIdentitySchema>
 export type AccessRole = z.infer<typeof accessRoleSchema>
+
+export function getLinkedinProfileUrl(username: string) {
+  return `https://www.linkedin.com/in/${encodeURIComponent(username)}/`
+}
