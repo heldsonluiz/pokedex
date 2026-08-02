@@ -18,10 +18,9 @@
     "db:seed-test": "node scripts/reset-and-seed-test-data.mjs",
     "db:prepare-launch": "node scripts/prepare-production-database.mjs",
     "prepare": "husky",
-    "qrImg:local": "node --env-file=.env.local scripts/generate-event-qr-images-png.mjs",
-    "qrImg:mobile": "node --env-file=.env.local --env-file=.env.mobile scripts/generate-event-qr-images-png.mjs",
-    "qrPdf:local": "node --env-file=.env.local scripts/generate-qr-pdf-from-public-images.mjs",
-    "qrPdf:mobile": "node --env-file=.env.local --env-file=.env.mobile scripts/generate-qr-pdf-from-public-images.mjs"
+    "generate-qr-images:local": "node --env-file=.env.local scripts/generate-event-qr-images-png.mjs",
+    "generate-qr-images:mobile": "node --env-file=.env.local --env-file=.env.mobile scripts/generate-event-qr-images-png.mjs",
+    "generate-qr-pdf": "node scripts/generate-qr-pdf-from-public-images.mjs"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
