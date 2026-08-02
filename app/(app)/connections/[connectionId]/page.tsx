@@ -3,7 +3,7 @@ import {
   Building2,
   ExternalLink,
   Mail,
-  type UserRound,
+  UserRound,
 } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
@@ -15,6 +15,7 @@ import { buttonVariants } from "@/components/ui/button"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
 import { getConnectedProfileForSession } from "@/modules/networking/connection.service"
+import { getLinkedinProfileUrl } from "@/modules/profile/profile.schema"
 import { findSkillBySlug } from "@/modules/profile/profile-skills"
 
 export const metadata: Metadata = {
@@ -70,7 +71,7 @@ export default async function ConnectedProfilePage({
         </p>
       </section>
 
-      {(profile.role || profile.company || profile.email) && (
+      {(profile.role || profile.company || profile.gender || profile.email) && (
         <section className="divide-y divide-foreground/10 overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
           {profile.role && (
             <ProfileDetail icon={BriefcaseBusiness} label="Atuação">
@@ -80,6 +81,11 @@ export default async function ConnectedProfilePage({
           {profile.company && (
             <ProfileDetail icon={Building2} label="Empresa">
               {profile.company}
+            </ProfileDetail>
+          )}
+          {profile.gender && (
+            <ProfileDetail icon={UserRound} label="Gênero">
+              {profile.gender}
             </ProfileDetail>
           )}
           <ProfileDetail icon={Mail} label="E-mail">
@@ -112,16 +118,34 @@ export default async function ConnectedProfilePage({
         </div>
       </section>
 
-      {profile.link && (
-        <Link
-          href={profile.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={cn(buttonVariants({ size: "lg" }), "w-full")}
-        >
-          <ExternalLink aria-hidden="true" />
-          Abrir link do perfil
-        </Link>
+      {(profile.linkedinUsername || profile.website) && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {profile.linkedinUsername && (
+            <Link
+              href={getLinkedinProfileUrl(profile.linkedinUsername)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(buttonVariants({ size: "lg" }), "w-full")}
+            >
+              <ExternalLink aria-hidden="true" />
+              Abrir LinkedIn
+            </Link>
+          )}
+          {profile.website && (
+            <Link
+              href={profile.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                buttonVariants({ size: "lg", variant: "outline" }),
+                "w-full"
+              )}
+            >
+              <ExternalLink aria-hidden="true" />
+              Abrir website
+            </Link>
+          )}
+        </div>
       )}
     </div>
   )

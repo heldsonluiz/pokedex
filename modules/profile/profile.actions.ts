@@ -15,10 +15,12 @@ type ProfileField = keyof ProfileUpdateInput
 type ProfileFieldErrors = Partial<Record<ProfileField, string>>
 const PROFILE_FIELDS = [
   "displayName",
+  "gender",
   "bio",
   "role",
   "company",
-  "link",
+  "linkedinUsername",
+  "website",
   "skills",
 ] as const satisfies readonly ProfileField[]
 

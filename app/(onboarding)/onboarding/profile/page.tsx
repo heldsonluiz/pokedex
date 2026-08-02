@@ -23,18 +23,20 @@ export default async function OnboardingProfilePage() {
         <div className="mb-6 space-y-2">
           <h1 className="text-xl font-semibold">Conte um pouco sobre você</h1>
           <p className="text-sm text-muted-foreground">
-            Informe seu nome e selecione pelo menos três habilidades. Os demais
-            campos são opcionais.
+            Informe seu nome, gênero e selecione pelo menos três habilidades. Os
+            demais campos são opcionais.
           </p>
         </div>
 
         <ProfileForm
           defaultValues={{
             displayName: profile.displayName,
+            gender: profile.gender ?? "",
             bio: profile.bio ?? "",
             role: profile.role ?? "",
             company: profile.company ?? "",
-            link: profile.link ?? "",
+            linkedinUsername: profile.linkedinUsername ?? "",
+            website: profile.website ?? "",
             skills: [...profile.skills],
           }}
           submitAction={completeProfileOnboardingAction}

@@ -7,10 +7,21 @@ import { Controller, useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 
 import type { UpdateProfileActionResult } from "./profile.actions"
-import { type ProfileUpdateInput, profileUpdateSchema } from "./profile.schema"
+import {
+  GENDER_OPTIONS,
+  type ProfileUpdateInput,
+  profileUpdateSchema,
+} from "./profile.schema"
 import { SkillSelector } from "./skill-selector"
 
 type ProfileFormProps = Readonly<{
@@ -120,6 +131,36 @@ export function ProfileForm({
       </div>
 
       <div className="space-y-2">
+        <label className="text-sm font-medium" htmlFor="gender">
+          Gênero
+        </label>
+        <Controller
+          control={control}
+          name="gender"
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger
+                id="gender"
+                className="w-full"
+                aria-invalid={Boolean(errors.gender)}
+                aria-describedby={errors.gender ? "gender-error" : undefined}
+              >
+                <SelectValue placeholder="Selecione uma opção" />
+              </SelectTrigger>
+              <SelectContent>
+                {GENDER_OPTIONS.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        <FieldError id="gender-error" message={errors.gender?.message} />
+      </div>
+
+      <div className="space-y-2">
         <div className="flex items-center justify-between gap-4">
           <label className="text-sm font-medium" htmlFor="bio">
             Biografia
@@ -175,21 +216,54 @@ export function ProfileForm({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-3">
-          <label className="text-sm font-medium" htmlFor="link">
-            Link
+          <label className="text-sm font-medium" htmlFor="linkedin-username">
+            LinkedIn
+          </label>
+          <span className="text-xs text-muted-foreground">Opcional</span>
+        </div>
+        <div className="flex h-11 overflow-hidden rounded-lg border border-input bg-transparent focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 has-[input[aria-invalid=true]]:border-destructive has-[input[aria-invalid=true]]:ring-3 has-[input[aria-invalid=true]]:ring-destructive/20 dark:bg-input/30">
+          <span className="flex shrink-0 items-center border-r border-input bg-muted/60 px-3 text-sm text-muted-foreground">
+            www.linkedin.com/in/
+          </span>
+          <Input
+            id="linkedin-username"
+            className="h-full min-w-0 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent"
+            inputMode="text"
+            autoCapitalize="none"
+            autoCorrect="off"
+            placeholder="seu-usuario"
+            aria-invalid={Boolean(errors.linkedinUsername)}
+            aria-describedby={
+              errors.linkedinUsername ? "linkedin-username-error" : undefined
+            }
+            {...register("linkedinUsername")}
+          />
+        </div>
+        <FieldError
+          id="linkedin-username-error"
+          message={errors.linkedinUsername?.message}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-3">
+          <label className="text-sm font-medium" htmlFor="website">
+            Website
           </label>
           <span className="text-xs text-muted-foreground">Opcional</span>
         </div>
         <Input
-          id="link"
-          type="url"
+          id="website"
+          type="text"
           inputMode="url"
-          placeholder="https://"
-          aria-invalid={Boolean(errors.link)}
-          aria-describedby={errors.link ? "link-error" : undefined}
-          {...register("link")}
+          autoCapitalize="none"
+          autoCorrect="off"
+          placeholder="www.meu-website.com"
+          aria-invalid={Boolean(errors.website)}
+          aria-describedby={errors.website ? "website-error" : undefined}
+          {...register("website")}
         />
-        <FieldError id="link-error" message={errors.link?.message} />
+        <FieldError id="website-error" message={errors.website?.message} />
       </div>
 
       <fieldset className="space-y-3">
