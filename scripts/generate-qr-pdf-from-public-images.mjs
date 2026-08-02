@@ -1,9 +1,13 @@
+import { execFile } from "node:child_process"
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises"
 import path from "node:path"
+import process from "node:process"
+import { promisify } from "node:util"
 
 import sharp from "sharp"
 
-const QR_DIRECTORY = path.resolve("public/images/qr")
+const execFileAsync = promisify(execFile)
+const QR_DIRECTORY = path.resolve("artifacts/qr")
 const LINKS_FILE = path.join(QR_DIRECTORY, "qr-links.json")
 const OUTPUT_DIRECTORY = path.resolve("artifacts")
 const OUTPUT_FILE = path.join(OUTPUT_DIRECTORY, "pdf-de-qrs.pdf")
@@ -124,7 +128,10 @@ function buildPdf(pages, imageResources) {
     const contentBuffer = Buffer.from(pageContent, "latin1")
     const contentId = addObject(
       Buffer.concat([
-        Buffer.from(`<< /Length ${contentBuffer.length} >>\nstream\n`, "latin1"),
+        Buffer.from(
+          `<< /Length ${contentBuffer.length} >>\nstream\n`,
+          "latin1"
+        ),
         contentBuffer,
         Buffer.from("\nendstream", "latin1"),
       ])
@@ -225,7 +232,7 @@ async function loadQrItems() {
 
     if (!url) {
       throw new Error(
-        `Não foi possível encontrar a URL do QR Code para ${filename}. Atualize public/images/qr/qr-links.json ou gere novamente as imagens PNG.`
+        `Não foi possível encontrar a URL do QR Code para ${filename}. Atualize artifacts/qr/qr-links.json ou gere novamente as imagens PNG.`
       )
     }
 
@@ -279,10 +286,41 @@ async function buildImageResources(items) {
   return resources
 }
 
+async function generateQrImages() {
+  const scriptPath = path.resolve("scripts/generate-qr-images.mjs")
+  const args = [scriptPath]
+
+  if (process.argv.includes("--local")) {
+    args.push("--local")
+  }
+
+  if (process.argv.includes("--mobile")) {
+    args.push("--mobile")
+  }
+
+  const { stdout, stderr } = await execFileAsync("node", args, {
+    stdio: ["inherit", "pipe", "pipe"],
+  })
+
+  if (stdout) {
+    process.stdout.write(stdout)
+  }
+
+  if (stderr) {
+    process.stderr.write(stderr)
+  }
+}
+
 async function main() {
+  await generateQrImages()
+
   const items = await loadQrItems()
-  const companyItems = items.filter((item) => item.filename.toLowerCase().startsWith("empresa-"))
-  const otherItems = items.filter((item) => !item.filename.toLowerCase().startsWith("empresa-"))
+  const companyItems = items.filter((item) =>
+    item.filename.toLowerCase().startsWith("empresa-")
+  )
+  const otherItems = items.filter(
+    (item) => !item.filename.toLowerCase().startsWith("empresa-")
+  )
 
   const groups = []
   if (companyItems.length > 0) {

@@ -3,7 +3,7 @@
  * de empresa, tag e missão com validação por QR do EVENT_ID configurado.
  *
  * O comando apenas consulta o Firestore; ele não altera documentos. Os PNGs
- * são salvos em public/images/qr com nomes como empresa-nome.png,
+ * são salvos em artifacts/qr com nomes como empresa-nome.png,
  * tag-nome.png e missao-nome.png. O arquivo qr-links.json mantém os registros
  * anteriores e acrescenta somente URLs ainda não registradas.
  *
@@ -23,7 +23,7 @@ import sharp from "sharp"
 
 import { EVENT_QR_PRINT_STYLE } from "./lib/event-qr-print-style.mjs"
 
-const OUTPUT_DIRECTORY = path.resolve("public/images/qr")
+const OUTPUT_DIRECTORY = path.resolve("artifacts/qr")
 const LINKS_FILE = path.join(OUTPUT_DIRECTORY, "qr-links.json")
 const PAGE_WIDTH = 1050
 const PAGE_HEIGHT = 1480
@@ -95,7 +95,8 @@ function buildSvg({ label, name, url }) {
   const titleSize = name.length > 34 ? 48 : name.length > 24 ? 56 : 64
   const style = EVENT_QR_PRINT_STYLE
 
-  return `<?xml version="1.0" encoding="UTF-8"?>\n` +
+  return (
+    `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<svg xmlns="http://www.w3.org/2000/svg" width="105mm" height="148mm" viewBox="0 0 ${PAGE_WIDTH} ${PAGE_HEIGHT}">\n` +
     `  <rect width="${PAGE_WIDTH}" height="${PAGE_HEIGHT}" fill="${style.background}"/>\n` +
     `  <rect x="${PAGE_BORDER}" y="${PAGE_BORDER}" width="${PAGE_WIDTH - PAGE_BORDER * 2}" height="${PAGE_HEIGHT - PAGE_BORDER * 2}" rx="32" fill="none" stroke="${style.primary}" stroke-width="12"/>\n` +
@@ -107,31 +108,52 @@ function buildSvg({ label, name, url }) {
     `  <text x="${PAGE_WIDTH / 2}" y="1260" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="700" fill="${style.text}">Escaneie com o app</text>\n` +
     `  <text x="${PAGE_WIDTH / 2}" y="1320" text-anchor="middle" font-family="Arial, sans-serif" font-size="25" fill="${style.mutedText}">DevFest Triângulo 2026</text>\n` +
     `</svg>\n`
+  )
 }
 
 const eventId = requireEnvironment("EVENT_ID")
 const appUrl = new URL(requireEnvironment("NEXT_PUBLIC_APP_URL"))
 
 if (!["http:", "https:"].includes(appUrl.protocol)) {
-  throw new Error(`NEXT_PUBLIC_APP_URL must use HTTP or HTTPS: ${appUrl.toString()}`)
+  throw new Error(
+    `NEXT_PUBLIC_APP_URL must use HTTP or HTTPS: ${appUrl.toString()}`
+  )
 }
 
 const firebaseApp = initializeApp({
   credential: cert({
     projectId: requireEnvironment("FIREBASE_PROJECT_ID"),
     clientEmail: requireEnvironment("FIREBASE_CLIENT_EMAIL"),
-    privateKey: requireEnvironment("FIREBASE_PRIVATE_KEY").replace(/\\n/g, "\n"),
+    privateKey: requireEnvironment("FIREBASE_PRIVATE_KEY").replace(
+      /\\n/g,
+      "\n"
+    ),
   }),
 })
 const firestore = getFirestore(firebaseApp)
 
-async function loadGroup({ collection, routeType, fileType, label, titleField, filter = () => true }) {
-  const snapshots = await firestore.collection(collection).where("eventId", "==", eventId).get()
+async function loadGroup({
+  collection,
+  routeType,
+  fileType,
+  label,
+  titleField,
+  filter = () => true,
+}) {
+  const snapshots = await firestore
+    .collection(collection)
+    .where("eventId", "==", eventId)
+    .get()
 
   return snapshots.docs
     .map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }))
     .filter((item) => item.active && item.qrId && filter(item))
-    .sort((first, second) => String(first[titleField]).localeCompare(String(second[titleField]), "pt-BR"))
+    .sort((first, second) =>
+      String(first[titleField]).localeCompare(
+        String(second[titleField]),
+        "pt-BR"
+      )
+    )
     .map((item) => {
       const name = String(item[titleField])
       const url = new URL(
