@@ -32,6 +32,7 @@ const speakerDocumentSchema = speakerFieldsSchema
     updatedAt: true,
   })
   .extend({
+    id: speakerFieldsSchema.shape.id.optional(),
     createdAt: z.instanceof(Timestamp),
     updatedAt: z.instanceof(Timestamp),
   })
@@ -43,6 +44,7 @@ const talkDocumentSchema = talkFieldsSchema
     updatedAt: true,
   })
   .extend({
+    id: talkFieldsSchema.shape.id.optional(),
     createdAt: z.instanceof(Timestamp),
     updatedAt: z.instanceof(Timestamp),
   })
@@ -93,9 +95,13 @@ function getTalkRatingId(
 function parseSpeakerDocument(id: string, value: unknown): Speaker {
   const document = speakerDocumentSchema.parse(value)
 
+  if (document.id && document.id !== id) {
+    throw new Error(`Speaker document ID mismatch: ${id}`)
+  }
+
   return speakerFieldsSchema.parse({
-    id,
     ...document,
+    id,
     createdAt: document.createdAt.toDate(),
     updatedAt: document.updatedAt.toDate(),
   })
@@ -104,9 +110,13 @@ function parseSpeakerDocument(id: string, value: unknown): Speaker {
 function parseTalkDocument(id: string, value: unknown): Talk {
   const document = talkDocumentSchema.parse(value)
 
+  if (document.id && document.id !== id) {
+    throw new Error(`Talk document ID mismatch: ${id}`)
+  }
+
   return talkFieldsSchema.parse({
-    id,
     ...document,
+    id,
     createdAt: document.createdAt.toDate(),
     updatedAt: document.updatedAt.toDate(),
   })
