@@ -149,8 +149,8 @@ export function AuthenticatedAppShell({
             ? {
                 title: "Perfil da conexão",
                 showHeader: true,
+                showBack: true,
                 showNavigation: false,
-                backHref: "/connections",
               }
             : pathname.startsWith("/companies/")
               ? {

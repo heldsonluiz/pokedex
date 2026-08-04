@@ -43,6 +43,33 @@ const environmentFile = args.local ? ".env.local" : ".env"
 await loadLocalEnvironment(environmentFile, { override: true })
 const eventId = requireEnvironment("EVENT_ID")
 const appOrigin = new URL(requireEnvironment("NEXT_PUBLIC_APP_URL"))
+const localHostnames = new Set(["localhost", "127.0.0.1", "::1"])
+
+if (!args.local && localHostnames.has(appOrigin.hostname)) {
+  throw new Error(
+    `Seed de produção recusado: NEXT_PUBLIC_APP_URL em ${environmentFile} aponta para ${appOrigin.origin}`
+  )
+}
+
+const now = Timestamp.now()
+const documents = createCatalogFixture({ eventId, appOrigin, now })
+const invalidCatalogAsset = documents.find(
+  (item) =>
+    (item.collection === "tags" || item.collection === "missions") &&
+    item.data.imageUrl &&
+    new URL(item.data.imageUrl).origin !== appOrigin.origin
+)
+
+if (invalidCatalogAsset) {
+  throw new Error(
+    `URL de imagem inválida em ${invalidCatalogAsset.collection}/${invalidCatalogAsset.id}: ${invalidCatalogAsset.data.imageUrl}`
+  )
+}
+
+console.log(
+  `Ambiente: ${args.local ? "local" : "produção"} | arquivo: ${environmentFile} | origem: ${appOrigin.origin}`
+)
+
 const { firestore, projectId } = initializeFirestore()
 console.log("Mapeando documentos do Firestore...")
 const cleanupPlan = await createDatabaseCleanupPlan(firestore, {
@@ -97,8 +124,6 @@ if (
   process.exit(0)
 }
 
-const now = Timestamp.now()
-const documents = createCatalogFixture({ eventId, appOrigin, now })
 const skills = [
   "javascript",
   "python",
