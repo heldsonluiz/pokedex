@@ -37,7 +37,7 @@ export function AppHeader({
           type="button"
           className="-ml-2 inline-flex size-11 items-center justify-center rounded-full transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           aria-label="Voltar"
-          onClick={() => (backHref ? router.push(backHref) : router.back())}
+          onClick={() => (backHref ? router.replace(backHref) : router.back())}
         >
           <ChevronLeft className="size-5" aria-hidden="true" />
         </button>
