@@ -74,6 +74,14 @@ export async function loadLocalEnvironment(
   }
 }
 
+export function isDevMode() {
+  return process.env.DEVMODE?.trim().toLowerCase() === "true"
+}
+
+export function getFirestoreCollectionName(collectionName) {
+  return isDevMode() ? `test_${collectionName}` : collectionName
+}
+
 export function requireEnvironment(name) {
   const value = process.env[name]?.trim()
   if (!value) throw new Error(`Variável obrigatória ausente: ${name}`)
@@ -111,14 +119,14 @@ export function parseArguments(
 }
 
 export function initializeFirestore() {
-  const projectId = requireEnvironment("FIREBASE_PROJECT_ID")
+  const projectId = requireEnvironment("FB_ADMIN_PROJECT_ID")
   const firebaseApp =
     getApps()[0] ??
     initializeApp({
       credential: cert({
         projectId,
-        clientEmail: requireEnvironment("FIREBASE_CLIENT_EMAIL"),
-        privateKey: requireEnvironment("FIREBASE_PRIVATE_KEY").replace(
+        clientEmail: requireEnvironment("FB_ADMIN_CLIENT_EMAIL"),
+        privateKey: requireEnvironment("FB_ADMIN_PRIVATE_KEY").replace(
           /\\n/gu,
           "\n"
         ),
@@ -188,7 +196,7 @@ export async function deleteDocumentTrees(
 export async function collectApplicationDocumentReferences(firestore) {
   const references = []
   for (const name of APPLICATION_COLLECTIONS) {
-    const collection = firestore.collection(name)
+    const collection = firestore.collection(getFirestoreCollectionName(name))
     const snapshot = await collection.get()
     for (const document of snapshot.docs) {
       await collectDescendantReferences(document.ref, references)
@@ -203,14 +211,17 @@ export async function collectAllDocumentReferences(
   { onCollectionRead } = {}
 ) {
   const references = new Map()
-  const rootCollections = await firestore.listCollections()
+  const rootCollections = (await firestore.listCollections()).filter(
+    (collection) => !isDevMode() || collection.id.startsWith("test_")
+  )
   const nestedParents = []
 
   for (const [index, collection] of rootCollections.entries()) {
     const snapshot = await collection.get()
     for (const document of snapshot.docs) {
       references.set(document.ref.path, document.ref)
-      if (collection.id === "raffleTestRuns") nestedParents.push(document.ref)
+      if (collection.id === getFirestoreCollectionName("raffleTestRuns"))
+        nestedParents.push(document.ref)
     }
     onCollectionRead?.({
       scope: "root",
@@ -318,7 +329,10 @@ export async function writeDocuments(
       offset,
       offset + 400
     )) {
-      batch.set(firestore.collection(collection).doc(id), data)
+      batch.set(
+        firestore.collection(getFirestoreCollectionName(collection)).doc(id),
+        data
+      )
     }
     await batch.commit()
     onBatchCommitted?.({

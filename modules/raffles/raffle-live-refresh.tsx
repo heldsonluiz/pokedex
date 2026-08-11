@@ -28,8 +28,14 @@ type LiveConnectionStatus =
 export function RaffleLiveRefresh({
   children,
   eventId,
+  signalCollection,
   stageKey,
-}: Readonly<{ children: ReactNode; eventId: string; stageKey: string }>) {
+}: Readonly<{
+  children: ReactNode
+  eventId: string
+  signalCollection: string
+  stageKey: string
+}>) {
   const router = useRouter()
   const [drawingPrizeName, setDrawingPrizeName] = useState<string | null>(null)
   const [connectionStatus, setConnectionStatus] =
@@ -56,7 +62,7 @@ export function RaffleLiveRefresh({
   }, [isRefreshing])
 
   useEffect(() => {
-    const signalReference = doc(clientFirestore, "raffleLiveSignals", eventId)
+    const signalReference = doc(clientFirestore, signalCollection, eventId)
 
     return onSnapshot(
       signalReference,
@@ -98,7 +104,7 @@ export function RaffleLiveRefresh({
         setConnectionStatus("unavailable")
       }
     )
-  }, [eventId, listenerVersion, requestRefresh])
+  }, [eventId, listenerVersion, requestRefresh, signalCollection])
 
   useEffect(() => {
     function handleOffline() {

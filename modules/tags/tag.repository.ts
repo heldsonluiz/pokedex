@@ -8,6 +8,7 @@ import * as z from "zod"
 
 import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
 import { firestore } from "@/lib/firebase/admin"
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 import { incrementParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
@@ -17,9 +18,9 @@ import {
   tagDiscoveryFieldsSchema,
 } from "./tag-discovery.schema"
 
-const TAGS_COLLECTION = "tags"
-const COMPLETIONS_COLLECTION = "activityCompletions"
-const PROFILES_COLLECTION = "profiles"
+const TAGS_COLLECTION = getFirestoreCollectionName("tags")
+const COMPLETIONS_COLLECTION = getFirestoreCollectionName("activityCompletions")
+const PROFILES_COLLECTION = getFirestoreCollectionName("profiles")
 
 const tagDocumentSchema = z.object({
   ...tagFieldsSchema.omit({

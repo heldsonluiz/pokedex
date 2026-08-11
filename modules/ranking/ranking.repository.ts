@@ -5,9 +5,10 @@ import { unstable_cache } from "next/cache"
 import * as z from "zod"
 
 import { firestore } from "@/lib/firebase/admin"
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
-const PROFILES_COLLECTION = "profiles"
+const PROFILES_COLLECTION = getFirestoreCollectionName("profiles")
 const RANKING_CACHE_SECONDS = 60
 
 const rankingProfileDocumentSchema = z.object({

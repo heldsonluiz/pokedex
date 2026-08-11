@@ -21,6 +21,7 @@ import {
   assertDestructiveConfirmation,
   deleteDocumentTrees,
   deleteReferences,
+  getFirestoreCollectionName,
   initializeFirestore,
   loadLocalEnvironment,
   parseArguments,
@@ -38,7 +39,7 @@ if (!email)
 const eventId = requireEnvironment("EVENT_ID")
 const { firestore, projectId } = initializeFirestore()
 const profiles = await firestore
-  .collection("profiles")
+  .collection(getFirestoreCollectionName("profiles"))
   .where("email", "==", email)
   .limit(10)
   .get()
@@ -66,7 +67,7 @@ const participantCollections = [
 const snapshots = await Promise.all(
   participantCollections.map((collection) =>
     firestore
-      .collection(collection)
+      .collection(getFirestoreCollectionName(collection))
       .where("participantId", "==", participantId)
       .get()
   )
@@ -75,19 +76,19 @@ const byCollection = Object.fromEntries(
   participantCollections.map((name, index) => [name, snapshots[index]])
 )
 const connections = await firestore
-  .collection("connections")
+  .collection(getFirestoreCollectionName("connections"))
   .where("participantIds", "array-contains", participantId)
   .get()
 const chunks = await firestore
-  .collection("raffleEntryChunks")
+  .collection(getFirestoreCollectionName("raffleEntryChunks"))
   .where("eventId", "==", eventId)
   .get()
 const raffles = await firestore
-  .collection("raffles")
+  .collection(getFirestoreCollectionName("raffles"))
   .where("eventId", "==", eventId)
   .get()
 const testRuns = await firestore
-  .collection("raffleTestRuns")
+  .collection(getFirestoreCollectionName("raffleTestRuns"))
   .where("eventId", "==", eventId)
   .get()
 
@@ -153,7 +154,9 @@ if (!resumeAfterCompensation) {
   console.log("Compensando conexões e estoque...")
   await firestore.runTransaction(async (transaction) => {
     const rewardReads = [...rewardRestocks].map(([rewardId]) => ({
-      reference: firestore.collection("rewards").doc(rewardId),
+      reference: firestore
+        .collection(getFirestoreCollectionName("rewards"))
+        .doc(rewardId),
     }))
     const peerReads = acceptedConnections.map((connection) => {
       const peerId = connection
@@ -161,9 +164,11 @@ if (!resumeAfterCompensation) {
         .participantIds.find((id) => id !== participantId)
       return {
         connection,
-        profileRef: firestore.collection("profiles").doc(peerId),
+        profileRef: firestore
+          .collection(getFirestoreCollectionName("profiles"))
+          .doc(peerId),
         summaryQuery: firestore
-          .collection("participantSummaries")
+          .collection(getFirestoreCollectionName("participantSummaries"))
           .where("eventId", "==", eventId)
           .where("participantId", "==", peerId)
           .limit(1),

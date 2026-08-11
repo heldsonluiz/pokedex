@@ -8,6 +8,7 @@ import * as z from "zod"
 
 import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
 import { firestore } from "@/lib/firebase/admin"
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
 import { type Speaker, speakerFieldsSchema } from "./speaker.schema"
@@ -19,10 +20,10 @@ import {
   talkRatingFieldsSchema,
 } from "./talk-rating.schema"
 
-const SPEAKERS_COLLECTION = "speakers"
-const TALK_RATINGS_COLLECTION = "talk-ratings"
-const TALKS_COLLECTION = "talks"
-const PROFILES_COLLECTION = "profiles"
+const SPEAKERS_COLLECTION = getFirestoreCollectionName("speakers")
+const TALK_RATINGS_COLLECTION = getFirestoreCollectionName("talk-ratings")
+const TALKS_COLLECTION = getFirestoreCollectionName("talks")
+const PROFILES_COLLECTION = getFirestoreCollectionName("profiles")
 const eventIdSchema = z.string().trim().min(1).max(128)
 
 const speakerDocumentSchema = speakerFieldsSchema

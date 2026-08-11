@@ -8,6 +8,7 @@ import * as z from "zod"
 
 import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
 import { firestore } from "@/lib/firebase/admin"
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 import {
   getParticipantSummaryRef,
   incrementParticipantSummary,
@@ -24,9 +25,9 @@ import {
   missionCompletionFieldsSchema,
 } from "./mission-completion.schema"
 
-const MISSIONS_COLLECTION = "missions"
-const COMPLETIONS_COLLECTION = "activityCompletions"
-const PROFILES_COLLECTION = "profiles"
+const MISSIONS_COLLECTION = getFirestoreCollectionName("missions")
+const COMPLETIONS_COLLECTION = getFirestoreCollectionName("activityCompletions")
+const PROFILES_COLLECTION = getFirestoreCollectionName("profiles")
 
 const missionDocumentSchema = z.object({
   eventId: missionFieldsSchema.shape.eventId,

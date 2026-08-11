@@ -10,11 +10,12 @@ Disponíveis somente no servidor:
 AUTH_SECRET=
 AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
+DEVMODE=false
 EVENT_ID=
 QR_SIGNING_SECRET=
-FIREBASE_PROJECT_ID=
-FIREBASE_CLIENT_EMAIL=
-FIREBASE_PRIVATE_KEY=
+FB_ADMIN_PROJECT_ID=
+FB_ADMIN_CLIENT_EMAIL=
+FB_ADMIN_PRIVATE_KEY=
 ```
 
 Podem ser usadas em Server Components, Server Actions, Route Handlers e integrações de servidor. Nunca use o prefixo `NEXT_PUBLIC_` em segredos.
@@ -25,11 +26,11 @@ Enviadas ao navegador e, portanto, sem conteúdo secreto:
 
 ```env
 NEXT_PUBLIC_APP_URL=
-NEXT_PUBLIC_FIREBASE_API_KEY=
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FB_API_KEY=
+NEXT_PUBLIC_FB_AUTH_DOMAIN=
+NEXT_PUBLIC_FB_PROJECT_ID=
+NEXT_PUBLIC_FB_STORAGE_BUCKET=
+NEXT_PUBLIC_FB_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
 ```
 
@@ -42,7 +43,7 @@ Use `@t3-oss/env-nextjs` com Zod em `env.ts`. Declare separadamente variáveis d
 ```ts
 import { env } from "@/env"
 
-const projectId = env.FIREBASE_PROJECT_ID
+const projectId = env.FB_ADMIN_PROJECT_ID
 ```
 
 Evite acessar `process.env` fora do módulo central. Arquivos de Firebase Admin devem importar `server-only` e normalizar quebras de linha da chave privada quando necessário.
@@ -67,6 +68,17 @@ pnpm exec auth secret
 ```
 
 Em ambientes atrás de proxy reverso, avalie `AUTH_TRUST_HOST=true`. Vercel e Cloudflare Pages são detectados automaticamente pelo Auth.js; não habilite confiança em headers de host sem conhecer a infraestrutura.
+
+## Isolamento de dados de desenvolvimento
+
+Quando `DEVMODE=true`, toda coleção raiz acessada pela aplicação recebe o
+prefixo `test_`. Por exemplo, `profiles` passa a ser `test_profiles`. A
+regra também vale para login, operações em tempo real e scripts administrativos.
+
+Quando a variável estiver ausente ou for `false`, os nomes originais são
+usados. Subcoleções mantêm seus nomes porque já estão isoladas sob uma coleção
+raiz prefixada. Índices e Firestore Rules que mencionam coleções explicitamente
+devem contemplar também os nomes com `test_`.
 
 ## Evento da implantação
 

@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import { notFound } from "next/navigation"
 
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
 import { getRaffleLiveForSession } from "@/modules/raffles/raffle.service"
@@ -96,7 +97,11 @@ export default async function RaffleLivePage() {
           )}
         >
           <section className="flex min-h-0 items-center justify-center">
-            <RaffleLiveRefresh eventId={operations.eventId} stageKey={stageKey}>
+            <RaffleLiveRefresh
+              eventId={operations.eventId}
+              signalCollection={getFirestoreCollectionName("raffleLiveSignals")}
+              stageKey={stageKey}
+            >
               <div className="w-full max-w-5xl text-center">
                 {closureStatus !== "closed" ? (
                   <>

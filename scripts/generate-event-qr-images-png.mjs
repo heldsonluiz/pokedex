@@ -22,6 +22,7 @@ import QRCode from "qrcode"
 import sharp from "sharp"
 
 import { EVENT_QR_PRINT_STYLE } from "./lib/event-qr-print-style.mjs"
+import { getFirestoreCollectionName } from "./lib/firestore-admin.mjs"
 
 const OUTPUT_DIRECTORY = path.resolve("artifacts/qr")
 const LINKS_FILE = path.join(OUTPUT_DIRECTORY, "qr-links.json")
@@ -122,9 +123,9 @@ if (!["http:", "https:"].includes(appUrl.protocol)) {
 
 const firebaseApp = initializeApp({
   credential: cert({
-    projectId: requireEnvironment("FIREBASE_PROJECT_ID"),
-    clientEmail: requireEnvironment("FIREBASE_CLIENT_EMAIL"),
-    privateKey: requireEnvironment("FIREBASE_PRIVATE_KEY").replace(
+    projectId: requireEnvironment("FB_ADMIN_PROJECT_ID"),
+    clientEmail: requireEnvironment("FB_ADMIN_CLIENT_EMAIL"),
+    privateKey: requireEnvironment("FB_ADMIN_PRIVATE_KEY").replace(
       /\\n/g,
       "\n"
     ),
@@ -141,7 +142,7 @@ async function loadGroup({
   filter = () => true,
 }) {
   const snapshots = await firestore
-    .collection(collection)
+    .collection(getFirestoreCollectionName(collection))
     .where("eventId", "==", eventId)
     .get()
 

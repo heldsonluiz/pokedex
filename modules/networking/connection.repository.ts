@@ -6,6 +6,7 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore"
 import * as z from "zod"
 
 import { firestore } from "@/lib/firebase/admin"
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 import { incrementParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
 
 import {
@@ -15,8 +16,8 @@ import {
   normalizeConnectionPair,
 } from "./connection.schema"
 
-const CONNECTIONS_COLLECTION = "connections"
-const PROFILES_COLLECTION = "profiles"
+const CONNECTIONS_COLLECTION = getFirestoreCollectionName("connections")
+const PROFILES_COLLECTION = getFirestoreCollectionName("profiles")
 const CONNECTION_REQUEST_COOLDOWN_MS = 60_000
 
 const connectionDocumentSchema = connectionFieldsSchema

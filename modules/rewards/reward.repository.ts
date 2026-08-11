@@ -8,6 +8,7 @@ import * as z from "zod"
 
 import { CACHE_SECONDS, CACHE_TAGS } from "@/config/cache"
 import { firestore } from "@/lib/firebase/admin"
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 import { ticketTransactionFieldsSchema } from "@/modules/tickets/ticket.schema"
 
@@ -18,11 +19,13 @@ import {
   rewardRedemptionFieldsSchema,
 } from "./reward.schema"
 
-const EVENT_OPERATIONS_COLLECTION = "eventOperations"
-const PROFILES_COLLECTION = "profiles"
-const REDEMPTIONS_COLLECTION = "rewardRedemptions"
-const REWARDS_COLLECTION = "rewards"
-const TICKET_TRANSACTIONS_COLLECTION = "ticketTransactions"
+const EVENT_OPERATIONS_COLLECTION =
+  getFirestoreCollectionName("eventOperations")
+const PROFILES_COLLECTION = getFirestoreCollectionName("profiles")
+const REDEMPTIONS_COLLECTION = getFirestoreCollectionName("rewardRedemptions")
+const REWARDS_COLLECTION = getFirestoreCollectionName("rewards")
+const TICKET_TRANSACTIONS_COLLECTION =
+  getFirestoreCollectionName("ticketTransactions")
 
 const rewardDocumentSchema = rewardFieldsSchema
   .omit({ id: true, createdAt: true, updatedAt: true })

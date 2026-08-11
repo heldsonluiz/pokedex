@@ -6,6 +6,7 @@ import { Timestamp } from "firebase-admin/firestore"
 import * as z from "zod"
 
 import { firestore } from "@/lib/firebase/admin"
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 import { createInitialParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
 
 import {
@@ -17,7 +18,7 @@ import {
 } from "./profile.schema"
 import type { Profile } from "./profile.types"
 
-const PROFILES_COLLECTION = "profiles"
+const PROFILES_COLLECTION = getFirestoreCollectionName("profiles")
 const INITIAL_PROFILE_FIELDS = storedProfileFieldsSchema.parse({})
 const profileDocumentSchema = profileIdentitySchema.extend({
   ...storedProfileFieldsSchema.shape,

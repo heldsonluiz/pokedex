@@ -9,9 +9,9 @@ const firebaseAdminApp =
   getApps()[0] ??
   initializeApp({
     credential: cert({
-      projectId: env.FIREBASE_PROJECT_ID,
-      clientEmail: env.FIREBASE_CLIENT_EMAIL,
-      privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+      projectId: env.FB_ADMIN_PROJECT_ID,
+      clientEmail: env.FB_ADMIN_CLIENT_EMAIL,
+      privateKey: env.FB_ADMIN_PRIVATE_KEY.replace(/\\n/g, "\n"),
     }),
   })
 
