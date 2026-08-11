@@ -171,7 +171,7 @@ export default async function HomePage() {
         className="group relative block overflow-hidden rounded-3xl bg-(image:--gradient-primary-card) p-5 text-primary-foreground shadow-glow-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         <Stamp
-          className="absolute -right-5 -bottom-7 size-36 rotate-[-12deg] text-primary-foreground/15 transition-transform group-hover:rotate-[-6deg]"
+          className="absolute -right-5 -bottom-7 size-36 -rotate-12 text-primary-foreground/15 transition-transform group-hover:-rotate-6"
           strokeWidth={1.25}
           aria-hidden="true"
         />
