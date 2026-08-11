@@ -33,6 +33,7 @@ export default async function RaffleLivePage() {
     (raffle) => raffle.status === "awaiting_confirmation"
   )
   const pendingRaffle = raffles.find((raffle) => raffle.status === "pending")
+  const hasRaffles = raffles.length > 0
   const latestWinner = raffles
     .filter(
       (raffle) =>
@@ -49,7 +50,7 @@ export default async function RaffleLivePage() {
         ? `candidate:${currentCandidate.id}:${currentCandidate.currentAttemptId}`
         : latestWinner
           ? `winner:${latestWinner.id}:${latestWinner.drawnAt?.getTime()}`
-          : pendingRaffle
+          : pendingRaffle || !hasRaffles
             ? "waiting"
             : "completed"
   return (
@@ -88,7 +89,12 @@ export default async function RaffleLivePage() {
           )}
         </header>
 
-        <main className="relative grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_minmax(24rem,34rem)] gap-[clamp(1.5rem,3vw,3.5rem)] px-[clamp(1.5rem,4vw,5rem)] pb-[clamp(1.5rem,3dvh,3rem)]">
+        <main
+          className={cn(
+            "relative grid min-h-0 flex-1 gap-[clamp(1.5rem,3vw,3.5rem)] px-[clamp(1.5rem,4vw,5rem)] pb-[clamp(1.5rem,3dvh,3rem)]",
+            hasRaffles && "grid-cols-[minmax(0,1fr)_minmax(24rem,34rem)]"
+          )}
+        >
           <section className="flex min-h-0 items-center justify-center">
             <RaffleLiveRefresh eventId={operations.eventId} stageKey={stageKey}>
               <div className="w-full max-w-5xl text-center">
@@ -128,7 +134,7 @@ export default async function RaffleLivePage() {
                       {latestWinner.prizeName}
                     </p>
                   </>
-                ) : pendingRaffle ? (
+                ) : pendingRaffle || !hasRaffles ? (
                   <div className="mx-auto flex max-w-4xl flex-col items-center">
                     <Image
                       src="/images/mascot/states/raffle-waiting-vampire.png"
@@ -138,12 +144,16 @@ export default async function RaffleLivePage() {
                       priority
                       className="max-h-[34dvh] w-auto object-contain drop-shadow-[0_24px_40px_rgb(109_40_217/0.28)]"
                     />
-                    <p className="mt-5 font-pixel-square text-lg text-secondary">
-                      Prepare seus tickets
-                    </p>
-                    <h2 className="mt-3 text-[clamp(1.5rem,3.5dvh,2.5rem)] leading-none font-black tracking-tight">
-                      Aguardando o início do sorteio
-                    </h2>
+                    {hasRaffles && (
+                      <>
+                        <p className="mt-5 font-pixel-square text-lg text-secondary">
+                          Prepare seus tickets
+                        </p>
+                        <h2 className="mt-3 text-[clamp(1.5rem,3.5dvh,2.5rem)] leading-none font-black tracking-tight">
+                          Aguardando o início do sorteio
+                        </h2>
+                      </>
+                    )}
                   </div>
                 ) : (
                   <>
@@ -157,51 +167,55 @@ export default async function RaffleLivePage() {
             </RaffleLiveRefresh>
           </section>
 
-          <aside className="raffle-prizes-scroll max-h-full min-h-0 self-center overflow-y-auto overscroll-contain rounded-2xl border border-white/10 bg-white/5 p-4 shadow-2xl backdrop-blur-sm">
-            <p className="font-pixel-square text-xs tracking-widest text-secondary uppercase">
-              Prêmios
-            </p>
-            <div className="mt-4 grid grid-cols-2 gap-2.5">
-              {raffles.map((raffle) => (
-                <div
-                  key={raffle.id}
-                  className={cn(
-                    "flex items-center gap-3 rounded-xl border p-3",
-                    raffle.status === "drawn"
-                      ? "border-success/25 bg-success/10"
-                      : raffle.status === "awaiting_confirmation"
-                        ? "border-secondary/40 bg-secondary/10"
-                        : "border-white/10 bg-black/15"
-                  )}
-                >
-                  <span
+          {hasRaffles && (
+            <aside className="raffle-prizes-scroll max-h-full min-h-0 self-center overflow-y-auto overscroll-contain rounded-2xl border border-white/10 bg-white/5 p-4 shadow-2xl backdrop-blur-sm">
+              <p className="font-pixel-square text-xs tracking-widest text-secondary uppercase">
+                Prêmios
+              </p>
+              <div className="mt-4 grid grid-cols-2 gap-2.5">
+                {raffles.map((raffle) => (
+                  <div
+                    key={raffle.id}
                     className={cn(
-                      "flex size-10 shrink-0 items-center justify-center rounded-lg",
+                      "flex items-center gap-3 rounded-xl border p-3",
                       raffle.status === "drawn"
-                        ? "bg-success/15 text-success"
-                        : "bg-primary/20 text-primary"
+                        ? "border-success/25 bg-success/10"
+                        : raffle.status === "awaiting_confirmation"
+                          ? "border-secondary/40 bg-secondary/10"
+                          : "border-white/10 bg-black/15"
                     )}
                   >
-                    {raffle.status === "drawn" ? (
-                      <CheckCircle2 aria-hidden />
-                    ) : (
-                      <Trophy aria-hidden />
-                    )}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold">{raffle.prizeName}</p>
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                      {raffle.status === "drawn"
-                        ? raffle.winnerName
-                        : raffle.status === "awaiting_confirmation"
-                          ? "Confirmando presença"
-                          : "Aguardando"}
-                    </p>
+                    <span
+                      className={cn(
+                        "flex size-10 shrink-0 items-center justify-center rounded-lg",
+                        raffle.status === "drawn"
+                          ? "bg-success/15 text-success"
+                          : "bg-primary/20 text-primary"
+                      )}
+                    >
+                      {raffle.status === "drawn" ? (
+                        <CheckCircle2 aria-hidden />
+                      ) : (
+                        <Trophy aria-hidden />
+                      )}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold">
+                        {raffle.prizeName}
+                      </p>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {raffle.status === "drawn"
+                          ? raffle.winnerName
+                          : raffle.status === "awaiting_confirmation"
+                            ? "Confirmando presença"
+                            : "Aguardando"}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </aside>
+                ))}
+              </div>
+            </aside>
+          )}
         </main>
       </div>
     </div>
