@@ -10,7 +10,9 @@ recriar a massa de testes e preparar o Firestore para o lançamento.
 | `db:prepare-launch`    | apagar o Firestore antes do cadastro real      | banco inteiro              |
 
 Os scripts não alteram o Firebase Authentication nem o Firebase Storage. Eles
-atuam no Firestore configurado em `.env.local`. Os dois comandos de limpeza
+atuam no Firestore configurado em `.env.local`. Quando `DEVMODE=true`, eles
+consultam, apagam e gravam somente coleções raiz com o prefixo `test_`; as
+coleções sem prefixo são preservadas. Os dois comandos de limpeza
 integral também esvaziam `public/images/qr` e `artifacts`, pois esses diretórios
 podem conter materiais apontando para documentos que deixaram de existir.
 
@@ -21,13 +23,13 @@ Antes de executar qualquer comando, configure:
 ```dotenv
 EVENT_ID=devfest-triangulo-2026
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-FIREBASE_PROJECT_ID=seu-projeto
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk@seu-projeto.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+FB_ADMIN_PROJECT_ID=seu-projeto
+FB_ADMIN_CLIENT_EMAIL=firebase-adminsdk@seu-projeto.iam.gserviceaccount.com
+FB_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 ```
 
 A conta de serviço precisa ter permissão administrativa no Firestore. Confirme
-também que `FIREBASE_PROJECT_ID` aponta para o ambiente correto. Os comandos de
+também que `FB_ADMIN_PROJECT_ID` aponta para o ambiente correto. Os comandos de
 banco inteiro não distinguem automaticamente desenvolvimento e produção.
 
 ## Modelo de segurança

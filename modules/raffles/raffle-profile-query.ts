@@ -9,13 +9,14 @@ import {
 import * as z from "zod"
 
 import { firestore } from "@/lib/firebase/admin"
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 
 import {
   type RaffleProfileCursor,
   raffleProfileCursorSchema,
 } from "./raffle.schema"
 
-const PROFILES_COLLECTION = "profiles"
+const PROFILES_COLLECTION = getFirestoreCollectionName("profiles")
 const RAFFLE_PROFILE_FIELDS = [
   "userId",
   "eventId",

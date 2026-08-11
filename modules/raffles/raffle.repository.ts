@@ -12,6 +12,7 @@ import {
   RAFFLE_PREPARATION_BATCH_SIZE,
 } from "@/config/raffles"
 import { firestore } from "@/lib/firebase/admin"
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
 import {
@@ -30,14 +31,17 @@ import {
 import { findRaffleProfilePage } from "./raffle-profile-query"
 import { selectWeightedCandidate } from "./weighted-draw"
 
-const EVENT_OPERATIONS_COLLECTION = "eventOperations"
-const PROFILES_COLLECTION = "profiles"
-const TRANSACTIONS_COLLECTION = "ticketTransactions"
-const ENTRY_CHUNKS_COLLECTION = "raffleEntryChunks"
-const SKIPPED_PROFILES_COLLECTION = "raffleSkippedProfiles"
-const WINNERS_COLLECTION = "raffleWinners"
-const RAFFLES_COLLECTION = "raffles"
-const ATTEMPTS_COLLECTION = "raffleAttempts"
+const EVENT_OPERATIONS_COLLECTION =
+  getFirestoreCollectionName("eventOperations")
+const PROFILES_COLLECTION = getFirestoreCollectionName("profiles")
+const TRANSACTIONS_COLLECTION = getFirestoreCollectionName("ticketTransactions")
+const ENTRY_CHUNKS_COLLECTION = getFirestoreCollectionName("raffleEntryChunks")
+const SKIPPED_PROFILES_COLLECTION = getFirestoreCollectionName(
+  "raffleSkippedProfiles"
+)
+const WINNERS_COLLECTION = getFirestoreCollectionName("raffleWinners")
+const RAFFLES_COLLECTION = getFirestoreCollectionName("raffles")
+const ATTEMPTS_COLLECTION = getFirestoreCollectionName("raffleAttempts")
 
 const participantProfileSchema = z.object({
   userId: z.string().trim().min(1).max(128),

@@ -4,8 +4,10 @@ import { Timestamp } from "firebase-admin/firestore"
 import * as z from "zod"
 
 import { firestore } from "@/lib/firebase/admin"
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 
-const RAFFLE_LIVE_SIGNALS_COLLECTION = "raffleLiveSignals"
+const RAFFLE_LIVE_SIGNALS_COLLECTION =
+  getFirestoreCollectionName("raffleLiveSignals")
 
 const raffleLiveSignalInputSchema = z.object({
   eventId: z.string().trim().min(1).max(128),

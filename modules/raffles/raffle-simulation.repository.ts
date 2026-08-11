@@ -12,6 +12,7 @@ import {
   RAFFLE_PREPARATION_BATCH_SIZE,
 } from "@/config/raffles"
 import { firestore } from "@/lib/firebase/admin"
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
 import {
@@ -30,9 +31,9 @@ import {
 } from "./raffle-simulation.schema"
 import { selectWeightedCandidate } from "./weighted-draw"
 
-const OPERATIONS_COLLECTION = "eventOperations"
-const RAFFLES_COLLECTION = "raffles"
-const SIMULATIONS_COLLECTION = "raffleTestRuns"
+const OPERATIONS_COLLECTION = getFirestoreCollectionName("eventOperations")
+const RAFFLES_COLLECTION = getFirestoreCollectionName("raffles")
+const SIMULATIONS_COLLECTION = getFirestoreCollectionName("raffleTestRuns")
 
 const profileSchema = z.object({
   userId: z.string().trim().min(1).max(128),

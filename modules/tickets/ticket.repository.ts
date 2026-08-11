@@ -10,6 +10,7 @@ import {
   TICKET_EXCHANGE_RATE_XP,
 } from "@/config/tickets"
 import { firestore } from "@/lib/firebase/admin"
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
 import {
@@ -18,9 +19,10 @@ import {
   ticketTransactionFieldsSchema,
 } from "./ticket.schema"
 
-const EVENT_OPERATIONS_COLLECTION = "eventOperations"
-const PROFILES_COLLECTION = "profiles"
-const TRANSACTIONS_COLLECTION = "ticketTransactions"
+const EVENT_OPERATIONS_COLLECTION =
+  getFirestoreCollectionName("eventOperations")
+const PROFILES_COLLECTION = getFirestoreCollectionName("profiles")
+const TRANSACTIONS_COLLECTION = getFirestoreCollectionName("ticketTransactions")
 
 const ticketProfileSchema = z.object({
   userId: z.string().trim().min(1).max(128),

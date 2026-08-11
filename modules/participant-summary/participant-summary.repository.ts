@@ -10,6 +10,7 @@ import {
 import * as z from "zod"
 
 import { firestore } from "@/lib/firebase/admin"
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 
 import {
   type ParticipantSummary,
@@ -17,9 +18,9 @@ import {
   participantSummaryFieldsSchema,
 } from "./participant-summary.schema"
 
-const COMPLETIONS_COLLECTION = "activityCompletions"
-const CONNECTIONS_COLLECTION = "connections"
-const SUMMARIES_COLLECTION = "participantSummaries"
+const COMPLETIONS_COLLECTION = getFirestoreCollectionName("activityCompletions")
+const CONNECTIONS_COLLECTION = getFirestoreCollectionName("connections")
+const SUMMARIES_COLLECTION = getFirestoreCollectionName("participantSummaries")
 
 const storedParticipantSummarySchema = participantSummaryFieldsSchema
   .omit({ initializedAt: true, updatedAt: true })

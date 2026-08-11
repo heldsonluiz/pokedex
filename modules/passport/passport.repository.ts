@@ -4,8 +4,9 @@ import { Timestamp } from "firebase-admin/firestore"
 import * as z from "zod"
 
 import { firestore } from "@/lib/firebase/admin"
+import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 
-const COMPLETIONS_COLLECTION = "activityCompletions"
+const COMPLETIONS_COLLECTION = getFirestoreCollectionName("activityCompletions")
 
 const passportCompletionDocumentSchema = z.object({
   eventId: z.string().trim().min(1).max(128),
