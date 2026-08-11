@@ -57,7 +57,7 @@ const routeLayouts: Record<string, RouteLayout> = {
     title: "Palestras",
     showHeader: true,
     showNavigation: false,
-    showBack: true,
+    backHref: "/home",
   },
   "/operations": {
     title: "Operações",
@@ -91,13 +91,13 @@ const routeLayouts: Record<string, RouteLayout> = {
     title: "Conexões",
     showHeader: true,
     showNavigation: false,
-    showBack: true,
+    backHref: "/home",
   },
   "/companies": {
     title: "Empresas",
     showHeader: true,
     showNavigation: false,
-    showBack: true,
+    backHref: "/home",
   },
   "/tags": {
     title: "Tags",

@@ -118,7 +118,7 @@ function PassportOverview({
   return (
     <section className="relative overflow-hidden rounded-3xl bg-(image:--gradient-primary-card) p-5 text-primary-foreground shadow-glow-primary">
       <Stamp
-        className="absolute -right-6 -bottom-8 size-40 rotate-[-12deg] text-primary-foreground/12"
+        className="absolute -right-6 -bottom-8 size-40 -rotate-12 text-primary-foreground/12"
         strokeWidth={1.25}
         aria-hidden="true"
       />
