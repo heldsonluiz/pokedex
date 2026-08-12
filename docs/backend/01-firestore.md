@@ -10,7 +10,7 @@
 | `tags`                  | itens escondidos            | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
 | `speakers`              | palestrantes                | `eventId`, nome, empresa, cargo, biografia, foto, redes sociais e visibilidade           |
 | `talks`                 | palestras e painéis         | `eventId`, conteúdo, formato, `speakerIds`, estado e liberação manual da avaliação       |
-| `scheduleSlots`         | faixas do cronograma        | `eventId`, início, fim e itens paralelos de palestra ou atividade geral                  |
+| `schedule`              | atividades do cronograma    | `eventId`, início, fim, trilha e referência à palestra ou atividade geral                |
 | `missions`              | missões                     | evento, conteúdo, validação, pré-requisitos, QR opcional, XP, estado e ordem             |
 | `ticketTransactions`    | movimentações de tickets    | evento, participante, tipo, quantidade, XP convertido, operador, referência e timestamp  |
 | `eventOperations`       | controles operacionais      | evento, conversões, resgates, fechamento e responsável                                   |
@@ -197,19 +197,23 @@ são inteiros obrigatórios entre 1 e 5; o comentário é obrigatório e contém
 reenvio devolve a avaliação existente sem conceder pontuação novamente, e o
 estado `open` é validado no documento atual da palestra dentro da transação.
 
-Cada documento de `scheduleSlots` representa uma faixa de horário com
-`startsAt`, `endsAt` e `items`. As datas usam `Timestamp`. Um item de
-`type: "talk"` contém `talkId`, `room` e `order`; os dados da apresentação e
-dos palestrantes são resolvidos pelas coleções correspondentes. Um item de
-`type: "activity"` contém `activityType`, `title` e `order` e representa
-credenciamento, abertura, intervalo, almoço ou encerramento sem criar uma
-palestra artificial.
+Cada documento de `schedule` representa uma atividade em uma faixa de horário.
+Ele usa o mesmo contrato mantido pelo painel administrativo externo:
+`startAt`, `endAt`, `track`, `order`, `activity`, `active`, `createdAt` e
+`updatedAt`; todas as datas são `Timestamp`.
 
-Todos os slots e itens possuem IDs únicos. Chaves dinâmicas como
-`"14:50-15:30"` não fazem parte do contrato porque repetem os horários e podem
-ficar inconsistentes. A separação permite montar futuramente uma página de
-cronograma com sessões paralelas sem recolocar título ou palestrantes dentro da
-agenda.
+As trilhas válidas são `MINAS`, `CURADO`, `CANASTRA`, `TRANCA` e `COMUNIDADE`.
+Uma atividade de `type: "talk"` possui `talkId`, exige uma trilha e usa `order`
+para manter a disposição definida pelo painel. Atividades de `type: "opening"`
+e `type: "closing"` também referenciam uma palestra, mas usam `track: null` e
+`order: null`. Uma atividade de `type: "break"` contém `title`, não referencia
+palestra e também não possui trilha.
+
+A Pokédex lê somente documentos ativos do evento atual. Os dados da palestra e
+dos palestrantes continuam sendo resolvidos em `talks` e `speakers`, evitando
+duplicação de conteúdo no cronograma. A listagem de palestras usa `startAt` e
+`order` para ordenação e exibe o intervalo e a trilha reais. Palestras sem uma
+entrada ativa em `schedule` não são publicadas na experiência do participante.
 
 ### Resumo individual
 

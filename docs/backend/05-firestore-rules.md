@@ -4,21 +4,21 @@ As regras seguem menor privilégio. O Firebase Admin ignora Firestore Rules, por
 
 ## Matriz de acesso do cliente
 
-| Recurso                                                                          | Leitura                                         | Escrita                                   |
-| -------------------------------------------------------------------------------- | ----------------------------------------------- | ----------------------------------------- |
-| `events`                                                                         | dados públicos do evento ativo                  | servidor                                  |
-| `companies`, `tags`, `missions`, `speakers`, `talks`, `scheduleSlots`, `rewards` | usuários autorizados conforme produto           | servidor                                  |
-| `tickets`                                                                        | próprios tickets                                | servidor                                  |
-| `profiles`                                                                       | próprio perfil e projeção pública permitida     | próprio usuário, somente campos editáveis |
-| `connections`                                                                    | conexões do próprio participante                | servidor                                  |
-| `activityCompletions`                                                            | próprias conclusões e carimbos                  | servidor                                  |
-| `participantSummaries`                                                           | próprio resumo individual                       | servidor                                  |
-| `rewardRedemptions`                                                              | próprios resgates                               | servidor                                  |
-| `raffleSkippedProfiles`                                                          | administrador                                   | servidor                                  |
-| `raffleLiveSignals`                                                              | leitura pública do sinal mínimo do telão        | servidor                                  |
-| `scans`                                                                          | scans do próprio participante quando necessário | servidor                                  |
-| `talk-ratings`                                                                   | própria avaliação quando necessária             | servidor                                  |
-| ranking                                                                          | projeção pública mínima de participantes        | servidor                                  |
+| Recurso                                                                     | Leitura                                         | Escrita                                   |
+| --------------------------------------------------------------------------- | ----------------------------------------------- | ----------------------------------------- |
+| `events`                                                                    | dados públicos do evento ativo                  | servidor                                  |
+| `companies`, `tags`, `missions`, `speakers`, `talks`, `schedule`, `rewards` | usuários autorizados conforme produto           | servidor                                  |
+| `tickets`                                                                   | próprios tickets                                | servidor                                  |
+| `profiles`                                                                  | próprio perfil e projeção pública permitida     | próprio usuário, somente campos editáveis |
+| `connections`                                                               | conexões do próprio participante                | servidor                                  |
+| `activityCompletions`                                                       | próprias conclusões e carimbos                  | servidor                                  |
+| `participantSummaries`                                                      | próprio resumo individual                       | servidor                                  |
+| `rewardRedemptions`                                                         | próprios resgates                               | servidor                                  |
+| `raffleSkippedProfiles`                                                     | administrador                                   | servidor                                  |
+| `raffleLiveSignals`                                                         | leitura pública do sinal mínimo do telão        | servidor                                  |
+| `scans`                                                                     | scans do próprio participante quando necessário | servidor                                  |
+| `talk-ratings`                                                              | própria avaliação quando necessária             | servidor                                  |
+| ranking                                                                     | projeção pública mínima de participantes        | servidor                                  |
 
 ## Perfil
 

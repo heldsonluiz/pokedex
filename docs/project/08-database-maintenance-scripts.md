@@ -176,7 +176,7 @@ esvazia os materiais locais gerados e grava a nova massa.
 - 24 palestras;
 - keynote de abertura e keynote de encerramento;
 - dois painéis com mais de um palestrante;
-- horários e salas em `scheduleSlots`;
+- horários e trilhas em `schedule`;
 - operações do evento abertas para conversões e resgates.
 
 As imagens ficam em `public/images/test-data`. As URLs persistidas usam

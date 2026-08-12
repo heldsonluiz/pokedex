@@ -73,12 +73,14 @@ visível mesmo após o encerramento.
 
 Administradores acessam `/operations/talks` por um atalho na Central de
 Operações e controlam individualmente `locked`, `open` e `closed`. Reviewers e
-demais papéis não recebem esse controle. Enquanto `scheduleSlots` não está
-implementado, os cards reservam espaços para trilha e horário com placeholders,
-ordenam alfabeticamente os itens ativos e mantêm os encerrados no final. A fase
-de cronograma substituirá os placeholders e usará o horário real na ordenação.
-A alteração de estado invalida o cache de palestras imediatamente para que o
-participante consulte o novo estado sem aguardar o prazo normal do catálogo.
+demais papéis não recebem esse controle. A Pokédex combina as palestras ativas
+com as entradas ativas de `schedule` do evento: os cards e detalhes exibem o
+intervalo e a trilha reais, e a listagem segue `startAt` e `order`. Abertura e
+encerramento aparecem como atividades gerais quando associados a uma palestra;
+intervalos não fazem parte do catálogo de palestras. Uma palestra sem entrada
+ativa no cronograma não é exibida ao participante. A alteração de estado
+invalida o cache de palestras imediatamente para que o participante consulte o
+novo estado sem aguardar o prazo normal do catálogo.
 
 `/scan` inicia a câmera automaticamente, aceita tanto a webcam quanto as câmeras
 do smartphone e prioriza a câmera traseira quando ela estiver disponível. O
