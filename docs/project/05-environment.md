@@ -57,7 +57,7 @@ Na v5, o host normalmente é inferido dos headers da requisição e uma URL priv
 URLs de callback seguem:
 
 ```text
-http://localhost:3000/api/auth/callback/google
+http://localhost:3001/api/auth/callback/google
 https://seu-dominio.com/api/auth/callback/google
 ```
 

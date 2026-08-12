@@ -24,16 +24,30 @@ describe("schedule schema", () => {
     ).toBe(true)
   })
 
-  it("accepts opening linked to a talk without a track", () => {
+  it("accepts opening as a general activity without a talk", () => {
     expect(
       scheduleFieldsSchema.safeParse({
         ...BASE_ENTRY,
         track: null,
         order: null,
-        activity: { type: "opening", talkId: "opening-talk" },
+        activity: { type: "opening", title: "Abertura" },
       }).success
     ).toBe(true)
   })
+
+  it.each(["opening_keynote", "closing_keynote"] as const)(
+    "accepts %s linked to a keynote without a track",
+    (type) => {
+      expect(
+        scheduleFieldsSchema.safeParse({
+          ...BASE_ENTRY,
+          track: null,
+          order: null,
+          activity: { type, talkId: "keynote-1" },
+        }).success
+      ).toBe(true)
+    }
+  )
 
   it("rejects tracks on general activities", () => {
     expect(
@@ -41,7 +55,7 @@ describe("schedule schema", () => {
         ...BASE_ENTRY,
         track: "CURADO",
         order: 1,
-        activity: { type: "closing", talkId: "closing-talk" },
+        activity: { type: "closing", title: "Encerramento" },
       }).success
     ).toBe(false)
   })

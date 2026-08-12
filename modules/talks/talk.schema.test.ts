@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest"
 
 import { speakerFieldsSchema } from "./speaker.schema"
-import { talkFieldsSchema } from "./talk.schema"
+import { normalizeStoredTalkFormat, talkFieldsSchema } from "./talk.schema"
 
 const NOW = new Date("2026-07-30T12:00:00.000Z")
 
 describe("talk schemas", () => {
+  it.each(["opening_keynote", "closing_keynote"])(
+    "normalizes the transitional %s value to keynote",
+    (format) => {
+      expect(normalizeStoredTalkFormat(format)).toBe("keynote")
+    }
+  )
   it("keeps speaker identity separate from talk content", () => {
     const speaker = speakerFieldsSchema.parse({
       id: "speaker-a",

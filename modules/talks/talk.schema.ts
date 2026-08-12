@@ -1,6 +1,12 @@
 import * as z from "zod"
 
 export const talkFormatSchema = z.enum(["talk", "panel", "keynote"])
+
+export function normalizeStoredTalkFormat(value: unknown) {
+  return value === "opening_keynote" || value === "closing_keynote"
+    ? "keynote"
+    : value
+}
 export const talkEvaluationStatusSchema = z.enum(["locked", "open", "closed"])
 
 export const talkFieldsSchema = z
@@ -16,7 +22,7 @@ export const talkFieldsSchema = z
       .min(1)
       .max(20)
       .refine((speakerIds) => new Set(speakerIds).size === speakerIds.length, {
-        message: "Talk speaker identifiers must be unique",
+        message: "Os identificadores dos palestrantes devem ser únicos",
       }),
     evaluationStatus: talkEvaluationStatusSchema,
     isActive: z.boolean(),

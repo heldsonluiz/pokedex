@@ -559,7 +559,11 @@ export function createCatalogFixture({ eventId, appOrigin, now }) {
         track,
         order: track ? index % tracks.length : null,
         activity: {
-          type: isOpening ? "opening" : isClosing ? "closing" : "talk",
+          type: isOpening
+            ? "opening_keynote"
+            : isClosing
+              ? "closing_keynote"
+              : "talk",
           talkId: talk.id,
         },
         active: true,

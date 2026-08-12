@@ -151,6 +151,7 @@ export function OnboardingCarousel({
             src={step.image}
             alt=""
             fill
+            loading="eager"
             priority={currentStep === 0}
             sizes="(max-width: 430px) 80vw, 320px"
             className="object-contain"

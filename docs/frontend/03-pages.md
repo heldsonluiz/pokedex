@@ -63,7 +63,8 @@ o momento da conquista e a pontuação recebida. O catálogo possui estados de
 carregamento, vazio e erro recuperável.
 
 A Home oferece acesso a `/talks`, que lista palestras, painéis e keynotes
-ativos, seus palestrantes, o estado da avaliação e a conclusão individual. O
+ativas, identifica abertura e encerramento com nomes específicos e apresenta
+seus palestrantes, o estado da avaliação e a conclusão individual. O
 detalhe em `/talks/[talkId]` apresenta conteúdo, participantes e o formulário
 quando `evaluationStatus` está `open`. Os três critérios recebem notas
 obrigatórias de 1 a 5; o comentário obrigatório possui de 20 a 500 caracteres.
