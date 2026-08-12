@@ -5,6 +5,8 @@ import type { Session } from "next-auth"
 import { SCORES } from "@/config/scores"
 import { hasPermission } from "@/modules/profile/profile.authorization"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
+import { findActiveSchedule } from "@/modules/schedule/schedule.repository"
+import type { ScheduleTrack } from "@/modules/schedule/schedule.schema"
 
 import {
   completeTalkRating,
@@ -41,6 +43,13 @@ export type TalkListItem = Readonly<{
   speakers: TalkSpeakerSummary[]
   rating: TalkRating | null
   canEvaluate: boolean
+  schedule: Readonly<{
+    startAt: Date
+    endAt: Date
+    track: ScheduleTrack | null
+    order: number | null
+    activityType: "talk" | "opening" | "closing"
+  }>
 }>
 
 export type SubmitTalkRatingResult =
@@ -63,58 +72,83 @@ function joinTalksWithSpeakers(
   talks: Awaited<ReturnType<typeof findActiveTalks>>,
   speakers: Awaited<ReturnType<typeof findVisibleSpeakers>>,
   ratings: TalkRating[],
-  canEvaluate: boolean
+  canEvaluate: boolean,
+  schedule: Awaited<ReturnType<typeof findActiveSchedule>>
 ): TalkListItem[] {
   const speakersById = new Map(speakers.map((speaker) => [speaker.id, speaker]))
   const ratingsByTalkId = new Map(
     ratings.map((rating) => [rating.talkId, rating])
   )
 
-  return talks.map((talk) => ({
-    id: talk.id,
-    title: talk.title,
-    description: talk.description,
-    category: talk.category,
-    format: talk.format,
-    evaluationStatus: talk.evaluationStatus,
-    speakers: talk.speakerIds.flatMap((speakerId) => {
-      const speaker = speakersById.get(speakerId)
+  const scheduleByTalkId = new Map(
+    schedule.flatMap((entry) =>
+      entry.activity.type === "break"
+        ? []
+        : [[entry.activity.talkId, entry] as const]
+    )
+  )
 
-      return speaker
-        ? [
-            {
-              id: speaker.id,
-              name: speaker.name,
-              company: speaker.company,
-              title: speaker.title,
-              miniBio: speaker.miniBio,
-              photoUrl: speaker.photoUrl,
-            },
-          ]
-        : []
-    }),
-    rating: ratingsByTalkId.get(talk.id) ?? null,
-    canEvaluate,
-  }))
+  return talks.flatMap((talk) => {
+    const scheduleEntry = scheduleByTalkId.get(talk.id)
+    if (!scheduleEntry || scheduleEntry.activity.type === "break") return []
+
+    return [
+      {
+        id: talk.id,
+        title: talk.title,
+        description: talk.description,
+        category: talk.category,
+        format: talk.format,
+        evaluationStatus: talk.evaluationStatus,
+        speakers: talk.speakerIds.flatMap((speakerId) => {
+          const speaker = speakersById.get(speakerId)
+
+          return speaker
+            ? [
+                {
+                  id: speaker.id,
+                  name: speaker.name,
+                  company: speaker.company,
+                  title: speaker.title,
+                  miniBio: speaker.miniBio,
+                  photoUrl: speaker.photoUrl,
+                },
+              ]
+            : []
+        }),
+        rating: ratingsByTalkId.get(talk.id) ?? null,
+        canEvaluate,
+        schedule: {
+          startAt: scheduleEntry.startAt,
+          endAt: scheduleEntry.endAt,
+          track: scheduleEntry.track,
+          order: scheduleEntry.order,
+          activityType: scheduleEntry.activity.type,
+        },
+      },
+    ]
+  })
 }
 
 export async function listTalksForSession(
   session: Session
 ): Promise<TalkListItem[]> {
   const profile = await requireProfileForSession(session)
-  const [talks, speakers, ratings] = await Promise.all([
+  const [talks, speakers, ratings, schedule] = await Promise.all([
     findActiveTalks(profile.eventId),
     findVisibleSpeakers(profile.eventId),
     profile.accessRoles.includes("participant")
       ? findTalkRatingsByParticipant(profile.eventId, profile.userId)
       : Promise.resolve([]),
+    findActiveSchedule(profile.eventId),
   ])
 
   return joinTalksWithSpeakers(
     talks,
     speakers,
     ratings,
-    profile.accessRoles.includes("participant")
+    profile.accessRoles.includes("participant"),
+    schedule
   )
 }
 
@@ -124,24 +158,28 @@ export async function getTalkDetailsForSession(
 ): Promise<TalkListItem | null> {
   const profile = await requireProfileForSession(session)
   const validatedTalkId = talkFieldsSchema.shape.id.parse(talkId)
-  const [talk, speakers, ratings] = await Promise.all([
+  const [talk, speakers, ratings, schedule] = await Promise.all([
     findActiveTalkById(profile.eventId, validatedTalkId),
     findVisibleSpeakers(profile.eventId),
     profile.accessRoles.includes("participant")
       ? findTalkRatingsByParticipant(profile.eventId, profile.userId)
       : Promise.resolve([]),
+    findActiveSchedule(profile.eventId),
   ])
 
   if (!talk) {
     return null
   }
 
-  return joinTalksWithSpeakers(
-    [talk],
-    speakers,
-    ratings,
-    profile.accessRoles.includes("participant")
-  )[0]
+  return (
+    joinTalksWithSpeakers(
+      [talk],
+      speakers,
+      ratings,
+      profile.accessRoles.includes("participant"),
+      schedule
+    )[0] ?? null
+  )
 }
 
 export async function listManageableTalksForSession(
@@ -153,12 +191,13 @@ export async function listManageableTalksForSession(
     return null
   }
 
-  const [talks, speakers] = await Promise.all([
+  const [talks, speakers, schedule] = await Promise.all([
     findActiveTalks(profile.eventId),
     findVisibleSpeakers(profile.eventId),
+    findActiveSchedule(profile.eventId),
   ])
 
-  return joinTalksWithSpeakers(talks, speakers, [], false)
+  return joinTalksWithSpeakers(talks, speakers, [], false, schedule)
 }
 
 export async function submitTalkRatingForSession(

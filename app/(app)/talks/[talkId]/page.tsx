@@ -1,6 +1,8 @@
 import {
   CheckCircle2,
+  Clock3,
   LockKeyhole,
+  MapPin,
   MessageSquareText,
   Mic2,
   Sparkles,
@@ -13,6 +15,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { requireAuth } from "@/lib/require-auth"
+import {
+  formatScheduleInterval,
+  formatScheduleLocation,
+} from "@/modules/schedule/schedule-format"
 import { getTalkDetailsForSession } from "@/modules/talks/talk.service"
 import { TalkRatingForm } from "@/modules/talks/talk-rating-form"
 
@@ -49,6 +55,19 @@ export default async function TalkDetailsPage({
           {talk.category && <Badge variant="outline">{talk.category}</Badge>}
         </div>
         <h1 className="text-2xl font-bold tracking-tight">{talk.title}</h1>
+        <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5">
+            <Clock3 className="size-4" aria-hidden="true" />
+            {formatScheduleInterval(talk.schedule.startAt, talk.schedule.endAt)}
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5">
+            <MapPin className="size-4" aria-hidden="true" />
+            {formatScheduleLocation(
+              talk.schedule.track,
+              talk.schedule.activityType
+            )}
+          </span>
+        </div>
         <p className="text-sm leading-6 whitespace-pre-wrap text-muted-foreground">
           {talk.description}
         </p>

@@ -538,29 +538,31 @@ export function createCatalogFixture({ eventId, appOrigin, now }) {
       },
     }
   })
-  const scheduleSlots = talks.map((talk, index) => {
+  const tracks = ["MINAS", "CURADO", "CANASTRA", "TRANCA", "COMUNIDADE"]
+  const schedule = talks.map((talk, index) => {
     const startsAt = new Date(
       Date.UTC(2026, 9, 17, 11 + Math.floor(index / 4), (index % 4) * 10)
     )
     const endsAt = new Date(startsAt.getTime() + 40 * 60 * 1000)
-    const id = `slot-${String(index + 1).padStart(2, "0")}`
+    const id = `schedule-${String(index + 1).padStart(2, "0")}`
+    const isOpening = index === 0
+    const isClosing = index === talks.length - 1
+    const track = isOpening || isClosing ? null : tracks[index % tracks.length]
     return {
-      collection: "scheduleSlots",
+      collection: "schedule",
       id,
       data: {
         id,
         eventId,
-        startsAt,
-        endsAt,
-        items: [
-          {
-            id: `item-${talk.id}`,
-            type: "talk",
-            talkId: talk.id,
-            room: ["Minas", "Canastra", "Triângulo", "Community"][index % 4],
-            order: index % 4,
-          },
-        ],
+        startAt: startsAt,
+        endAt: endsAt,
+        track,
+        order: track ? index % tracks.length : null,
+        activity: {
+          type: isOpening ? "opening" : isClosing ? "closing" : "talk",
+          talkId: talk.id,
+        },
+        active: true,
         createdAt: now,
         updatedAt: now,
       },
@@ -574,6 +576,6 @@ export function createCatalogFixture({ eventId, appOrigin, now }) {
     ...raffles,
     ...speakers,
     ...talks,
-    ...scheduleSlots,
+    ...schedule,
   ]
 }
