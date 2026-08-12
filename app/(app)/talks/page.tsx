@@ -1,7 +1,9 @@
 import {
   CheckCircle2,
   ChevronRight,
+  Clock3,
   LockKeyhole,
+  MapPin,
   MessageSquareText,
   Mic2,
   Sparkles,
@@ -14,6 +16,10 @@ import { EmptyState } from "@/components/layout/empty-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
+import {
+  formatScheduleInterval,
+  formatScheduleLocation,
+} from "@/modules/schedule/schedule-format"
 import { listTalksForSession } from "@/modules/talks/talk.service"
 
 export const metadata: Metadata = { title: "Palestras" }
@@ -55,10 +61,10 @@ export default async function TalksPage() {
   const ratedCount = talks.filter((talk) => talk.rating).length
   const orderedTalks = talks.toSorted(
     (first, second) =>
-      Number(Boolean(first.rating) || first.evaluationStatus === "closed") -
-        Number(
-          Boolean(second.rating) || second.evaluationStatus === "closed"
-        ) || first.title.localeCompare(second.title, "pt-BR")
+      first.schedule.startAt.getTime() - second.schedule.startAt.getTime() ||
+      (first.schedule.order ?? Number.MAX_SAFE_INTEGER) -
+        (second.schedule.order ?? Number.MAX_SAFE_INTEGER) ||
+      first.title.localeCompare(second.title, "pt-BR")
   )
   const featuredTalk = orderedTalks.find(
     (talk) => talk.evaluationStatus === "open" && !talk.rating
@@ -135,6 +141,22 @@ export default async function TalksPage() {
                     {talk.speakers.length > 0
                       ? talk.speakers.map((speaker) => speaker.name).join(", ")
                       : "Palestrante a confirmar"}
+                  </p>
+                  <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-foreground/70">
+                    <span className="inline-flex items-center gap-1">
+                      <Clock3 className="size-3.5" aria-hidden="true" />
+                      {formatScheduleInterval(
+                        talk.schedule.startAt,
+                        talk.schedule.endAt
+                      )}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="size-3.5" aria-hidden="true" />
+                      {formatScheduleLocation(
+                        talk.schedule.track,
+                        talk.schedule.activityType
+                      )}
+                    </span>
                   </p>
                   {talk.category && (
                     <p className="mt-1 truncate text-xs font-medium text-primary">
