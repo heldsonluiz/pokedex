@@ -128,7 +128,7 @@ node --env-file=.env.local scripts/generate-event-qr-pdf.mjs
 
 As URLs são construídas com `EVENT_ID` e `NEXT_PUBLIC_APP_URL` do ambiente
 carregado. Portanto, um PDF gerado com `NEXT_PUBLIC_APP_URL` apontando para
-`http://localhost:3000` serve apenas para testes locais. O material definitivo
+`http://localhost:3001` serve apenas para testes locais. O material definitivo
 deve ser regenerado depois que a origem pública de produção estiver
 configurada.
 

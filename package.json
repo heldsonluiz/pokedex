@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3001",
     "dev:mobile": "node --env-file=.env.local --env-file=.env.mobile scripts/dev-mobile.mjs",
     "build": "next build --webpack",
     "start": "next start",

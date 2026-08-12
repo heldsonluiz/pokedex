@@ -46,7 +46,7 @@ pnpm dev
 A aplicação estará disponível em:
 
 ```text
-http://localhost:3000
+http://localhost:3001
 ```
 
 ## Scripts
