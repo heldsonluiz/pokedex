@@ -12,7 +12,11 @@ import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 import { accessRolesSchema } from "@/modules/profile/profile.schema"
 
 import { type Speaker, speakerFieldsSchema } from "./speaker.schema"
-import { type Talk, talkFieldsSchema } from "./talk.schema"
+import {
+  normalizeStoredTalkFormat,
+  type Talk,
+  talkFieldsSchema,
+} from "./talk.schema"
 import {
   type SubmitTalkRatingInput,
   submitTalkRatingInputSchema,
@@ -109,10 +113,19 @@ function parseSpeakerDocument(id: string, value: unknown): Speaker {
 }
 
 function parseTalkDocument(id: string, value: unknown): Talk {
-  const document = talkDocumentSchema.parse(value)
+  const normalizedValue =
+    typeof value === "object" && value !== null
+      ? {
+          ...value,
+          format: normalizeStoredTalkFormat(
+            "format" in value ? value.format : undefined
+          ),
+        }
+      : value
+  const document = talkDocumentSchema.parse(normalizedValue)
 
   if (document.id && document.id !== id) {
-    throw new Error(`Talk document ID mismatch: ${id}`)
+    throw new Error(`O ID do documento da palestra não corresponde: ${id}`)
   }
 
   return talkFieldsSchema.parse({

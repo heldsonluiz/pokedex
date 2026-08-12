@@ -180,10 +180,11 @@ estável; um `speakerSlug` separado só deve existir se representar uma URL
 legível e diferente do ID.
 
 `talks` armazena `title`, `description`, `category`, `format`, `speakerIds`,
-`evaluationStatus` e `isActive`. `format` aceita inicialmente `talk`, `panel`
-ou `keynote`. A lista `speakerIds` permite vários participantes em um painel e
-permite que a mesma pessoa participe de várias apresentações sem manter uma
-lista duplicada de palestras no documento do palestrante.
+`evaluationStatus` e `isActive`. `format` aceita `talk`, `panel` ou `keynote`.
+A distinção entre keynote de abertura e de encerramento pertence à atividade do
+`schedule`, não à palestra. A lista `speakerIds` permite vários participantes
+em um painel e permite que a mesma pessoa participe de várias apresentações sem
+manter uma lista duplicada de palestras no documento do palestrante.
 
 `evaluationStatus` aceita `locked`, `open` ou `closed`. Somente administradores
 alteram esse estado, e a liberação não depende do horário da apresentação. Não
@@ -203,11 +204,11 @@ Ele usa o mesmo contrato mantido pelo painel administrativo externo:
 `updatedAt`; todas as datas são `Timestamp`.
 
 As trilhas válidas são `MINAS`, `CURADO`, `CANASTRA`, `TRANCA` e `COMUNIDADE`.
-Uma atividade de `type: "talk"` possui `talkId`, exige uma trilha e usa `order`
-para manter a disposição definida pelo painel. Atividades de `type: "opening"`
-e `type: "closing"` também referenciam uma palestra, mas usam `track: null` e
-`order: null`. Uma atividade de `type: "break"` contém `title`, não referencia
-palestra e também não possui trilha.
+Uma atividade de `type: "talk"` possui `talkId` e exige uma trilha. Atividades
+de `type: "opening_keynote"` e `closing_keynote` também possuem `talkId`, usam
+`track: null` e `order: null`, e exigem uma palestra de `format: "keynote"`.
+As atividades gerais `opening`, `break` e `closing` contêm `title`, não
+referenciam palestras e também usam `track: null` e `order: null`.
 
 A Pokédex lê somente documentos ativos do evento atual. Os dados da palestra e
 dos palestrantes continuam sendo resolvidos em `talks` e `speakers`, evitando

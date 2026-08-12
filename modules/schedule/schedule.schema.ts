@@ -11,13 +11,13 @@ export const scheduleTrackSchema = z.enum([
 export const scheduleActivitySchema = z.discriminatedUnion("type", [
   z
     .object({
-      type: z.enum(["talk", "opening", "closing"]),
+      type: z.enum(["talk", "opening_keynote", "closing_keynote"]),
       talkId: z.string().trim().min(1).max(128),
     })
     .strict(),
   z
     .object({
-      type: z.literal("break"),
+      type: z.enum(["opening", "break", "closing"]),
       title: z.string().trim().min(2).max(120),
     })
     .strict(),
@@ -46,7 +46,7 @@ export const scheduleFieldsSchema = z
       context.addIssue({
         code: "custom",
         path: ["track"],
-        message: "Talk schedule entries require a track",
+        message: "Palestras na programação precisam de uma trilha",
       })
     }
     if (schedule.activity.type !== "talk" && schedule.track) {

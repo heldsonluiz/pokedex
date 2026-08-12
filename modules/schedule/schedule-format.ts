@@ -11,7 +11,9 @@ const TRACK_LABELS: Record<ScheduleTrack, string> = {
 const ACTIVITY_LABELS = {
   talk: "Palestra",
   opening: "Abertura",
+  opening_keynote: "Keynote de abertura",
   closing: "Encerramento",
+  closing_keynote: "Keynote de encerramento",
 } as const
 
 export function formatScheduleTime(date: Date) {

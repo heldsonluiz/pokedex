@@ -6,7 +6,10 @@ import { SCORES } from "@/config/scores"
 import { hasPermission } from "@/modules/profile/profile.authorization"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
 import { findActiveSchedule } from "@/modules/schedule/schedule.repository"
-import type { ScheduleTrack } from "@/modules/schedule/schedule.schema"
+import type {
+  ScheduleEntry,
+  ScheduleTrack,
+} from "@/modules/schedule/schedule.schema"
 
 import {
   completeTalkRating,
@@ -20,6 +23,7 @@ import {
   type TalkEvaluationStatus,
   talkEvaluationStatusSchema,
   talkFieldsSchema,
+  type TalkFormat,
 } from "./talk.schema"
 import type { SubmitTalkRatingInput, TalkRating } from "./talk-rating.schema"
 import { submitTalkRatingInputSchema } from "./talk-rating.schema"
@@ -38,7 +42,7 @@ export type TalkListItem = Readonly<{
   title: string
   description: string
   category: string | null
-  format: "talk" | "panel" | "keynote"
+  format: TalkFormat
   evaluationStatus: TalkEvaluationStatus
   speakers: TalkSpeakerSummary[]
   rating: TalkRating | null
@@ -48,7 +52,7 @@ export type TalkListItem = Readonly<{
     endAt: Date
     track: ScheduleTrack | null
     order: number | null
-    activityType: "talk" | "opening" | "closing"
+    activityType: Extract<ScheduleEntry["activity"], { talkId: string }>["type"]
   }>
 }>
 
@@ -82,15 +86,15 @@ function joinTalksWithSpeakers(
 
   const scheduleByTalkId = new Map(
     schedule.flatMap((entry) =>
-      entry.activity.type === "break"
-        ? []
-        : [[entry.activity.talkId, entry] as const]
+      "talkId" in entry.activity
+        ? [[entry.activity.talkId, entry] as const]
+        : []
     )
   )
 
   return talks.flatMap((talk) => {
     const scheduleEntry = scheduleByTalkId.get(talk.id)
-    if (!scheduleEntry || scheduleEntry.activity.type === "break") return []
+    if (!scheduleEntry || !("talkId" in scheduleEntry.activity)) return []
 
     return [
       {
