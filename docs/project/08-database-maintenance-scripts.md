@@ -22,7 +22,7 @@ Antes de executar qualquer comando, configure:
 
 ```dotenv
 EVENT_ID=devfest-triangulo-2026
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=http://localhost:3001
 FB_ADMIN_PROJECT_ID=seu-projeto
 FB_ADMIN_CLIENT_EMAIL=firebase-adminsdk@seu-projeto.iam.gserviceaccount.com
 FB_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
@@ -182,6 +182,13 @@ esvazia os materiais locais gerados e grava a nova massa.
 As imagens ficam em `public/images/test-data`. As URLs persistidas usam
 `NEXT_PUBLIC_APP_URL`, portanto essa variável precisa representar a origem em
 que os assets serão servidos.
+
+O seed valida a massa antes da limpeza e falha caso alguma fixture tente gravar
+em `scheduleSlots`. Em modo local, somente coleções com prefixo `test_` são
+apagadas; portanto, uma coleção legada `scheduleSlots` sem esse prefixo pertence
+ao ambiente não local e não é removida por `pnpm db:seed --local`. A coleção
+local legada `test_scheduleSlots`, quando existente, é encontrada pela limpeza
+geral e removida antes da gravação de `test_schedule`.
 
 Empresas, tags e missões formam um catálogo determinístico. Seus IDs de
 documento, IDs públicos de QR Code, textos, imagens, ordem, pontuação e regras

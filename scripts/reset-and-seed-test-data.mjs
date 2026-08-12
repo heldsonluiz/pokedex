@@ -53,6 +53,23 @@ if (!args.local && localHostnames.has(appOrigin.hostname)) {
 
 const now = Timestamp.now()
 const documents = createCatalogFixture({ eventId, appOrigin, now })
+const legacyScheduleDocuments = documents.filter(
+  (item) => item.collection === "scheduleSlots"
+)
+
+if (legacyScheduleDocuments.length > 0) {
+  throw new Error(
+    `A fixture ainda contém ${legacyScheduleDocuments.length} documento(s) na coleção legada scheduleSlots.`
+  )
+}
+
+const scheduleDocuments = documents.filter(
+  (item) => item.collection === "schedule"
+)
+
+if (scheduleDocuments.length === 0) {
+  throw new Error("A fixture não gerou documentos para a coleção schedule.")
+}
 const invalidCatalogAsset = documents.find(
   (item) =>
     (item.collection === "tags" || item.collection === "missions") &&
@@ -104,6 +121,7 @@ console.log(
         rewards: 6,
         tags: 22,
         talks: 24,
+        schedule: scheduleDocuments.length,
       },
     },
     null,
