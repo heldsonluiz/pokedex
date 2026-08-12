@@ -36,7 +36,7 @@ export const APPLICATION_COLLECTIONS = [
   "raffles",
   "rewardRedemptions",
   "rewards",
-  "scheduleSlots",
+  "schedule",
   "speakers",
   "talk-ratings",
   "talks",
