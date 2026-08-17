@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from "react"
 
+import {
+  AnimatedXpReward,
+  CompanyVisitStamp,
+} from "@/components/motion/achievement-celebration"
 import { QrResult } from "@/modules/qr-code/qr-result"
 
 import {
@@ -119,7 +123,12 @@ export function CompanyVisitResult({
   return (
     <QrResult
       status="success"
-
+      icon={
+        <CompanyVisitStamp
+          name={state.result.companyName}
+          celebrate={!alreadyVisited}
+        />
+      }
       secondaryActionHref="/scan"
       secondaryActionLabel="Voltar para o scanner"
       title={
@@ -130,8 +139,10 @@ export function CompanyVisitResult({
       description={
         alreadyVisited
           ? `Você já recebeu ${state.result.xpAwarded} XP por esta empresa.`
-          : `Você recebeu ${state.result.xpAwarded} XP e adicionou um novo carimbo ao passaporte.`
+          : "Um novo carimbo foi adicionado ao seu passaporte."
       }
-    />
+    >
+      {!alreadyVisited && <AnimatedXpReward amount={state.result.xpAwarded} />}
+    </QrResult>
   )
 }

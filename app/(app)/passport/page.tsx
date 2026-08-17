@@ -14,6 +14,12 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
+import {
+  CollectionCompletionCelebration,
+  CollectionEntryMotion,
+  CollectionSummaryCard,
+  SpringProgress,
+} from "@/components/motion/collection-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { requireAuth } from "@/lib/require-auth"
@@ -149,10 +155,7 @@ function PassportOverview({
           aria-valuemax={100}
           aria-valuenow={Math.round(progress)}
         >
-          <div
-            className="h-full rounded-full bg-success transition-[width] duration-500 motion-reduce:transition-none"
-            style={{ width: `${progress}%` }}
-          />
+          <SpringProgress progress={progress} className="bg-success" />
         </div>
 
         <p className="mt-4 inline-flex items-center gap-1 rounded-full bg-primary-foreground/15 px-2.5 py-1 text-xs font-semibold">
@@ -185,49 +188,68 @@ function EmptyPassport({
 function ProgressSummary({
   passport,
 }: Readonly<{ passport: ParticipantPassport }>) {
+  const latestAchievement = passport.recentAchievements[0]
   const summaries = [
     {
       value: "companies" as const,
       label: "Empresas",
-      icon: Building2,
       completed: passport.companies.completedCount,
       total: passport.companies.totalCount,
     },
     {
       value: "tags" as const,
       label: "Tags",
-      icon: Tags,
       completed: passport.tags.discoveredCount,
       total: passport.tags.totalCount,
     },
     {
       value: "missions" as const,
       label: "Missões",
-      icon: Target,
       completed: passport.missions.completedCount,
       total: passport.missions.totalCount,
     },
   ]
+  const latestCategory = latestAchievement
+    ? ({ company: "companies", tag: "tags", mission: "missions" } as const)[
+        latestAchievement.type
+      ]
+    : undefined
+  const completedCollection = summaries.find(
+    ({ value, completed, total }) =>
+      value === latestCategory && total > 0 && completed === total
+  )
 
   return (
-    <section className="grid grid-cols-3 gap-2" aria-label="Resumo da jornada">
-      {summaries.map(({ value, label, icon: Icon, completed, total }) => (
-        <Link
-          key={value}
-          href={`/passport?collection=${value}#passport-collections`}
-          className="flex min-w-0 flex-col items-center gap-2 rounded-2xl bg-card px-2 py-3 text-center ring-1 ring-foreground/10 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-          aria-label={`Ver coleção de ${label}: ${completed} de ${total}`}
-        >
-          <Icon className="size-5 text-primary" aria-hidden="true" />
-          <div>
-            <p className="text-lg font-semibold tabular-nums">
-              {completed}/{total}
-            </p>
-            <p className="truncate text-xs text-muted-foreground">{label}</p>
-          </div>
-        </Link>
-      ))}
-    </section>
+    <>
+      <section
+        className="grid grid-cols-3 gap-2"
+        aria-label="Resumo da jornada"
+      >
+        {summaries.map(({ value, label, completed, total }) => (
+          <CollectionSummaryCard
+            key={value}
+            achievementKey={
+              value === latestCategory ? latestAchievement?.key : undefined
+            }
+            category={value}
+            label={label}
+            completed={completed}
+            completedAt={
+              value === latestCategory
+                ? latestAchievement?.completedAt.getTime()
+                : undefined
+            }
+            total={total}
+          />
+        ))}
+      </section>
+      <CollectionCompletionCelebration
+        achievementKey={latestAchievement?.key}
+        completedAt={latestAchievement?.completedAt.getTime()}
+        enabled={Boolean(completedCollection)}
+        label={completedCollection?.label ?? "atividades"}
+      />
+    </>
   )
 }
 
@@ -273,6 +295,8 @@ function PassportCollections({
   passport: ParticipantPassport
   initialCollection: PassportCollection
 }>) {
+  const latestAchievementKey = passport.recentAchievements[0]?.key
+
   return (
     <section id="passport-collections" className="scroll-mt-4 space-y-3">
       <h2 className="text-lg font-semibold">Coleções</h2>
@@ -308,47 +332,56 @@ function PassportCollections({
               const visited = company.visitedAt !== null
 
               return (
-                <Link
+                <CollectionEntryMotion
                   key={company.id}
-                  href={`/companies/${encodeURIComponent(company.id)}`}
-                  className={
-                    visited
-                      ? "flex min-h-18 items-center gap-3 bg-primary/5 px-4 py-3 focus-visible:bg-muted focus-visible:outline-none"
-                      : "flex min-h-18 items-center gap-3 px-4 py-3 opacity-70 focus-visible:bg-muted focus-visible:outline-none"
+                  achievementKey={`passport:company:${company.id}:${company.visitedAt?.getTime() ?? 0}`}
+                  completedAt={company.visitedAt?.getTime() ?? 0}
+                  enabled={
+                    visited && latestAchievementKey === `company:${company.id}`
                   }
+                  variant="stamp"
                 >
-                  <Avatar
-                    className={`size-11 shrink-0 rounded-xl ${visited ? "" : "grayscale"}`}
+                  <Link
+                    href={`/companies/${encodeURIComponent(company.id)}`}
+                    className={
+                      visited
+                        ? "flex min-h-18 items-center gap-3 bg-primary/5 px-4 py-3 focus-visible:bg-muted focus-visible:outline-none"
+                        : "flex min-h-18 items-center gap-3 px-4 py-3 opacity-70 focus-visible:bg-muted focus-visible:outline-none"
+                    }
                   >
-                    <AvatarImage
-                      src={visited ? company.stampImageUrl : company.logoUrl}
-                      alt=""
-                      className="rounded-xl object-contain"
-                    />
-                    <AvatarFallback className="rounded-xl">
-                      <Building2 aria-hidden="true" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">
-                      {company.name}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {visited ? "Estande visitado" : "Ainda não visitada"}
-                    </p>
-                  </div>
-                  <span className="shrink-0 text-right">
-                    <span className="block text-xs font-medium text-primary">
-                      +{company.xpAwarded} XP
-                    </span>
-                    {visited && (
-                      <Stamp
-                        className="mt-1 ml-auto size-4 text-success"
-                        aria-label="Carimbo conquistado"
+                    <Avatar
+                      className={`size-11 shrink-0 rounded-xl ${visited ? "" : "grayscale"}`}
+                    >
+                      <AvatarImage
+                        src={visited ? company.stampImageUrl : company.logoUrl}
+                        alt=""
+                        className="rounded-xl object-contain"
                       />
-                    )}
-                  </span>
-                </Link>
+                      <AvatarFallback className="rounded-xl">
+                        <Building2 aria-hidden="true" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">
+                        {company.name}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {visited ? "Estande visitado" : "Ainda não visitada"}
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-right">
+                      <span className="block text-xs font-medium text-primary">
+                        +{company.xpAwarded} XP
+                      </span>
+                      {visited && (
+                        <Stamp
+                          className="mt-1 ml-auto size-4 text-success"
+                          aria-label="Carimbo conquistado"
+                        />
+                      )}
+                    </span>
+                  </Link>
+                </CollectionEntryMotion>
               )
             })}
           </div>
@@ -361,27 +394,35 @@ function PassportCollections({
             )}
             {passport.tags.items.map((tag) =>
               tag.status === "discovered" ? (
-                <div
+                <CollectionEntryMotion
                   key={tag.slot}
-                  className="flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl bg-card p-4 text-center ring-1 ring-foreground/10"
+                  achievementKey={`passport:tag:${tag.slot}:${tag.discoveredAt.getTime()}`}
+                  completedAt={tag.discoveredAt.getTime()}
+                  enabled={latestAchievementKey === `tag:${tag.slot}`}
+                  variant="card"
+                  className="h-full"
                 >
-                  <Avatar className="size-20 rounded-xl">
-                    <AvatarImage
-                      src={tag.imageUrl}
-                      alt=""
-                      className="rounded-xl object-contain"
-                    />
-                    <AvatarFallback className="rounded-xl">TAG</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="line-clamp-2 text-sm font-medium">
-                      {tag.name}
-                    </p>
-                    <p className="mt-1 text-xs text-primary">
-                      +{tag.xpAwarded} XP
-                    </p>
+                  <div className="flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl bg-card p-4 text-center ring-1 ring-foreground/10">
+                    <Avatar className="size-20 rounded-xl">
+                      <AvatarImage
+                        src={tag.imageUrl}
+                        alt=""
+                        className="rounded-xl object-contain"
+                      />
+                      <AvatarFallback className="rounded-xl">
+                        TAG
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="line-clamp-2 text-sm font-medium">
+                        {tag.name}
+                      </p>
+                      <p className="mt-1 text-xs text-primary">
+                        +{tag.xpAwarded} XP
+                      </p>
+                    </div>
                   </div>
-                </div>
+                </CollectionEntryMotion>
               ) : (
                 <div
                   key={tag.slot}
@@ -406,35 +447,43 @@ function PassportCollections({
               <CollectionEmpty message="Nenhuma missão disponível." />
             )}
             {passport.missions.items.map((mission) => (
-              <div
+              <CollectionEntryMotion
                 key={mission.id}
-                className="flex min-h-16 items-center gap-3 px-4 py-3"
+                achievementKey={`passport:mission:${mission.id}:${mission.completedAt?.getTime() ?? 0}`}
+                completedAt={mission.completedAt?.getTime() ?? 0}
+                enabled={
+                  mission.status === "completed" &&
+                  latestAchievementKey === `mission:${mission.id}`
+                }
+                variant="row"
               >
-                {mission.status === "completed" ? (
-                  <CheckCircle2
-                    className="size-5 shrink-0 text-success"
-                    aria-hidden="true"
-                  />
-                ) : (
-                  <Target
-                    className="size-5 shrink-0 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">
-                    {mission.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {mission.status === "completed"
-                      ? "Missão concluída"
-                      : "Missão pendente"}
-                  </p>
+                <div className="flex min-h-16 items-center gap-3 px-4 py-3">
+                  {mission.status === "completed" ? (
+                    <CheckCircle2
+                      className="size-5 shrink-0 text-success"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Target
+                      className="size-5 shrink-0 text-muted-foreground"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
+                      {mission.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {mission.status === "completed"
+                        ? "Missão concluída"
+                        : "Missão pendente"}
+                    </p>
+                  </div>
+                  <span className="text-xs font-medium text-primary">
+                    +{mission.xpAwarded} XP
+                  </span>
                 </div>
-                <span className="text-xs font-medium text-primary">
-                  +{mission.xpAwarded} XP
-                </span>
-              </div>
+              </CollectionEntryMotion>
             ))}
           </div>
         </TabsContent>
