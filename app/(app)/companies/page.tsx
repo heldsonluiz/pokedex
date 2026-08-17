@@ -6,7 +6,6 @@ import {
   Stamp,
 } from "lucide-react"
 import type { Metadata } from "next"
-import Link from "next/link"
 
 import { EmptyState } from "@/components/layout/empty-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -15,6 +14,7 @@ import {
   type CompanyListItem,
   listCompaniesForSession,
 } from "@/modules/companies/company.service"
+import { CompanyDetailsDialog } from "@/modules/companies/company-details-modal"
 
 export const metadata: Metadata = {
   title: "Empresas",
@@ -121,9 +121,14 @@ export default async function CompaniesPage() {
 
 function FeaturedCompany({ company }: Readonly<{ company: CompanyListItem }>) {
   return (
-    <Link
-      href={`/companies/${encodeURIComponent(company.id)}`}
-      className="group block rounded-3xl bg-(image:--gradient-immersive) p-5 text-white shadow-card transition-transform focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none active:scale-[0.99]"
+    <CompanyDetailsDialog
+      company={company}
+      trigger={
+        <button
+          type="button"
+          className="group block w-full rounded-3xl bg-(image:--gradient-immersive) p-5 text-left text-white shadow-card transition-transform focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none active:scale-[0.99]"
+        />
+      }
     >
       <div className="flex items-start gap-4">
         <CompanyLogo company={company} featured />
@@ -142,7 +147,7 @@ function FeaturedCompany({ company }: Readonly<{ company: CompanyListItem }>) {
           </div>
         </div>
       </div>
-    </Link>
+    </CompanyDetailsDialog>
   )
 }
 
@@ -150,11 +155,16 @@ function CompanyCard({ company }: Readonly<{ company: CompanyListItem }>) {
   const visited = company.visitedAt !== null
 
   return (
-    <Link
-      href={`/companies/${encodeURIComponent(company.id)}`}
-      className={`flex min-h-18 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none ${
-        visited ? "bg-success/5" : ""
-      }`}
+    <CompanyDetailsDialog
+      company={company}
+      trigger={
+        <button
+          type="button"
+          className={`flex min-h-18 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none ${
+            visited ? "bg-success/5" : ""
+          }`}
+        />
+      }
     >
       <CompanyLogo company={company} />
 
@@ -182,7 +192,7 @@ function CompanyCard({ company }: Readonly<{ company: CompanyListItem }>) {
           )}
         </span>
       </span>
-    </Link>
+    </CompanyDetailsDialog>
   )
 }
 

@@ -14,11 +14,14 @@ import {
   SpringProgress,
 } from "@/components/motion/collection-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { buttonVariants } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -240,29 +243,59 @@ function TagSlot({
         </DialogTrigger>
 
         <DialogContent>
-          <DialogHeader className="items-center px-8 text-center">
-            <Avatar className="size-24 rounded-3xl">
-              <AvatarImage
-                src={item.imageUrl}
-                alt={`Imagem da tag ${item.name}`}
-                className="rounded-3xl object-contain"
-              />
-              <AvatarFallback className="rounded-3xl">TAG</AvatarFallback>
-            </Avatar>
-            <DialogTitle className="text-xl leading-snug">
-              {item.name}
-            </DialogTitle>
+          <DialogHeader className="px-8">
+            <div className="flex flex-col items-center gap-3 text-center">
+              <Avatar className="size-28 rounded-xl">
+                <AvatarImage
+                  src={item.imageUrl}
+                  alt={`Imagem da tag ${item.name}`}
+                  className="rounded-xl object-contain"
+                />
+                <AvatarFallback className="rounded-xl">TAG</AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <Badge>
+                  <CheckCircle2 aria-hidden="true" />
+                  Encontrada
+                </Badge>
+                <DialogTitle className="mt-2 text-lg leading-snug">
+                  {item.name}
+                </DialogTitle>
+              </div>
+            </div>
+            <DialogDescription className="pt-2 leading-6 whitespace-pre-wrap">
+              {item.description ||
+                "Esta tag não possui uma descrição cadastrada."}
+            </DialogDescription>
           </DialogHeader>
 
-          <DialogDescription className="leading-6 whitespace-pre-wrap">
-            {item.description ||
-              "Esta tag não possui uma descrição cadastrada."}
-          </DialogDescription>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between rounded-xl bg-muted p-3">
+              <span className="text-sm text-muted-foreground">Recompensa</span>
+              <span className="font-semibold text-primary">
+                +{item.xpAwarded} XP
+              </span>
+            </div>
+            <div className="rounded-xl bg-muted p-3">
+              <p className="text-sm font-medium">Tag encontrada</p>
+              <p className="mt-1 text-sm leading-5 text-muted-foreground">
+                Descoberta em{" "}
+                {new Intl.DateTimeFormat("pt-BR", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                }).format(item.discoveredAt)}
+                .
+              </p>
+            </div>
+          </div>
 
-          <p className="inline-flex w-fit items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary">
-            <Sparkles className="size-4" aria-hidden="true" />+{item.xpAwarded}{" "}
-            XP conquistados
-          </p>
+          <DialogFooter className="flex-row">
+            <DialogClose
+              render={<Button variant="outline" className="flex-1" />}
+            >
+              Fechar
+            </DialogClose>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </CollectionEntryMotion>

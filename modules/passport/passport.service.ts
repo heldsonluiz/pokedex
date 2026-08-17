@@ -14,6 +14,7 @@ import { findPassportCompletions } from "./passport.repository"
 export type PassportCompanyItem = Readonly<{
   id: string
   name: string
+  description: string | null
   logoUrl: string
   stampImageUrl: string
   xpAwarded: number
@@ -177,6 +178,7 @@ export async function getPassportForSession(
     return {
       id: company.id,
       name: company.name,
+      description: company.description,
       logoUrl: company.logoUrl,
       stampImageUrl: company.stampImageUrl ?? company.logoUrl,
       xpAwarded:

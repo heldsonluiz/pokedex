@@ -1,23 +1,18 @@
-import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { requireAuth } from "@/lib/require-auth"
 import { getCompanyDetailsForSession } from "@/modules/companies/company.service"
-import { CompanyDetails } from "@/modules/companies/company-details"
+import { CompanyDetailsModal } from "@/modules/companies/company-details-modal"
 
-type CompanyDetailsPageProps = Readonly<{
+type CompanyDetailsModalPageProps = Readonly<{
   params: Promise<{
     companyId: string
   }>
 }>
 
-export const metadata: Metadata = {
-  title: "Empresa",
-}
-
-export default async function CompanyDetailsPage({
+export default async function CompanyDetailsModalPage({
   params,
-}: CompanyDetailsPageProps) {
+}: CompanyDetailsModalPageProps) {
   const [{ companyId }, session] = await Promise.all([params, requireAuth()])
   const company = await getCompanyDetailsForSession(session, companyId)
 
@@ -25,5 +20,5 @@ export default async function CompanyDetailsPage({
     notFound()
   }
 
-  return <CompanyDetails company={company} />
+  return <CompanyDetailsModal company={company} />
 }
