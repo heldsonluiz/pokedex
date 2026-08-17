@@ -6,6 +6,7 @@
 | ----------------------- | --------------------------- | ---------------------------------------------------------------------------------------- |
 | `events`                | configuração do evento      | `name`, `slug`, `startsAt`, `endsAt`, `isActive`                                         |
 | `profiles`              | participante                | `userId`, `eventId`, dados públicos, `qrId`, `xp`, `xpReachedAt`, onboarding, timestamps |
+| `adminUsers`            | autorização do painel       | Firebase UID no ID do documento e `isActive`                                             |
 | `companies`             | patrocinadores              | `eventId`, nome, descrição, imagens, `qrId`, estado e XP opcional                        |
 | `tags`                  | itens escondidos            | `eventId`, nome, descrição, imagem, `qrId`, estado, ordem e XP opcional                  |
 | `speakers`              | palestrantes                | `eventId`, nome, empresa, cargo, biografia, foto, redes sociais e visibilidade           |
@@ -45,18 +46,20 @@ contexto autorizado do operador e do participante durante toda a requisição.
 
 ### Perfil implementado
 
-O contrato inicial de `profiles` possui `userId`, `eventId`, `displayName`, `email`, `avatarUrl`, `bio`, `role`, `company`, `link`, `skills`, `qrId`, `onboardingCompleted`, `createdAt` e `updatedAt`. `qrId` é um UUID v4 público e estável, diferente do ID interno do documento. A criação usa uma transação em `profiles/{userId}`: se o documento já existir, nenhuma nova gravação é feita. O repositório valida documentos lidos com Zod e converte `Timestamp` para `Date` antes de devolvê-los ao domínio.
+O contrato inicial de `profiles` possui `userId`, `eventId`, `displayName`, `email`, `avatarUrl`, `bio`, `role`, `company`, `link`, `skills`, `qrId`, `onboardingCompleted`, `createdAt` e `updatedAt`. `qrId` é um UUID v4 público e estável, diferente do ID interno do documento. A Pokedex procura primeiro `profiles/{googleSub}` e usa o e-mail normalizado como fallback para encontrar perfis criados pelo painel com Firebase UID. A criação em `profiles/{userId}` ocorre somente quando nenhuma busca encontra resultado. O fallback por e-mail exige um único resultado; o repositório valida documentos lidos com Zod e converte `Timestamp` para `Date` antes de devolvê-los ao domínio.
 
 `displayName` e `skills` são obrigatórios para concluir o perfil. O nome possui no mínimo 3 caracteres; `skills` armazena de 3 a 5 slugs únicos existentes no catálogo estático `data/skills.ts`; `bio` é opcional e aceita no máximo 200 caracteres; `role` é opcional e aceita no máximo 80 caracteres; `company` é opcional e aceita no máximo 100 caracteres; `link` é opcional e aceita uma única URL válida. Antes da conclusão, o documento pode manter `skills` vazio e os campos opcionais nulos.
 
 A edição em `/profile/edit` envia somente esses campos editáveis para uma Server Action autenticada. O serviço valida novamente o contrato e o repositório atualiza o documento existente em transação, preservando identidade, evento, QR Code e datas de criação.
 
 `accessRoles` armazena uma ou mais autorizações internas entre `participant`,
-`staff`, `reviewer`, `editor` e `admin`. Novos perfis recebem
-`["participant"]`; o campo não participa da edição do perfil. `role` continua
-representando somente o cargo público. Todas as contas concluem normalmente o
-onboarding. Apenas `participant` participa das atividades e recebe XP;
-`reviewer` e `admin` podem validar missões presenciais.
+`staff`, `reviewer`, `editor` e `admin`. Novos perfis da Pokedex recebem
+`["participant"]`; perfis administrativos provisionados pelo painel recebem
+somente `["admin"]`. O campo não participa da edição do perfil. `role` continua
+representando somente o cargo público. Participantes concluem normalmente o
+onboarding; o painel cria administradores com onboarding concluído. Apenas
+`participant` participa das atividades e recebe XP; `reviewer` e `admin` podem
+validar missões presenciais.
 
 No setup obrigatório, a mesma transação persiste os campos validados e define `onboardingCompleted: true`. Cancelar o setup não altera o documento; voltar apenas reinicia as etapas introdutórias.
 

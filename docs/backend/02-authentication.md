@@ -6,7 +6,7 @@ O projeto utiliza Auth.js v5 com Google OAuth como único método de login.
 
 A configuração principal fica em `lib/auth.ts` e exporta `auth`, `handlers`, `signIn` e `signOut`. O Route Handler em `app/api/auth/[...nextauth]/route.ts` reexporta `GET` e `POST` a partir de `handlers`.
 
-A aplicação utiliza sessões JWT sem adapter de usuários do Auth.js. No login Google, o callback JWT substitui o `token.sub` pelo `account.providerAccountId`, que corresponde ao identificador estável da conta no provedor. O callback de sessão disponibiliza esse valor como `session.user.id`, permitindo associar a identidade autenticada ao perfil sem usar o e-mail como chave. O UUID temporário gerado pelo Auth.js para `user.id` não deve ser usado como chave de domínio.
+A aplicação utiliza sessões JWT sem adapter de usuários do Auth.js. No login Google, o callback JWT substitui o `token.sub` pelo `account.providerAccountId`, que corresponde ao identificador estável da conta no provedor. O callback de sessão disponibiliza esse valor como `session.user.id`. Esse identificador continua sendo a chave primária; o e-mail normalizado é usado somente como fallback para reconciliar um perfil criado anteriormente pelo painel administrativo com Firebase UID. O UUID temporário gerado pelo Auth.js para `user.id` não deve ser usado como chave de domínio.
 
 No Next.js 16, `proxy.ts` protege antecipadamente as rotas configuradas e preserva o destino original. O layout do grupo `(app)` também valida a sessão no servidor por meio de `requireAuth()`. O proxy coordena navegação, mas não substitui a validação de sessão e autorização nas operações sensíveis.
 
@@ -33,7 +33,12 @@ Após o retorno do provedor, `/auth/complete` valida a sessão e garante a exist
 
 A sessão identifica o usuário com `id`, `name`, `email` e `image`. Dados de domínio são carregados da coleção `profiles`.
 
-No primeiro acesso, o servidor cria o profile de forma idempotente. A conclusão do onboarding determina o destino após autenticação.
+No primeiro acesso, o servidor procura `profiles/{googleSub}` e, se não
+encontrar, busca exatamente um perfil pelo e-mail normalizado. O fallback
+permite reutilizar um perfil administrativo criado pelo painel sob o Firebase
+UID. Somente quando nenhuma busca encontra resultado o servidor cria o profile
+participante de forma idempotente. Mais de um perfil com o mesmo e-mail é
+tratado como inconsistência e interrompe o fluxo.
 
 ## Rotas
 
@@ -50,10 +55,10 @@ Redirecionamentos devem ocorrer no servidor sempre que possível e aceitar apena
 Auth.js comprova identidade, não permissão. Cada operação deve verificar se o usuário pode acessar ou alterar o recurso. Participantes podem editar apenas campos permitidos do próprio perfil e não podem alterar XP, `convertedXp`, `ticketBalance`, scans, tickets ou dados administrativos.
 
 Autorizações internas ficam em `profiles.accessRoles`, separadas do campo
-público `role`. Contas novas começam como `participant`; a organização pode
-atribuir manualmente `staff`, `reviewer`, `editor` ou `admin` no Firestore até
-que exista integração administrativa. O campo nunca é aceito pela edição do
-perfil. Reviewers e admins podem validar missões; demais permissões são
+público `role`. Perfis novos criados pela Pokedex começam exclusivamente como
+`participant`. Administradores provisionados pelo painel usam exclusivamente
+`admin`, sem acumular o papel `participant`. O campo nunca é aceito pela edição
+comum do perfil. Reviewers e admins podem validar missões; demais permissões são
 derivadas no servidor por operação.
 
 ## Segurança

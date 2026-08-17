@@ -16,7 +16,11 @@
 - não trate autenticação como autorização;
 - participantes editam apenas campos permitidos do próprio perfil;
 - privilégios administrativos existem somente via Firebase Admin e ambiente confiável;
+- `adminUsers/{firebaseUid}` é a fonte de autorização do painel e exige
+  `isActive: true`;
 - `profiles.accessRoles` não pode ser alterado pela edição comum do perfil;
+- a reconciliação por e-mail exige um único perfil; ambiguidades são rejeitadas
+  sem promover ou criar documentos;
 - somente `reviewer` e `admin` validam missões presenciais;
 - a autorização é relida no servidor em cada validação;
 - o QR temporário comprova o participante presente, mas não substitui a

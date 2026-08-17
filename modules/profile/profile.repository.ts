@@ -106,6 +106,44 @@ export async function findProfileByUserId(
   }
 }
 
+export async function findProfileByEmail(
+  email: string
+): Promise<Profile | null> {
+  const validatedEmail = profileIdentitySchema.shape.email
+    .parse(email)
+    .toLowerCase()
+
+  const snapshots = await firestore
+    .collection(PROFILES_COLLECTION)
+    .where("email", "==", validatedEmail)
+    .limit(2)
+    .get()
+
+  if (snapshots.empty) {
+    return null
+  }
+
+  if (snapshots.size !== 1) {
+    throw new Error("Stored profile email is not unique")
+  }
+
+  const snapshot = snapshots.docs[0]
+  const result = profileDocumentSchema.safeParse(snapshot.data())
+
+  if (!result.success || result.data.userId !== snapshot.id) {
+    throw new Error("Stored profile document is invalid")
+  }
+
+  const { createdAt, updatedAt, xpReachedAt, ...profile } = result.data
+
+  return {
+    ...profile,
+    xpReachedAt: xpReachedAt?.toDate() ?? null,
+    createdAt: createdAt.toDate(),
+    updatedAt: updatedAt.toDate(),
+  }
+}
+
 export async function findProfileByQrId(
   eventId: string,
   qrId: string
