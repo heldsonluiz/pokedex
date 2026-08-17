@@ -9,6 +9,7 @@ import {
   completeProfileByUserId,
   ensureProfileExists,
   type EnsureProfileResult,
+  findProfileByEmail,
   findProfileByQrId,
   findProfileByUserId,
   updateProfileByUserId,
@@ -56,7 +57,9 @@ export async function getProfileForSession(
   session: Session
 ): Promise<Profile | null> {
   const identity = buildProfileIdentity(session)
-  const profile = await findProfileByUserId(identity.userId)
+  const profile =
+    (await findProfileByUserId(identity.userId)) ??
+    (await findProfileByEmail(identity.email))
 
   if (!profile) {
     return null

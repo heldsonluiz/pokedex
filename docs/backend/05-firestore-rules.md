@@ -10,6 +10,7 @@ As regras seguem menor privilégio. O Firebase Admin ignora Firestore Rules, por
 | `companies`, `tags`, `missions`, `speakers`, `talks`, `schedule`, `rewards` | usuários autorizados conforme produto           | servidor                                  |
 | `tickets`                                                                   | próprios tickets                                | servidor                                  |
 | `profiles`                                                                  | próprio perfil e projeção pública permitida     | próprio usuário, somente campos editáveis |
+| `adminUsers`                                                                | servidor                                        | servidor                                  |
 | `connections`                                                               | conexões do próprio participante                | servidor                                  |
 | `activityCompletions`                                                       | próprias conclusões e carimbos                  | servidor                                  |
 | `participantSummaries`                                                      | próprio resumo individual                       | servidor                                  |
@@ -42,7 +43,7 @@ As Rules devem comparar campos alterados e validar tipos/limites básicos. Regra
 
 ## Operações críticas
 
-Visitas, descobertas de tags, conclusões de missões, avaliações, scans, conexões, ranking e tickets são persistidos somente pelo backend. `accessRoles` não é gravável pela edição de perfil e toda permissão é validada novamente no servidor. O painel administrativo pertence a outro projeto e acessa os dados por uma integração de servidor autorizada.
+Visitas, descobertas de tags, conclusões de missões, avaliações, scans, conexões, ranking e tickets são persistidos somente pelo backend. `accessRoles` não é gravável pela edição de perfil e toda permissão é validada novamente no servidor. O painel administrativo pertence a outro projeto, consulta `adminUsers/{firebaseUid}` e acessa os dados somente por uma integração de servidor autorizada. O cliente não lê nem grava `adminUsers`.
 
 Os resumos individuais também são gravados somente pelo backend. Eles são uma
 projeção derivada e nunca substituem `activityCompletions`, `connections` ou
