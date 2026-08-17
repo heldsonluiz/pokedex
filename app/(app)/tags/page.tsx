@@ -9,6 +9,10 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { EmptyState } from "@/components/layout/empty-state"
+import {
+  CollectionEntryMotion,
+  SpringProgress,
+} from "@/components/motion/collection-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
 import {
@@ -78,10 +82,7 @@ export default async function TagsPage() {
           aria-valuemax={collection.totalCount}
           aria-valuenow={collection.discoveredCount}
         >
-          <div
-            className="h-full rounded-full bg-primary transition-[width] duration-500 motion-reduce:transition-none"
-            style={{ width: `${progress}%` }}
-          />
+          <SpringProgress progress={progress} className="bg-primary" />
         </div>
       </section>
 
@@ -96,7 +97,14 @@ export default async function TagsPage() {
         </h2>
         <div className="grid grid-cols-2 gap-3">
           {collection.items.map((item) => (
-            <TagSlot key={item.slot} item={item} />
+            <TagSlot
+              key={item.slot}
+              item={item}
+              isLatest={
+                item.status === "discovered" &&
+                item.slot === latestDiscovery?.slot
+              }
+            />
           ))}
         </div>
       </section>
@@ -166,7 +174,10 @@ function TagCollectionHighlight({
   )
 }
 
-function TagSlot({ item }: Readonly<{ item: TagCollectionItem }>) {
+function TagSlot({
+  item,
+  isLatest,
+}: Readonly<{ item: TagCollectionItem; isLatest: boolean }>) {
   if (item.status === "locked") {
     return (
       <article className="flex min-h-44 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-muted/40 p-3 text-center">
@@ -182,69 +193,78 @@ function TagSlot({ item }: Readonly<{ item: TagCollectionItem }>) {
   }
 
   return (
-    <Dialog>
-      <DialogTrigger
-        render={
-          <button
-            type="button"
-            className="relative flex min-h-44 w-full touch-manipulation flex-col items-center gap-2 rounded-2xl bg-card p-3 text-center ring-1 ring-foreground/10 transition-colors hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-            aria-label={`Ver detalhes da tag ${item.name}`}
+    <CollectionEntryMotion
+      achievementKey={`tags-page:${item.slot}:${item.discoveredAt.getTime()}`}
+      completedAt={item.discoveredAt.getTime()}
+      enabled={isLatest}
+      variant="card"
+      className="h-full"
+    >
+      <Dialog>
+        <DialogTrigger
+          render={
+            <button
+              type="button"
+              className="relative flex min-h-44 w-full touch-manipulation flex-col items-center gap-2 rounded-2xl bg-card p-3 text-center ring-1 ring-foreground/10 transition-colors hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              aria-label={`Ver detalhes da tag ${item.name}`}
+            />
+          }
+        >
+          <CheckCircle2
+            className="absolute top-3 right-3 size-4 text-success"
+            aria-label="Encontrada"
           />
-        }
-      >
-        <CheckCircle2
-          className="absolute top-3 right-3 size-4 text-success"
-          aria-label="Encontrada"
-        />
-        <Avatar className="size-16 rounded-2xl">
-          <AvatarImage
-            src={item.imageUrl}
-            alt=""
-            className="rounded-2xl object-contain"
-          />
-          <AvatarFallback className="rounded-2xl">TAG</AvatarFallback>
-        </Avatar>
-
-        <span className="min-w-0">
-          <span className="line-clamp-2 text-sm font-semibold">
-            {item.name}
-          </span>
-          {item.description && (
-            <span className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-              {item.description}
-            </span>
-          )}
-        </span>
-
-        <span className="mt-auto text-xs font-medium text-primary">
-          +{item.xpAwarded} XP
-        </span>
-      </DialogTrigger>
-
-      <DialogContent>
-        <DialogHeader className="items-center px-8 text-center">
-          <Avatar className="size-24 rounded-3xl">
+          <Avatar className="size-16 rounded-2xl">
             <AvatarImage
               src={item.imageUrl}
-              alt={`Imagem da tag ${item.name}`}
-              className="rounded-3xl object-contain"
+              alt=""
+              className="rounded-2xl object-contain"
             />
-            <AvatarFallback className="rounded-3xl">TAG</AvatarFallback>
+            <AvatarFallback className="rounded-2xl">TAG</AvatarFallback>
           </Avatar>
-          <DialogTitle className="text-xl leading-snug">
-            {item.name}
-          </DialogTitle>
-        </DialogHeader>
 
-        <DialogDescription className="leading-6 whitespace-pre-wrap">
-          {item.description || "Esta tag não possui uma descrição cadastrada."}
-        </DialogDescription>
+          <span className="min-w-0">
+            <span className="line-clamp-2 text-sm font-semibold">
+              {item.name}
+            </span>
+            {item.description && (
+              <span className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                {item.description}
+              </span>
+            )}
+          </span>
 
-        <p className="inline-flex w-fit items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary">
-          <Sparkles className="size-4" aria-hidden="true" />+{item.xpAwarded} XP
-          conquistados
-        </p>
-      </DialogContent>
-    </Dialog>
+          <span className="mt-auto text-xs font-medium text-primary">
+            +{item.xpAwarded} XP
+          </span>
+        </DialogTrigger>
+
+        <DialogContent>
+          <DialogHeader className="items-center px-8 text-center">
+            <Avatar className="size-24 rounded-3xl">
+              <AvatarImage
+                src={item.imageUrl}
+                alt={`Imagem da tag ${item.name}`}
+                className="rounded-3xl object-contain"
+              />
+              <AvatarFallback className="rounded-3xl">TAG</AvatarFallback>
+            </Avatar>
+            <DialogTitle className="text-xl leading-snug">
+              {item.name}
+            </DialogTitle>
+          </DialogHeader>
+
+          <DialogDescription className="leading-6 whitespace-pre-wrap">
+            {item.description ||
+              "Esta tag não possui uma descrição cadastrada."}
+          </DialogDescription>
+
+          <p className="inline-flex w-fit items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary">
+            <Sparkles className="size-4" aria-hidden="true" />+{item.xpAwarded}{" "}
+            XP conquistados
+          </p>
+        </DialogContent>
+      </Dialog>
+    </CollectionEntryMotion>
   )
 }

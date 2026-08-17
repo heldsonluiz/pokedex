@@ -1,9 +1,11 @@
 "use client"
 
-import { LoaderCircle } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  AnimatedXpReward,
+  MissionCompletionBadge,
+} from "@/components/motion/achievement-celebration"
 import { QrResult } from "@/modules/qr-code/qr-result"
 
 import {
@@ -137,18 +139,11 @@ export function MissionCompletionResult({
     <QrResult
       status="success"
       icon={
-        state.result.missionImageUrl ? (
-          <Avatar className="size-full rounded-3xl">
-            <AvatarImage
-              src={state.result.missionImageUrl}
-              alt=""
-              className="rounded-3xl object-cover"
-            />
-            <AvatarFallback className="rounded-3xl">
-              <LoaderCircle className="animate-spin" />
-            </AvatarFallback>
-          </Avatar>
-        ) : undefined
+        <MissionCompletionBadge
+          imageUrl={state.result.missionImageUrl ?? undefined}
+          title={state.result.missionTitle}
+          celebrate={!repeated}
+        />
       }
       secondaryActionHref="/scan"
       secondaryActionLabel="Voltar para o scanner"
@@ -160,9 +155,11 @@ export function MissionCompletionResult({
       description={
         repeated
           ? `Você já recebeu ${state.result.xpAwarded} XP por esta missão.`
-          : `Você recebeu ${state.result.xpAwarded} XP por esta missão.`
+          : "Seu progresso e sua pontuação foram atualizados."
       }
       subtitle={repeated ? "" : `${state.result.missionDescription}`}
-    />
+    >
+      {!repeated && <AnimatedXpReward amount={state.result.xpAwarded} />}
+    </QrResult>
   )
 }

@@ -1,9 +1,11 @@
 "use client"
 
-import { LoaderCircle } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  AnimatedXpReward,
+  TagRevealCard,
+} from "@/components/motion/achievement-celebration"
 import { QrResult } from "@/modules/qr-code/qr-result"
 
 import { discoverTagAction, type DiscoverTagActionResult } from "./tag.actions"
@@ -118,16 +120,11 @@ export function TagDiscoveryResult({
     <QrResult
       status="success"
       icon={
-        <Avatar className="size-full rounded-3xl">
-          <AvatarImage
-            src={state.result.imageUrl}
-            alt=""
-            className="rounded-3xl object-cover"
-          />
-          <AvatarFallback className="rounded-3xl">
-            <LoaderCircle className="animate-spin" />
-          </AvatarFallback>
-        </Avatar>
+        <TagRevealCard
+          imageUrl={state.result.imageUrl}
+          name={state.result.tagName}
+          celebrate={!alreadyDiscovered}
+        />
       }
       secondaryActionHref="/scan"
       secondaryActionLabel="Voltar para o scanner"
@@ -139,9 +136,13 @@ export function TagDiscoveryResult({
       description={
         alreadyDiscovered
           ? `Você já recebeu ${state.result.xpAwarded} XP por esta tag.`
-          : `Você encontrou uma nova tag e recebeu ${state.result.xpAwarded} XP.`
+          : "Ela foi adicionada à sua coleção."
       }
       subtitle={alreadyDiscovered ? "" : `${state.result.tagDescription}`}
-    />
+    >
+      {!alreadyDiscovered && (
+        <AnimatedXpReward amount={state.result.xpAwarded} />
+      )}
+    </QrResult>
   )
 }
