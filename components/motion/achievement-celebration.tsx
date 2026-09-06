@@ -66,7 +66,7 @@ export function TagRevealCard({
   const shouldAnimate = celebrate && !reduceMotion
 
   return (
-    <div className="relative size-28 [perspective:700px]">
+    <div className="relative size-28 perspective-[700px]">
       <motion.div
         initial={shouldAnimate ? { rotateY: 180, scale: 0.82 } : false}
         animate={{ rotateY: 0, scale: 1 }}
@@ -78,13 +78,13 @@ export function TagRevealCard({
               }
             : { duration: 0 }
         }
-        className="relative size-full [transform-style:preserve-3d]"
+        className="relative size-full transform-3d"
       >
-        <span className="absolute inset-0 flex [transform:rotateY(180deg)] items-center justify-center rounded-3xl bg-(image:--gradient-immersive) text-white shadow-glow-primary [backface-visibility:hidden]">
+        <span className="absolute inset-0 flex transform-[rotateY(180deg)] items-center justify-center rounded-3xl bg-(image:--gradient-immersive) text-white shadow-glow-primary backface-hidden">
           <LockKeyhole className="size-8" aria-hidden="true" />
         </span>
 
-        <span className="absolute inset-0 overflow-hidden rounded-3xl bg-white p-2 shadow-card ring-1 ring-foreground/10 [backface-visibility:hidden]">
+        <span className="absolute inset-0 overflow-hidden rounded-3xl bg-white p-2 shadow-card ring-1 ring-foreground/10 backface-hidden">
           <Avatar className="size-full rounded-2xl">
             <AvatarImage
               src={imageUrl}
@@ -195,7 +195,7 @@ export function MissionCompletionBadge({
         }
         className="relative flex size-14 items-center justify-center rounded-full bg-success text-white shadow-lg ring-4 ring-white/75"
       >
-        <Check className="size-8 stroke-[3]" aria-hidden="true" />
+        <Check className="size-8 stroke-3" aria-hidden="true" />
       </motion.span>
     </motion.div>
   )

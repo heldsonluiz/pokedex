@@ -249,14 +249,14 @@ function MissionImage({
     <Avatar
       className={cn(
         "rounded-xl",
-        dialog ? "size-28" : featured ? "size-16" : "size-11"
+        dialog ? "size-40" : featured ? "size-16" : "size-11"
       )}
     >
-      {mission.status === "completed" && mission.imageUrl && (
+      {(dialog || mission.status === "completed") && mission.imageUrl && (
         <AvatarImage
           src={mission.imageUrl}
           alt=""
-          className="rounded-xl object-cover"
+          className="rounded-xl object-contain"
         />
       )}
       <AvatarFallback
@@ -289,48 +289,63 @@ function MissionDialog({
   return (
     <Dialog>
       <DialogTrigger render={trigger} />
-      <DialogContent>
-        <DialogHeader className="px-8">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <MissionImage mission={mission} dialog />
-            <div className="min-w-0">
-              <Badge
-                variant={mission.status === "completed" ? "default" : "outline"}
-              >
-                <StatusIcon aria-hidden="true" />
-                {status.label}
-              </Badge>
-              <DialogTitle className="mt-2 text-lg leading-snug">
-                {mission.title}
-              </DialogTitle>
+      <DialogContent
+        className="block overflow-hidden rounded-3xl bg-[#070b18] p-0 text-white ring-white/10 sm:max-w-sm"
+        showCloseButton={false}
+      >
+        <div className="flex min-h-64 items-center justify-center bg-[#070b18] p-8">
+          <MissionImage mission={mission} dialog />
+        </div>
+
+        <div className="relative -mt-5 space-y-4 rounded-t-[2rem] bg-[#0d1324] p-4 pt-6">
+          <DialogHeader>
+            <div className="flex items-start gap-3">
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-orange-400/15 text-orange-300 ring-1 ring-orange-300/20">
+                <Target className="size-5" aria-hidden="true" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <DialogTitle className="text-xl leading-snug text-white">
+                  {mission.title}
+                </DialogTitle>
+                <Badge
+                  className="mt-1.5 border-orange-300/25 bg-orange-400/15 text-orange-200"
+                  variant={
+                    mission.status === "completed" ? "default" : "outline"
+                  }
+                >
+                  <StatusIcon aria-hidden="true" />
+                  {status.label}
+                </Badge>
+              </div>
+            </div>
+            <DialogDescription className="pt-1 leading-6 whitespace-pre-wrap text-white/65">
+              {mission.description}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10 ring-1 ring-white/10">
+            <div className="bg-white/5 p-4">
+              <p className="text-xs font-medium text-white/50">Recompensa</p>
+              <p className="mt-2 text-xl font-bold text-orange-300">
+                +{mission.xpAwarded} XP
+              </p>
+            </div>
+            <div className="bg-white/5 p-4">
+              <p className="text-xs font-medium text-white">Como concluir</p>
+              <p className="mt-2 text-sm leading-5 text-white/60">
+                {mission.validationType === "reviewer"
+                  ? "Realize a atividade e apresente seu QR Code para uma pessoa da organização."
+                  : mission.validationType === "automatic"
+                    ? "Continue participando. A missão será concluída automaticamente quando você atingir a meta."
+                    : "Encontre e leia o QR Code desta missão durante o evento."}
+              </p>
             </div>
           </div>
-          <DialogDescription className="pt-2 leading-6 whitespace-pre-wrap">
-            {mission.description}
-          </DialogDescription>
-        </DialogHeader>
 
-        <div className="space-y-3">
-          <div className="flex items-center justify-between rounded-xl bg-muted p-3">
-            <span className="text-sm text-muted-foreground">Recompensa</span>
-            <span className="font-semibold text-primary">
-              +{mission.xpAwarded} XP
-            </span>
-          </div>
-          <div className="rounded-xl bg-muted p-3">
-            <p className="text-sm font-medium">Como concluir</p>
-            <p className="mt-1 text-sm leading-5 text-muted-foreground">
-              {mission.validationType === "reviewer"
-                ? "Realize a atividade e apresente seu QR Code para uma pessoa da organização."
-                : mission.validationType === "automatic"
-                  ? "Continue participando. A missão será concluída automaticamente quando você atingir a meta."
-                  : "Encontre e leia o QR Code desta missão durante o evento."}
-            </p>
-          </div>
           {mission.blockedBy.length > 0 && (
-            <div className="rounded-xl border border-border p-3">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-3">
               <p className="text-sm font-medium">Para desbloquear, conclua:</p>
-              <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
+              <ul className="mt-2 space-y-2 text-sm text-white/60">
                 {mission.blockedBy.map((prerequisite) => (
                   <li
                     key={`${prerequisite.type}:${prerequisite.label}`}
@@ -346,24 +361,30 @@ function MissionDialog({
               </ul>
             </div>
           )}
+          <DialogFooter className="mx-0 mb-0 flex-row rounded-none border-0 bg-transparent p-0 pt-2">
+            <DialogClose
+              render={
+                <Button
+                  variant="outline"
+                  className="flex-1 border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                />
+              }
+            >
+              Fechar
+            </DialogClose>
+            {mission.status === "available" &&
+              mission.validationType === "reviewer" && (
+                <Button
+                  className="flex-1"
+                  render={<Link href="/profile/qr-code?source=missions" />}
+                  nativeButton={false}
+                >
+                  <QrCode aria-hidden="true" />
+                  Meu QR Code
+                </Button>
+              )}
+          </DialogFooter>
         </div>
-
-        <DialogFooter className="flex-row">
-          <DialogClose render={<Button variant="outline" className="flex-1" />}>
-            Fechar
-          </DialogClose>
-          {mission.status === "available" &&
-            mission.validationType === "reviewer" && (
-              <Button
-                className="flex-1"
-                render={<Link href="/profile/qr-code?source=missions" />}
-                nativeButton={false}
-              >
-                <QrCode aria-hidden="true" />
-                Meu QR Code
-              </Button>
-            )}
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

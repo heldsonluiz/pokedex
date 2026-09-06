@@ -11,7 +11,6 @@ import {
   Trophy,
 } from "lucide-react"
 import type { Metadata } from "next"
-import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import {
@@ -23,6 +22,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { requireAuth } from "@/lib/require-auth"
+import { CompanyDetailsDialog } from "@/modules/companies/company-details-modal"
 import {
   getPassportForSession,
   type ParticipantPassport,
@@ -341,12 +341,17 @@ function PassportCollections({
                   }
                   variant="stamp"
                 >
-                  <Link
-                    href={`/companies/${encodeURIComponent(company.id)}`}
-                    className={
-                      visited
-                        ? "flex min-h-18 items-center gap-3 bg-primary/5 px-4 py-3 focus-visible:bg-muted focus-visible:outline-none"
-                        : "flex min-h-18 items-center gap-3 px-4 py-3 opacity-70 focus-visible:bg-muted focus-visible:outline-none"
+                  <CompanyDetailsDialog
+                    company={company}
+                    trigger={
+                      <button
+                        type="button"
+                        className={
+                          visited
+                            ? "flex min-h-18 w-full items-center gap-3 bg-primary/5 px-4 py-3 text-left focus-visible:bg-muted focus-visible:outline-none"
+                            : "flex min-h-18 w-full items-center gap-3 px-4 py-3 text-left opacity-70 focus-visible:bg-muted focus-visible:outline-none"
+                        }
+                      />
                     }
                   >
                     <Avatar
@@ -380,7 +385,7 @@ function PassportCollections({
                         />
                       )}
                     </span>
-                  </Link>
+                  </CompanyDetailsDialog>
                 </CollectionEntryMotion>
               )
             })}

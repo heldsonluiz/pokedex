@@ -14,11 +14,14 @@ import {
   SpringProgress,
 } from "@/components/motion/collection-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { buttonVariants } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -239,30 +242,78 @@ function TagSlot({
           </span>
         </DialogTrigger>
 
-        <DialogContent>
-          <DialogHeader className="items-center px-8 text-center">
-            <Avatar className="size-24 rounded-3xl">
+        <DialogContent
+          className="block overflow-hidden rounded-3xl bg-[#070b18] p-0 text-white ring-white/10 sm:max-w-sm"
+          showCloseButton={false}
+        >
+          <div className="flex min-h-64 items-center justify-center bg-[#070b18] p-8">
+            <Avatar className="size-40 rounded-2xl bg-transparent">
               <AvatarImage
                 src={item.imageUrl}
                 alt={`Imagem da tag ${item.name}`}
-                className="rounded-3xl object-contain"
+                className="rounded-2xl object-contain"
               />
-              <AvatarFallback className="rounded-3xl">TAG</AvatarFallback>
+              <AvatarFallback className="rounded-2xl bg-white/10 text-white">
+                TAG
+              </AvatarFallback>
             </Avatar>
-            <DialogTitle className="text-xl leading-snug">
-              {item.name}
-            </DialogTitle>
-          </DialogHeader>
+          </div>
 
-          <DialogDescription className="leading-6 whitespace-pre-wrap">
-            {item.description ||
-              "Esta tag não possui uma descrição cadastrada."}
-          </DialogDescription>
+          <div className="relative -mt-5 space-y-4 rounded-t-[2rem] bg-[#0d1324] p-4 pt-6">
+            <DialogHeader>
+              <div className="flex items-start gap-3">
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-violet-400/15 text-violet-300 ring-1 ring-violet-300/20">
+                  <Tags className="size-5" aria-hidden="true" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <DialogTitle className="text-xl leading-snug text-white">
+                    {item.name}
+                  </DialogTitle>
+                  <Badge className="mt-1.5 border-violet-300/25 bg-violet-400/15 text-violet-200">
+                    <CheckCircle2 aria-hidden="true" />
+                    Encontrada
+                  </Badge>
+                </div>
+              </div>
+              <DialogDescription className="pt-1 leading-6 whitespace-pre-wrap text-white/65">
+                {item.description ||
+                  "Esta tag não possui uma descrição cadastrada."}
+              </DialogDescription>
+            </DialogHeader>
 
-          <p className="inline-flex w-fit items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary">
-            <Sparkles className="size-4" aria-hidden="true" />+{item.xpAwarded}{" "}
-            XP conquistados
-          </p>
+            <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10 ring-1 ring-white/10">
+              <div className="bg-white/5 p-4">
+                <p className="text-xs font-medium text-white/50">Recompensa</p>
+                <p className="mt-2 text-xl font-bold text-violet-300">
+                  +{item.xpAwarded} XP
+                </p>
+              </div>
+              <div className="bg-white/5 p-4">
+                <p className="text-xs font-medium text-white">Tag encontrada</p>
+                <p className="mt-2 text-sm leading-5 text-white/60">
+                  Descoberta em{" "}
+                  {new Intl.DateTimeFormat("pt-BR", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  }).format(item.discoveredAt)}
+                  .
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter className="mx-0 mb-0 flex-row rounded-none border-0 bg-transparent p-0 pt-2">
+              <DialogClose
+                render={
+                  <Button
+                    variant="outline"
+                    className="flex-1 border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                  />
+                }
+              >
+                Fechar
+              </DialogClose>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </CollectionEntryMotion>

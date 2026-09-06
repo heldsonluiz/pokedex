@@ -20,6 +20,7 @@ describe("passport service", () => {
         {
           id: "company-1",
           name: "Company",
+          description: "Company description",
           logoUrl: "https://example.com/logo.png",
           stampImageUrl: "https://example.com/stamp.png",
           xpAwarded: 40,

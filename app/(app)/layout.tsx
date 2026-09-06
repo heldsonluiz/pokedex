@@ -7,10 +7,12 @@ import { requireProfileForSession } from "@/modules/profile/profile.service"
 
 type AuthenticatedLayoutProps = Readonly<{
   children: ReactNode
+  modal: ReactNode
 }>
 
 export default async function AuthenticatedLayout({
   children,
+  modal,
 }: AuthenticatedLayoutProps) {
   const session = await requireAuth()
   const profile = await requireProfileForSession(session)
@@ -22,6 +24,7 @@ export default async function AuthenticatedLayout({
   return (
     <AuthenticatedAppShell accessRoles={profile.accessRoles}>
       {children}
+      {modal}
     </AuthenticatedAppShell>
   )
 }
