@@ -130,7 +130,6 @@ refactor(qr-code): extract parser
 - Leitor de QR Code
 - Networking
 - Ranking
-- Badges
 - Premiações
 - Avaliação de palestras
 

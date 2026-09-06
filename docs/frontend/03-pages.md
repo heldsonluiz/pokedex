@@ -90,7 +90,7 @@ leitura, antes da validação e da navegação. O valor lido passa pelo contrato
 central de QR Code. Códigos externos, inválidos, de outro evento ou sem suporte
 recebem mensagens específicas; falta de permissão, câmera ocupada, contexto sem
 HTTPS e ausência de conexão também possuem estados recuperáveis. Participantes
-criam conexões; empresas, tags e missões automáticas abrem seus respectivos
+criam conexões; empresas, tags e missões com validação por QR abrem seus respectivos
 deep links. No modo de revisão, a câmera aceita somente o QR temporário de um
 participante.
 
