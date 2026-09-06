@@ -242,60 +242,78 @@ function TagSlot({
           </span>
         </DialogTrigger>
 
-        <DialogContent>
-          <DialogHeader className="px-8">
-            <div className="flex flex-col items-center gap-3 text-center">
-              <Avatar className="size-28 rounded-xl">
-                <AvatarImage
-                  src={item.imageUrl}
-                  alt={`Imagem da tag ${item.name}`}
-                  className="rounded-xl object-contain"
-                />
-                <AvatarFallback className="rounded-xl">TAG</AvatarFallback>
-              </Avatar>
-              <div className="min-w-0">
-                <Badge>
-                  <CheckCircle2 aria-hidden="true" />
-                  Encontrada
-                </Badge>
-                <DialogTitle className="mt-2 text-lg leading-snug">
-                  {item.name}
-                </DialogTitle>
-              </div>
-            </div>
-            <DialogDescription className="pt-2 leading-6 whitespace-pre-wrap">
-              {item.description ||
-                "Esta tag não possui uma descrição cadastrada."}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between rounded-xl bg-muted p-3">
-              <span className="text-sm text-muted-foreground">Recompensa</span>
-              <span className="font-semibold text-primary">
-                +{item.xpAwarded} XP
-              </span>
-            </div>
-            <div className="rounded-xl bg-muted p-3">
-              <p className="text-sm font-medium">Tag encontrada</p>
-              <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                Descoberta em{" "}
-                {new Intl.DateTimeFormat("pt-BR", {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                }).format(item.discoveredAt)}
-                .
-              </p>
-            </div>
+        <DialogContent
+          className="block overflow-hidden rounded-3xl bg-[#070b18] p-0 text-white ring-white/10 sm:max-w-sm"
+          showCloseButton={false}
+        >
+          <div className="flex min-h-64 items-center justify-center bg-[#070b18] p-8">
+            <Avatar className="size-40 rounded-2xl bg-transparent">
+              <AvatarImage
+                src={item.imageUrl}
+                alt={`Imagem da tag ${item.name}`}
+                className="rounded-2xl object-contain"
+              />
+              <AvatarFallback className="rounded-2xl bg-white/10 text-white">
+                TAG
+              </AvatarFallback>
+            </Avatar>
           </div>
 
-          <DialogFooter className="flex-row">
-            <DialogClose
-              render={<Button variant="outline" className="flex-1" />}
-            >
-              Fechar
-            </DialogClose>
-          </DialogFooter>
+          <div className="relative -mt-5 space-y-4 rounded-t-[2rem] bg-[#0d1324] p-4 pt-6">
+            <DialogHeader>
+              <div className="flex items-start gap-3">
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-violet-400/15 text-violet-300 ring-1 ring-violet-300/20">
+                  <Tags className="size-5" aria-hidden="true" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <DialogTitle className="text-xl leading-snug text-white">
+                    {item.name}
+                  </DialogTitle>
+                  <Badge className="mt-1.5 border-violet-300/25 bg-violet-400/15 text-violet-200">
+                    <CheckCircle2 aria-hidden="true" />
+                    Encontrada
+                  </Badge>
+                </div>
+              </div>
+              <DialogDescription className="pt-1 leading-6 whitespace-pre-wrap text-white/65">
+                {item.description ||
+                  "Esta tag não possui uma descrição cadastrada."}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10 ring-1 ring-white/10">
+              <div className="bg-white/5 p-4">
+                <p className="text-xs font-medium text-white/50">Recompensa</p>
+                <p className="mt-2 text-xl font-bold text-violet-300">
+                  +{item.xpAwarded} XP
+                </p>
+              </div>
+              <div className="bg-white/5 p-4">
+                <p className="text-xs font-medium text-white">Tag encontrada</p>
+                <p className="mt-2 text-sm leading-5 text-white/60">
+                  Descoberta em{" "}
+                  {new Intl.DateTimeFormat("pt-BR", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  }).format(item.discoveredAt)}
+                  .
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter className="mx-0 mb-0 flex-row rounded-none border-0 bg-transparent p-0 pt-2">
+              <DialogClose
+                render={
+                  <Button
+                    variant="outline"
+                    className="flex-1 border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                  />
+                }
+              >
+                Fechar
+              </DialogClose>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </CollectionEntryMotion>

@@ -75,7 +75,7 @@ export function CollectionEntryMotion({
       layout={!reduceMotion}
       animate={controls}
       className={cn(
-        "relative min-w-0 [perspective:700px]",
+        "relative min-w-0 perspective-[700px]",
         variant === "stamp" && "origin-center",
         className
       )}

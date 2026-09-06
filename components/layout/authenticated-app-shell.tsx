@@ -38,8 +38,8 @@ const routeLayouts: Record<string, RouteLayout> = {
   "/passport": {
     title: "Passaporte",
     showHeader: true,
-    showBack: true,
     showNavigation: false,
+    backHref: "/home",
   },
   "/ranking": {
     title: "Ranking",
