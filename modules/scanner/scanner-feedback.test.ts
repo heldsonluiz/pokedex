@@ -32,6 +32,18 @@ describe("scanner feedback", () => {
     expect(mapQrCodeError({ valid: false, code })).toBe(expected)
   })
 
+  it("explains that an operations scan requires a participant QR", () => {
+    expect(getScannerFeedback("target-unavailable").title).toBe(
+      "Leia o QR Code de um participante"
+    )
+  })
+
+  it("offers a safe retry after an unconfirmed operation", () => {
+    expect(getScannerFeedback("validation-failed").description).toContain(
+      "o XP não será duplicado"
+    )
+  })
+
   it("provides an actionable message for every scanner failure", () => {
     expect(getScannerFeedback("offline")).toEqual({
       title: "Sem conexão",
