@@ -1,7 +1,7 @@
 "use client"
 
 import { ChevronLeft } from "lucide-react"
-import { useRouter } from "next/navigation"
+import Link from "next/link"
 import type { ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
@@ -23,8 +23,6 @@ export function AppHeader({
   backHref,
   className,
 }: AppHeaderProps) {
-  const router = useRouter()
-
   return (
     <header
       className={cn(
@@ -33,14 +31,14 @@ export function AppHeader({
       )}
     >
       {showBack && (
-        <button
-          type="button"
+        <Link
+          href={backHref ?? "/home"}
+          replace
           className="-ml-2 inline-flex size-11 items-center justify-center rounded-full transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           aria-label="Voltar"
-          onClick={() => (backHref ? router.replace(backHref) : router.back())}
         >
           <ChevronLeft className="size-5" aria-hidden="true" />
-        </button>
+        </Link>
       )}
 
       <div className="min-w-0 flex-1">

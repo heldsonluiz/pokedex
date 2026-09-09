@@ -51,6 +51,7 @@ export default async function ParticipantServicePage({
         </div>
         <Link
           href="/operations/scan"
+          replace
           className={buttonVariants({ size: "lg" })}
         >
           Abrir scanner
@@ -186,6 +187,7 @@ export default async function ParticipantServicePage({
 
       <Link
         href="/operations/scan"
+        replace
         className={cn(buttonVariants({ variant: "outline" }), "w-full")}
       >
         <ScanLine aria-hidden="true" />
