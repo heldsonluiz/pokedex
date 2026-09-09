@@ -31,13 +31,16 @@ Retornos do header usam destinos centralizados, e etapas transitórias de scan,
 revisão, atendimento e edição são substituídas no histórico ao terminar.
 Testes verificam destinos por rota e papel e as saídas dos resultados de QR.
 
+Validações manuais confirmadas pelo responsável pelo projeto:
+
+- [x] Navegação por teclado, foco e leitura assistiva nos fluxos principais.
+- [x] Câmera e scanner em celular real, incluindo recusa de permissão.
+- [x] Estados de carregamento, vazio e erro com conexão instável.
+- [x] Responsividade, contraste e preferência por movimento reduzido.
+
 Para concluir a fase, ainda é necessário validar:
 
-- navegação por teclado, foco e leitura assistiva nos fluxos principais;
-- câmera e scanner em celular real, incluindo recusa de permissão;
-- estados de carregamento, vazio e erro com conexão instável;
-- responsividade, contraste e preferência por movimento reduzido;
-- desempenho das rotas com dados representativos do evento.
+- [ ] Desempenho das rotas com dados representativos do evento.
 
 Essas verificações complementam `pnpm check` e `pnpm build`; a aprovação dos
 comandos, isoladamente, não encerra a fase.
