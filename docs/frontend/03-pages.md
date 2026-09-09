@@ -37,18 +37,27 @@ O fluxo de perfil já permite consultar os dados persistidos em `/profile` e edi
 `/onboarding` apresenta cinco etapas com imagem WebP otimizada, título, descrição, indicador e ação de avanço. O passo atual permanece no parâmetro `step`, sobrevivendo a refresh. O gesto horizontal para a esquerda avança e para a direita retorna, sem botão visual de voltar; a próxima imagem é pré-carregada. Imagem e textos saem na direção do movimento e a etapa seguinte entra pelo lado oposto em uma transição curta. A última etapa encaminha para `/onboarding/profile`, que reutiliza o formulário de perfil. Voltar do setup retorna ao início das etapas; cancelar encerra a sessão; salvar um perfil válido conclui o onboarding e encaminha para `/home`.
 
 `/home` usa dados reais do perfil para apresentar saudação, avatar, nível e
-progresso até a próxima faixa. A projeção individual leve fornece as contagens
+progresso até o nível máximo. A projeção individual leve fornece as contagens
 do participante, enquanto os catálogos públicos em cache fornecem somente seus
 totais; a página não repete consultas às conclusões individuais.
 
 O Passaporte é o principal resumo visual e mostra o percentual real de
 empresas, tags e missões concluídas. Em seguida, uma recomendação contextual
-prioriza empresas, missões e tags ainda incompletas e usa networking quando a
-jornada está em dia. O resumo rápido leva às quatro coleções e uma seção
+orienta a primeira conexão e depois prioriza a coleção de empresas ou tags
+com maior proporção concluída. Após essas coleções, convida a consultar as
+missões restantes sem afirmar que seus pré-requisitos estão liberados.
+Recomendações genéricas não prometem XP de atividades específicas. O resumo rápido leva às quatro coleções e uma seção
 separada promove palestras, ranking e tickets. Scanner, Missões, Passaporte e
 Perfil continuam permanentemente disponíveis na navegação inferior. A página
 possui skeleton estrutural e erro recuperável para suas leituras; o logout fica
 em `/profile`.
+
+O card de tickets calcula o progresso com `max(0, xp - convertedXp)` e a taxa
+configurada em `config/tickets.ts`. Ele respeita o bloqueio de conversões da
+organização e direciona para `/tickets`, onde a conversão continua explícita.
+A Home consulta somente o estado operacional adicional, sem carregar o ledger
+de tickets ou os históricos de conclusões. A ajuda rápida fica em `/profile`, após Aparência e antes de Sair, com seções
+expansíveis nativas sobre XP, tickets, sorteios, avaliações e scanner.
 
 O Perfil também oferece as preferências de aparência `Sistema`, `Claro` e
 `Escuro`. A escolha é persistida somente no navegador e vale para as rotas que
@@ -247,3 +256,27 @@ Cada página deve tratar:
 ## Próximo documento
 
 ➡️ [Navegação](./04-navigation.md)
+
+## Feedback de leitura
+
+O scanner mantém o resultado de networking na própria tela, distingue uma
+nova conexão de uma conexão já existente e oferece “Ler outro QR” e
+“Ver conexões”. Leituras repetidas não exibem uma nova recompensa.
+Falhas de transporte e operações de networking ou revisão sem resposta por
+15 segundos liberam uma tentativa explícita. O timeout não cancela a operação
+no servidor; uma nova leitura continua sujeita à idempotência existente.
+A câmera permanece parada durante a validação e enquanto um resultado ou erro
+está aberto, inclusive ao alternar entre aplicativos. Somente uma nova tentativa
+reativa a leitura nesses estados; callbacks de sessões antigas são ignorados.
+
+Resultados de empresas, tags e missões oferecem retorno ao scanner e acesso
+ao passaporte, à coleção ou às missões, respectivamente. Erros também permitem
+ler o código novamente. O atendimento por QR de participante preserva sua rota
+operacional e os controles de autorização existentes.
+
+As revelações de tags, empresas e missões usam o `ActivityRevealCard`: imagem
+em destaque sobre fundo escuro, painel inferior com título, status e descrição,
+seguido por duas colunas de recompensa e confirmação. O visual acompanha os
+modais das coleções, independentemente do tema do dispositivo. Leituras repetidas
+mostram o XP já recebido, sem nova celebração. Os botões preservam `replace`.
+Carregamento e erros continuam usando `QrResult`.

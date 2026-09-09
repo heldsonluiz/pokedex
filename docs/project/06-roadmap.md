@@ -10,6 +10,38 @@ ensaiar fechamento, re-rolagens, confirmações e consumo de tickets sem alterar
 o evento real. Problemas encontrados depois da validação da fase serão tratados
 como correções de bugs ou melhorias.
 
+## Fase 19: polimento em andamento
+
+O layout compartilhado oferece o link “Pular para o conteúdo”, visível ao
+receber foco pelo teclado, com destino no conteúdo principal focável.
+
+A Home agora orienta a primeira conexão e a coleção mais próxima de completar,
+mostra o progresso de conversão de XP em tickets. O Perfil oferece ajuda rápida.
+Essas orientações usam as regras existentes e não exigem novas operações da staff.
+
+O scanner diferencia conexões novas e repetidas, mantém a câmera parada nos
+resultados e oferece recuperação para falhas de transporte e timeout.
+Resultados de empresas, tags e missões têm atalhos para continuar a jornada.
+
+O banner de coleção completa só é montado após confirmar uma conquista
+recente ainda não exibida. Banners inativos não deixam uma camada invisível
+sobre o header, preservando o clique no retorno do Passaporte.
+
+Retornos do header usam destinos centralizados, e etapas transitórias de scan,
+revisão, atendimento e edição são substituídas no histórico ao terminar.
+Testes verificam destinos por rota e papel e as saídas dos resultados de QR.
+
+Para concluir a fase, ainda é necessário validar:
+
+- navegação por teclado, foco e leitura assistiva nos fluxos principais;
+- câmera e scanner em celular real, incluindo recusa de permissão;
+- estados de carregamento, vazio e erro com conexão instável;
+- responsividade, contraste e preferência por movimento reduzido;
+- desempenho das rotas com dados representativos do evento.
+
+Essas verificações complementam `pnpm check` e `pnpm build`; a aprovação dos
+comandos, isoladamente, não encerra a fase.
+
 ## MVP
 
 O MVP inclui autenticação, perfil, onboarding, navegação, empresas, tags, missões, passaporte, QR Code, scanner, networking, palestras, ranking e tickets para sorteios. Operações de pontuação, scans e tickets são validadas no servidor.
