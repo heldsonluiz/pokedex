@@ -45,3 +45,7 @@ next-env.d.ts
 # Firebase service account credentials
 *-firebase-adminsdk-*.json
 *:Zone.Identifier
+
+# Locally generated volunteer distribution kit
+/artifacts/volunteer-tests/
+/artifacts/volunteer-tests.zip
