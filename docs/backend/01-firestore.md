@@ -296,6 +296,14 @@ para selecionar somente perfis cujo `accessRoles` contém `participant`.
 perfis incompletos. Os três últimos campos reproduzem a ordem e o desempate do
 ranking.
 
+A paginação para as posições anteriores usa `limitToLast` e exige também
+um segundo índice composto. Mantenha `accessRoles`, `eventId` e
+`onboardingCompleted` como acima; no segundo índice, configure `xp` como
+**Crescente**, `xpReachedAt` como **Decrescente** e `userId` como
+**Decrescente**. Ambos têm escopo **Coleção**. No ambiente de testes,
+crie os dois índices para `test_profiles`; em produção, para `profiles`.
+A definição versionada inclui as duas direções em ambas as coleções.
+
 O índice pode ser criado no plano Spark. A definição versionada fica em
 `firestore.indexes.json`; antes de implantações pela CLI, ela deve ser comparada
 com os demais índices remotos para evitar remoções não intencionais.
