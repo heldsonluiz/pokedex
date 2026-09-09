@@ -20,6 +20,8 @@ O objetivo é centralizar as decisões, padrões, fluxos e requisitos necessári
 - [Fluxo de desenvolvimento](./project/07-development-workflow.md)
 - [Scripts de reset e seed do Firestore](./project/08-database-maintenance-scripts.md)
 
+- [Validação de desempenho](./project/09-performance-validation.md)
+
 ## Frontend
 
 - [Design System](./frontend/01-design-system.md)

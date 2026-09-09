@@ -2,7 +2,7 @@
 
 O desenvolvimento é incremental. Cada fase deve entregar uma parte utilizável, manter o projeto validável e atualizar a documentação afetada.
 
-Status atual: Fases 1 (Fundação), 2 (Design System), 3 (Autenticação), 4 (Perfil), 5 (Onboarding), 6 (Navegação), 7 (Home), 8 (QR Code), 9 (Scanner), 10 (Networking), 11 (Empresas), 12 (Tags), 13 (Missões), 14 (Passaporte), 15 (Ranking), 17 (Tickets), 18 (Palestras), 22 (Escalabilidade do ranking) e 23 (Resumo individual leve) concluídas. A funcionalidade da Fase 16 (Badges) foi removida do produto. A Fase 19 (Polimento) permanece em andamento. O networking cria a conexão automaticamente após uma leitura válida, concede 5 XP a cada participante e permite que qualquer uma das partes remova a conexão, revogando a pontuação de ambas. Empresas ativas possuem um QR Code fixo; a primeira leitura registra permanentemente visita, carimbo e XP em uma transação idempotente. O catálogo e os detalhes exibem o progresso real do participante. Tags ativas usam QR Codes fixos e concedem XP uma única vez; a coleção mantém itens ainda não encontrados anônimos e revela seus dados após a descoberta permanente. Os valores padrão de XP ficam centralizados em `config/scores.ts`, e cada conclusão preserva o valor efetivamente concedido. O contrato central aceita QR Codes de participante, empresa, missão e tag; palestras não possuem QR Code e têm avaliações liberadas manualmente por administradores. Palestrantes, palestras e faixas do cronograma possuem contratos separados; uma página completa de cronograma permanece como melhoria futura. Cada avaliação exige três notas de 1 a 5 e comentário de 20 a 500 caracteres; sua conclusão idempotente concede 75 XP. O passaporte agrega as conclusões existentes sem criar uma nova fonte de verdade. Os dez níveis são derivados do XP; o ranking usa consultas indexadas para exibir Top 3 ou Top 10 e uma janela contextual com até três posições de cada lado do participante. Tickets começam com uma concessão no onboarding e podem ser obtidos pela conversão idempotente de cada 200 XP ainda não utilizados, sem reduzir nível ou ranking. A rota temporária `/design-system` foi removida durante o polimento.
+Status atual: Fases 1 (Fundação), 2 (Design System), 3 (Autenticação), 4 (Perfil), 5 (Onboarding), 6 (Navegação), 7 (Home), 8 (QR Code), 9 (Scanner), 10 (Networking), 11 (Empresas), 12 (Tags), 13 (Missões), 14 (Passaporte), 15 (Ranking), 17 (Tickets), 18 (Palestras), 19 (Polimento), 22 (Escalabilidade do ranking) e 23 (Resumo individual leve) concluídas. A funcionalidade da Fase 16 (Badges) foi removida do produto. A Fase 19 (Polimento) foi validada nos cenários documentados de testes. O networking cria a conexão automaticamente após uma leitura válida, concede 5 XP a cada participante e permite que qualquer uma das partes remova a conexão, revogando a pontuação de ambas. Empresas ativas possuem um QR Code fixo; a primeira leitura registra permanentemente visita, carimbo e XP em uma transação idempotente. O catálogo e os detalhes exibem o progresso real do participante. Tags ativas usam QR Codes fixos e concedem XP uma única vez; a coleção mantém itens ainda não encontrados anônimos e revela seus dados após a descoberta permanente. Os valores padrão de XP ficam centralizados em `config/scores.ts`, e cada conclusão preserva o valor efetivamente concedido. O contrato central aceita QR Codes de participante, empresa, missão e tag; palestras não possuem QR Code e têm avaliações liberadas manualmente por administradores. Palestrantes, palestras e faixas do cronograma possuem contratos separados; uma página completa de cronograma permanece como melhoria futura. Cada avaliação exige três notas de 1 a 5 e comentário de 20 a 500 caracteres; sua conclusão idempotente concede 75 XP. O passaporte agrega as conclusões existentes sem criar uma nova fonte de verdade. Os dez níveis são derivados do XP; o ranking usa consultas indexadas para exibir Top 3 ou Top 10 e uma janela contextual com até três posições de cada lado do participante. Tickets começam com uma concessão no onboarding e podem ser obtidos pela conversão idempotente de cada 200 XP ainda não utilizados, sem reduzir nível ou ranking. A rota temporária `/design-system` foi removida durante o polimento.
 
 A Fase 17 cobre conversões, brindes, controles operacionais, fechamento
 retomável e sorteios ponderados. Uma execução administrativa isolada permite
@@ -10,7 +10,7 @@ ensaiar fechamento, re-rolagens, confirmações e consumo de tickets sem alterar
 o evento real. Problemas encontrados depois da validação da fase serão tratados
 como correções de bugs ou melhorias.
 
-## Fase 19: polimento em andamento
+## Fase 19: polimento concluído nos cenários validados
 
 O layout compartilhado oferece o link “Pular para o conteúdo”, visível ao
 receber foco pelo teclado, com destino no conteúdo principal focável.
@@ -38,9 +38,25 @@ Validações manuais confirmadas pelo responsável pelo projeto:
 - [x] Estados de carregamento, vazio e erro com conexão instável.
 - [x] Responsividade, contraste e preferência por movimento reduzido.
 
-Para concluir a fase, ainda é necessário validar:
+Validação de desempenho concluída:
 
-- [ ] Desempenho das rotas com dados representativos do evento.
+- [x] Navegação e ações HTTP com dados representativos nos cenários documentados.
+
+A navegação de leitura foi validada localmente com 1.172 perfis no evento,
+3.136 requisições sem erros e etapas de pelo menos 30 segundos, chegando a
+50 requisições simultâneas. Os dois índices de `test_profiles` foram ativados
+e verificados; não houve fallback do ranking durante a carga. O relatório
+está em [Validação de desempenho](./09-performance-validation.md).
+Também passaram seis testes de integração com 290 chamadas aos repositórios
+reais de visitas, tags, missões, conexões e tickets, incluindo repetição e
+disputa pelo mesmo saldo. Os valores persistidos foram conferidos e os
+dados temporários removidos. No preview da Vercel passaram 6.047 requisições
+de navegação e 156 operações HTTP de visitas, tags, missões, conexões e tickets,
+além dos controles de sessão ausente e QR inválido. O teste HTTP de gravações
+foi repetido com transporte corrigido; as medições anteriores com POSTs
+sequenciais foram descartadas para avaliação de concorrência. Os limites
+e condições de reprodução estão no relatório. Monitoramento e smoke test
+do deploy de produção permanecem na preparação de lançamento.
 
 Essas verificações complementam `pnpm check` e `pnpm build`; a aprovação dos
 comandos, isoladamente, não encerra a fase.

@@ -1,0 +1,142 @@
+{
+  "runId": "perf-http-4ad53d8c-b5a5-4be8-873d-41ec08ea008f",
+  "origin": "https://pokedex-33t00z9e8-heldsonluizs-projects.vercel.app",
+  "startedAt": "2026-09-09T17:17:25.029Z",
+  "actionTransport": "node:https with dedicated pool of up to 50 sockets",
+  "groups": [
+    {
+      "label": "20 fresh company HTTP actions",
+      "operations": 20,
+      "durationMs": 1534,
+      "p95Ms": 1511,
+      "maxMs": 1534,
+      "p95ResultReadyMs": 1477,
+      "maxResultReadyMs": 1527,
+      "maxResponseBytes": 8179,
+      "statuses": {
+        "COMPANY_VISITED": 20
+      }
+    },
+    {
+      "label": "20 repeated company HTTP actions",
+      "operations": 20,
+      "durationMs": 2434,
+      "p95Ms": 2350,
+      "maxMs": 2434,
+      "p95ResultReadyMs": 2341,
+      "maxResultReadyMs": 2425,
+      "maxResponseBytes": 8187,
+      "statuses": {
+        "COMPANY_ALREADY_VISITED": 20
+      }
+    },
+    {
+      "label": "20 fresh tag HTTP actions",
+      "operations": 20,
+      "durationMs": 826,
+      "p95Ms": 803,
+      "maxMs": 825,
+      "p95ResultReadyMs": 803,
+      "maxResultReadyMs": 808,
+      "maxResponseBytes": 8133,
+      "statuses": {
+        "TAG_DISCOVERED": 20
+      }
+    },
+    {
+      "label": "20 repeated tag HTTP actions",
+      "operations": 20,
+      "durationMs": 936,
+      "p95Ms": 840,
+      "maxMs": 936,
+      "p95ResultReadyMs": 839,
+      "maxResultReadyMs": 936,
+      "maxResponseBytes": 8141,
+      "statuses": {
+        "TAG_ALREADY_DISCOVERED": 20
+      }
+    },
+    {
+      "label": "20 fresh mission HTTP actions",
+      "operations": 20,
+      "durationMs": 826,
+      "p95Ms": 793,
+      "maxMs": 826,
+      "p95ResultReadyMs": 793,
+      "maxResultReadyMs": 802,
+      "maxResponseBytes": 8186,
+      "statuses": {
+        "MISSION_COMPLETED": 20
+      }
+    },
+    {
+      "label": "20 repeated mission HTTP actions",
+      "operations": 20,
+      "durationMs": 900,
+      "p95Ms": 867,
+      "maxMs": 900,
+      "p95ResultReadyMs": 866,
+      "maxResultReadyMs": 900,
+      "maxResponseBytes": 8194,
+      "statuses": {
+        "MISSION_ALREADY_COMPLETED": 20
+      }
+    },
+    {
+      "label": "10 bidirectional HTTP connection pairs",
+      "operations": 20,
+      "durationMs": 1902,
+      "p95Ms": 1784,
+      "maxMs": 1902,
+      "p95ResultReadyMs": 1600,
+      "maxResultReadyMs": 1823,
+      "maxResponseBytes": 10035,
+      "statuses": {
+        "CONNECTION_CREATED": 10,
+        "ALREADY_CONNECTED": 10
+      }
+    },
+    {
+      "label": "8 repeated HTTP ticket conversions",
+      "operations": 8,
+      "durationMs": 3189,
+      "p95Ms": 3189,
+      "maxMs": 3189,
+      "p95ResultReadyMs": 2544,
+      "maxResultReadyMs": 2544,
+      "maxResponseBytes": 16808,
+      "statuses": {
+        "success": 8
+      }
+    },
+    {
+      "label": "8 HTTP ticket conversions competing for balance",
+      "operations": 8,
+      "durationMs": 2117,
+      "p95Ms": 2117,
+      "maxMs": 2117,
+      "p95ResultReadyMs": 2116,
+      "maxResultReadyMs": 2116,
+      "maxResponseBytes": 16800,
+      "statuses": {
+        "rejected": 7,
+        "success": 1
+      }
+    }
+  ],
+  "checks": [
+    "Unauthenticated HTTP action rejected without recording activity",
+    "Invalid signed participant QR rejected",
+    "20 participants: 180 XP each, three completions and one connection, no duplicate rewards",
+    "HTTP ticket conversions preserve ranking XP and cannot spend the same balance twice"
+  ],
+  "limitations": [
+    "Synthetic sessions; Google OAuth is not exercised",
+    "Short integration test, not sustained write capacity",
+    "Uses Server Action references and RSC encoding of the deployed Next.js app"
+  ],
+  "remoteSeedVerified": true,
+  "cleanup": "completed",
+  "deletedReferences": 116,
+  "finishedAt": "2026-09-09T17:18:00.797Z"
+}
