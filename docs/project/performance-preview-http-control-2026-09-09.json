@@ -1,0 +1,46 @@
+{
+  "origin": "https://pokedex-33t00z9e8-heldsonluizs-projects.vercel.app",
+  "createdAt": "2026-09-09T17:15:31.851Z",
+  "groups": [
+    {
+      "method": "GET",
+      "requests": 20,
+      "errors": 0,
+      "durationMs": 1274,
+      "p50Ms": 902,
+      "p95Ms": 1210,
+      "maxMs": 1227,
+      "completionTimesMs": [
+        492, 560, 566, 608, 641, 642, 787, 808, 891, 902, 983, 994, 1062, 1065,
+        1113, 1120, 1123, 1155, 1210, 1227
+      ]
+    },
+    {
+      "method": "POST",
+      "requests": 20,
+      "errors": 0,
+      "durationMs": 3758,
+      "p50Ms": 1921,
+      "p95Ms": 3569,
+      "maxMs": 3754,
+      "completionTimesMs": [
+        234, 421, 613, 795, 989, 1176, 1370, 1555, 1737, 1921, 2124, 2298, 2479,
+        2660, 2855, 3033, 3210, 3390, 3569, 3754
+      ]
+    },
+    {
+      "method": "POST",
+      "transport": "node:https independent connections",
+      "requests": 20,
+      "errors": 0,
+      "durationMs": 936,
+      "p50Ms": 658,
+      "p95Ms": 870,
+      "maxMs": 916,
+      "completionTimesMs": [
+        374, 412, 445, 504, 520, 542, 589, 628, 650, 658, 692, 701, 716, 726,
+        772, 797, 799, 803, 870, 916
+      ]
+    }
+  ]
+}

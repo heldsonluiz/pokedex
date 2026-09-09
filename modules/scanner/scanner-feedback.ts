@@ -11,6 +11,7 @@ export type ScannerFailure =
   | "invalid-event"
   | "unsupported-type"
   | "target-unavailable"
+  | "validation-failed"
   | "unexpected"
 
 export type ScannerFeedback = Readonly<{
@@ -37,7 +38,7 @@ const scannerFailureFeedback: Record<ScannerFailure, ScannerFeedback> = {
   "insecure-context": {
     title: "Conexão segura necessária",
     description:
-      "A câmera só pode ser aberta em uma conexão HTTPS ou no localhost.",
+      "Abra o aplicativo pelo endereço seguro oficial do evento para usar a câmera.",
   },
   offline: {
     title: "Sem conexão",
@@ -61,9 +62,14 @@ const scannerFailureFeedback: Record<ScannerFailure, ScannerFeedback> = {
     description: "Este tipo de QR Code não é aceito pela aplicação.",
   },
   "target-unavailable": {
-    title: "Leitura ainda indisponível",
+    title: "Leia o QR Code de um participante",
     description:
-      "Este tipo de QR Code será habilitado em uma próxima etapa do aplicativo.",
+      "Nesta tela, use o QR Code exibido no perfil do participante. Códigos de empresas, tags e missões devem ser lidos no scanner do evento.",
+  },
+  "validation-failed": {
+    title: "Não foi possível confirmar a leitura",
+    description:
+      "Verifique sua conexão e leia o QR Code novamente. Se a operação já foi registrada, o XP não será duplicado.",
   },
   unexpected: {
     title: "Não foi possível abrir o scanner",

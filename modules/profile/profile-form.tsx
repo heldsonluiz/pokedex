@@ -83,7 +83,7 @@ export function ProfileForm({
       setResult(actionResult)
 
       if (actionResult.success) {
-        router.push(successRedirect)
+        router.replace(successRedirect)
         return
       }
 
@@ -106,7 +106,7 @@ export function ProfileForm({
       return
     }
 
-    router.push(cancelHref)
+    router.replace(cancelHref)
   }
 
   return (

@@ -1,0 +1,136 @@
+{
+  "runId": "perf-write-b3e0890f-b45f-42c1-8257-5a4b144bd1b8",
+  "startedAt": "2026-09-09T16:57:30.936Z",
+  "groups": [
+    {
+      "label": "50 fresh company visits",
+      "operations": 50,
+      "errors": 0,
+      "durationMs": 2451,
+      "p50Ms": 2107,
+      "p95Ms": 2442,
+      "maxMs": 2445,
+      "statuses": {
+        "visited": 50
+      }
+    },
+    {
+      "label": "50 repeated company visits",
+      "operations": 50,
+      "errors": 0,
+      "durationMs": 1221,
+      "p50Ms": 987,
+      "p95Ms": 1159,
+      "maxMs": 1217,
+      "statuses": {
+        "already-visited": 50
+      }
+    },
+    {
+      "label": "50 fresh tags",
+      "operations": 50,
+      "errors": 0,
+      "durationMs": 1134,
+      "p50Ms": 958,
+      "p95Ms": 1124,
+      "maxMs": 1130,
+      "statuses": {
+        "discovered": 50
+      }
+    },
+    {
+      "label": "50 repeated tags",
+      "operations": 50,
+      "errors": 0,
+      "durationMs": 1112,
+      "p50Ms": 878,
+      "p95Ms": 1091,
+      "maxMs": 1109,
+      "statuses": {
+        "already-discovered": 50
+      }
+    },
+    {
+      "label": "25 connection pairs, both directions",
+      "operations": 50,
+      "errors": 0,
+      "durationMs": 2671,
+      "p50Ms": 937,
+      "p95Ms": 2492,
+      "maxMs": 2660,
+      "statuses": {
+        "connected": 25,
+        "already-connected": 25
+      }
+    },
+    {
+      "label": "16 mixed requests on one participant",
+      "operations": 16,
+      "errors": 0,
+      "durationMs": 5186,
+      "p50Ms": 3036,
+      "p95Ms": 5184,
+      "maxMs": 5184,
+      "statuses": {
+        "visited": 1,
+        "discovered": 1,
+        "completed": 1,
+        "connected": 1,
+        "already-visited": 3,
+        "already-discovered": 3,
+        "already-completed": 3,
+        "already-connected": 3
+      }
+    },
+    {
+      "label": "8 simultaneous onboarding grants",
+      "operations": 8,
+      "errors": 0,
+      "durationMs": 2016,
+      "p50Ms": 1705,
+      "p95Ms": 2016,
+      "maxMs": 2016,
+      "statuses": {
+        "granted": 1,
+        "already-granted": 7
+      }
+    },
+    {
+      "label": "8 conversions sharing one idempotency key",
+      "operations": 8,
+      "errors": 0,
+      "durationMs": 2770,
+      "p50Ms": 2247,
+      "p95Ms": 2769,
+      "maxMs": 2769,
+      "statuses": {
+        "already-converted": 7,
+        "converted": 1
+      }
+    },
+    {
+      "label": "8 conversions with distinct keys and limited XP",
+      "operations": 8,
+      "errors": 0,
+      "durationMs": 5035,
+      "p50Ms": 2869,
+      "p95Ms": 5034,
+      "maxMs": 5034,
+      "statuses": {
+        "insufficient-xp": 6,
+        "converted": 2
+      }
+    }
+  ],
+  "checks": [
+    "50 visits: one completion, one counter increment and 50 XP each after replay",
+    "50 tags: one completion, one counter increment and 75 additional XP each after replay",
+    "25 bidirectional pairs: one connection and 5 XP per participant",
+    "Mixed activity contention: 180 XP, exactly three completions and one connection",
+    "Repeated onboarding and conversion: 3 tickets, 400 converted XP, original 500 XP preserved",
+    "Independent concurrent conversions cannot spend the same XP twice"
+  ],
+  "deletedDocuments": 244,
+  "cleanup": "completed",
+  "finishedAt": "2026-09-09T16:58:05.006Z"
+}

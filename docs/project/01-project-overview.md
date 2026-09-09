@@ -61,7 +61,7 @@ O painel administrativo já existe em outro projeto e não faz parte do escopo d
 - participantes com onboarding concluído;
 - conexões, visitas, missões e avaliações registradas;
 - uso do scanner e conclusão do passaporte;
-- tickets concedidos uma única vez por nível;
+- ticket inicial concedido uma única vez e conversões de cada 200 XP sem duplicidade;
 - ausência de alterações indevidas de pontuação.
 
 ## Próximo documento

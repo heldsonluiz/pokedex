@@ -5,15 +5,19 @@ import {
   AlertCircle,
   Camera,
   CameraOff,
+  CheckCircle2,
   LoaderCircle,
   ScanLine,
   WifiOff,
 } from "lucide-react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
+import { AchievementConfetti } from "@/components/motion/achievement-confetti"
 import { Button } from "@/components/ui/button"
+import { SCORES } from "@/config/scores"
 import { reviewMissionAction } from "@/modules/missions/mission.actions"
 import { connectFromScanAction } from "@/modules/networking/connection.actions"
 import { parseQrCodeUrl } from "@/modules/qr-code/qr-code.contract"
@@ -24,9 +28,15 @@ import {
   mapQrCodeError,
   type ScannerFailure,
 } from "./scanner-feedback"
+import { awaitScannerRequest } from "./scanner-request"
 
 type ScannerStatus =
-  "idle" | "requesting-permission" | "scanning" | "processing" | "failure"
+  | "idle"
+  | "requesting-permission"
+  | "scanning"
+  | "processing"
+  | "failure"
+  | "result"
 
 type QrScannerProps = Readonly<{
   appUrl: string
@@ -50,6 +60,11 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
   const scanSessionRef = useRef(0)
   const isProcessingRef = useRef(false)
   const [status, setStatus] = useState<ScannerStatus>("requesting-permission")
+  const [connectionResult, setConnectionResult] = useState<{
+    success: boolean
+    code?: string
+    message?: string
+  } | null>(null)
   const [failure, setFailure] = useState<ScannerFailure | null>(null)
 
   const releaseCamera = useCallback(() => {
@@ -71,7 +86,7 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
   const showFailure = useCallback(
     (nextFailure: ScannerFailure) => {
       releaseCamera()
-      isProcessingRef.current = false
+      isProcessingRef.current = true
       setFailure(nextFailure)
       setStatus("failure")
     },
@@ -115,7 +130,7 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
           return
         }
 
-        router.push(
+        router.replace(
           `/qr/${encodeURIComponent(parsedQrCode.target.eventId)}/${parsedQrCode.target.type}/${encodeURIComponent(parsedQrCode.target.qrId)}`
         )
         return
@@ -126,58 +141,64 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
         return
       }
 
-      if (mode?.type === "mission-review") {
-        const result = await reviewMissionAction({
-          eventId: parsedQrCode.target.eventId,
-          missionId: mode.missionId,
-          participantQrId: parsedQrCode.target.qrId,
-          token: parsedQrCode.target.token,
-        })
-        const query = new URLSearchParams({
-          reviewResult: result.code,
-        })
+      try {
+        if (mode?.type === "mission-review") {
+          const result = await awaitScannerRequest(
+            reviewMissionAction({
+              eventId: parsedQrCode.target.eventId,
+              missionId: mode.missionId,
+              participantQrId: parsedQrCode.target.qrId,
+              token: parsedQrCode.target.token,
+            })
+          )
+          const query = new URLSearchParams({
+            reviewResult: result.code,
+          })
 
-        if (result.success) {
-          query.set("participant", result.participantName ?? "Participante")
-          query.set("mission", result.missionTitle)
-          query.set("xp", String(result.xpAwarded))
-          if (result.code === "MISSION_COMPLETED") {
-            toast.success(`Missão “${result.missionTitle}” validada`, {
-              description: `${result.participantName ?? "Participante"} recebeu ${result.xpAwarded} XP.`,
-              duration: 5_000,
-            })
-          } else {
-            toast.info(`Missão “${result.missionTitle}” já estava validada`, {
-              description: "Nenhum XP adicional foi concedido.",
-              duration: 5_000,
-            })
+          if (result.success) {
+            query.set("participant", result.participantName ?? "Participante")
+            query.set("mission", result.missionTitle)
+            query.set("xp", String(result.xpAwarded))
+            if (result.code === "MISSION_COMPLETED") {
+              toast.success(`Missão “${result.missionTitle}” validada`, {
+                description: `${result.participantName ?? "Participante"} recebeu ${result.xpAwarded} XP.`,
+                duration: 5_000,
+              })
+            } else {
+              toast.info(`Missão “${result.missionTitle}” já estava validada`, {
+                description: "Nenhum XP adicional foi concedido.",
+                duration: 5_000,
+              })
+            }
           }
+
+          router.replace(`/missions?${query.toString()}`)
+          return
         }
 
-        router.push(`/missions?${query.toString()}`)
-        return
-      }
+        if (mode?.type === "participant-service") {
+          const query = new URLSearchParams({
+            token: parsedQrCode.target.token,
+          })
 
-      if (mode?.type === "participant-service") {
-        const query = new URLSearchParams({
-          token: parsedQrCode.target.token,
-        })
+          router.replace(
+            `/operations/participant/${encodeURIComponent(parsedQrCode.target.qrId)}?${query.toString()}`
+          )
+          return
+        }
 
-        router.push(
-          `/operations/participant/${encodeURIComponent(parsedQrCode.target.qrId)}?${query.toString()}`
+        const result = await awaitScannerRequest(
+          connectFromScanAction({
+            eventId: parsedQrCode.target.eventId,
+            targetQrId: parsedQrCode.target.qrId,
+            token: parsedQrCode.target.token,
+          })
         )
-        return
+        setConnectionResult(result)
+        setStatus("result")
+      } catch {
+        showFailure(navigator.onLine ? "validation-failed" : "offline")
       }
-
-      const result = await connectFromScanAction({
-        eventId: parsedQrCode.target.eventId,
-        targetQrId: parsedQrCode.target.qrId,
-        token: parsedQrCode.target.token,
-      })
-      const resultCode =
-        result.code ?? (result.success ? "CONNECTION_CREATED" : "SCAN_ERROR")
-
-      router.push(`/connections?result=${encodeURIComponent(resultCode)}`)
     },
     [appUrl, eventId, mode, router, showFailure]
   )
@@ -185,6 +206,7 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
   const startScanner = useCallback(async () => {
     releaseCamera()
     setFailure(null)
+    setConnectionResult(null)
     isProcessingRef.current = false
 
     if (!window.isSecureContext) {
@@ -225,7 +247,7 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
         },
         videoRef.current,
         (result, _error, scannerControls) => {
-          if (result) {
+          if (result && scanSession === scanSessionRef.current) {
             void handleDecodedValue(result.getText(), scannerControls)
           }
         }
@@ -253,6 +275,9 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
     }, 0)
 
     function handleVisibilityChange() {
+      if (isProcessingRef.current) {
+        return
+      }
       if (document.hidden) {
         releaseCamera()
         isProcessingRef.current = false
@@ -314,7 +339,7 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
 
         {status !== "scanning" && (
           <div
-            className="absolute inset-0 flex flex-col items-center justify-center gap-5 bg-background/95 px-6 text-center"
+            className="absolute inset-0 flex flex-col items-center justify-center gap-5 overflow-y-auto bg-background/95 px-6 py-6 text-center"
             aria-live="polite"
           >
             {status === "idle" && (
@@ -359,6 +384,58 @@ export function QrScanner({ appUrl, eventId, mode }: QrScannerProps) {
                       : "Autorize o acesso quando o navegador solicitar."}
                   </p>
                 </div>
+              </>
+            )}
+
+            {status === "result" && connectionResult && (
+              <>
+                {connectionResult.success &&
+                  connectionResult.code === "CONNECTION_CREATED" && (
+                    <AchievementConfetti />
+                  )}
+                {connectionResult.success ? (
+                  <CheckCircle2
+                    className="size-12 text-success"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <AlertCircle
+                    className="size-12 text-destructive"
+                    aria-hidden="true"
+                  />
+                )}
+                <div
+                  className="max-w-sm space-y-2"
+                  role={connectionResult.success ? "status" : "alert"}
+                >
+                  <h1 className="text-xl font-semibold">
+                    {connectionResult.success
+                      ? connectionResult.code === "ALREADY_CONNECTED"
+                        ? "Vocês já estão conectados"
+                        : "Nova conexão registrada!"
+                      : connectionResult.code === "QR_EXPIRED"
+                        ? "Este QR Code expirou"
+                        : "Não foi possível criar a conexão"}
+                  </h1>
+                  <p className="text-sm leading-6 text-muted-foreground">
+                    {connectionResult.success
+                      ? connectionResult.code === "ALREADY_CONNECTED"
+                        ? "Esta conexão já está na sua lista. Nenhum XP adicional foi concedido."
+                        : `Vocês receberam ${SCORES.PARTICIPANT_CONNECTION} XP cada. A conexão já está na sua lista.`
+                      : (connectionResult.message ??
+                        "Tente ler o código novamente. Repetir a leitura não duplica o XP.")}
+                  </p>
+                </div>
+                <Button type="button" size="lg" onClick={startScanner}>
+                  Ler outro QR
+                </Button>
+                <Button
+                  variant="outline"
+                  render={<Link href="/connections" replace />}
+                  nativeButton={false}
+                >
+                  Ver conexões
+                </Button>
               </>
             )}
 

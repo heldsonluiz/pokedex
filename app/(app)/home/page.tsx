@@ -28,6 +28,7 @@ import { formatLevelLabel, getLevelForXp, MAX_LEVEL_XP } from "@/config/levels"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
 import { getHomeCatalogTotals } from "@/modules/home/home.service"
+import { HomeTicketProgress } from "@/modules/home/home-guidance"
 import {
   calculatePassportProgress,
   type HomeObjective,
@@ -38,7 +39,10 @@ import { ParticipantSummaryCard } from "@/modules/participant-summary/participan
 import { hasPermission } from "@/modules/profile/profile.authorization"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
 import type { Profile } from "@/modules/profile/profile.types"
-import { findEventOperations } from "@/modules/tickets/ticket.repository"
+import {
+  findEventOperations,
+  isTicketConversionEnabled,
+} from "@/modules/tickets/ticket.repository"
 
 export const metadata: Metadata = {
   title: "Início",
@@ -109,9 +113,10 @@ export default async function HomePage() {
     return <OrganizationHome profile={profile} operations={operations} />
   }
 
-  const [summary, catalogTotals] = await Promise.all([
+  const [summary, catalogTotals, conversionEnabled] = await Promise.all([
     findOrInitializeParticipantSummary(profile.eventId, profile.userId),
     getHomeCatalogTotals(profile.eventId),
+    isTicketConversionEnabled(profile.eventId),
   ])
   const levelProgress = calculateLevelProgress(profile.xp)
   const passport = calculatePassportProgress(summary, catalogTotals)
@@ -213,6 +218,12 @@ export default async function HomePage() {
       </Link>
 
       <NextObjective objective={objective} />
+
+      <HomeTicketProgress
+        xp={profile.xp}
+        convertedXp={profile.convertedXp}
+        conversionEnabled={conversionEnabled}
+      />
 
       <ParticipantSummaryCard summary={summary} totals={catalogTotals} />
 
@@ -495,10 +506,12 @@ function NextObjective({ objective }: Readonly<{ objective: HomeObjective }>) {
           <p className="mt-1 text-sm leading-5 text-white/70">
             {objective.description}
           </p>
-          <p className="mt-3 inline-flex items-center gap-1 rounded-full bg-primary/25 px-2.5 py-1 text-xs font-semibold text-white">
-            <Sparkles className="size-3.5" aria-hidden="true" />+
-            {objective.xpAwarded} XP
-          </p>
+          {objective.xpAwarded !== null && (
+            <p className="mt-3 inline-flex items-center gap-1 rounded-full bg-primary/25 px-2.5 py-1 text-xs font-semibold text-white">
+              <Sparkles className="size-3.5" aria-hidden="true" />+
+              {objective.xpAwarded} XP
+            </p>
+          )}
         </div>
       </div>
 

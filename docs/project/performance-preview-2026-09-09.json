@@ -1,0 +1,246 @@
+{
+  "participants": 1020,
+  "activeParticipants": 850,
+  "concurrency": [1, 10, 25, 50],
+  "stageSeconds": 30,
+  "remote": true,
+  "routes": [
+    "/home",
+    "/passport",
+    "/ranking",
+    "/companies",
+    "/tags",
+    "/connections"
+  ],
+  "baseUrl": "https://pokedex-33t00z9e8-heldsonluizs-projects.vercel.app",
+  "runId": "perf-5cf47b31-cb1a-4d95-9f2f-b16994c1ebee",
+  "startedAt": "2026-09-09T17:04:05.923Z",
+  "stages": [
+    {
+      "concurrency": 1,
+      "requests": 59,
+      "errors": 0,
+      "p50Ms": 452,
+      "p95Ms": 859,
+      "maxMs": 1494,
+      "durationSeconds": 30.3,
+      "routes": {
+        "/home": {
+          "requests": 10,
+          "errors": 0,
+          "p50Ms": 617,
+          "p95Ms": 1494,
+          "maxMs": 1494
+        },
+        "/passport": {
+          "requests": 10,
+          "errors": 0,
+          "p50Ms": 423,
+          "p95Ms": 859,
+          "maxMs": 859
+        },
+        "/ranking": {
+          "requests": 10,
+          "errors": 0,
+          "p50Ms": 441,
+          "p95Ms": 976,
+          "maxMs": 976
+        },
+        "/companies": {
+          "requests": 10,
+          "errors": 0,
+          "p50Ms": 331,
+          "p95Ms": 632,
+          "maxMs": 632
+        },
+        "/tags": {
+          "requests": 10,
+          "errors": 0,
+          "p50Ms": 370,
+          "p95Ms": 552,
+          "maxMs": 552
+        },
+        "/connections": {
+          "requests": 9,
+          "errors": 0,
+          "p50Ms": 454,
+          "p95Ms": 698,
+          "maxMs": 698
+        }
+      }
+    },
+    {
+      "concurrency": 10,
+      "requests": 628,
+      "errors": 0,
+      "p50Ms": 411,
+      "p95Ms": 819,
+      "maxMs": 3021,
+      "durationSeconds": 30.4,
+      "routes": {
+        "/home": {
+          "requests": 105,
+          "errors": 0,
+          "p50Ms": 539,
+          "p95Ms": 880,
+          "maxMs": 2590
+        },
+        "/passport": {
+          "requests": 105,
+          "errors": 0,
+          "p50Ms": 405,
+          "p95Ms": 732,
+          "maxMs": 3021
+        },
+        "/ranking": {
+          "requests": 105,
+          "errors": 0,
+          "p50Ms": 423,
+          "p95Ms": 879,
+          "maxMs": 2825
+        },
+        "/companies": {
+          "requests": 105,
+          "errors": 0,
+          "p50Ms": 356,
+          "p95Ms": 595,
+          "maxMs": 2593
+        },
+        "/tags": {
+          "requests": 104,
+          "errors": 0,
+          "p50Ms": 363,
+          "p95Ms": 598,
+          "maxMs": 2481
+        },
+        "/connections": {
+          "requests": 104,
+          "errors": 0,
+          "p50Ms": 371,
+          "p95Ms": 812,
+          "maxMs": 2465
+        }
+      }
+    },
+    {
+      "concurrency": 25,
+      "requests": 1793,
+      "errors": 0,
+      "p50Ms": 377,
+      "p95Ms": 623,
+      "maxMs": 2472,
+      "durationSeconds": 30.5,
+      "routes": {
+        "/home": {
+          "requests": 299,
+          "errors": 0,
+          "p50Ms": 508,
+          "p95Ms": 751,
+          "maxMs": 1168
+        },
+        "/passport": {
+          "requests": 299,
+          "errors": 0,
+          "p50Ms": 378,
+          "p95Ms": 573,
+          "maxMs": 2419
+        },
+        "/ranking": {
+          "requests": 299,
+          "errors": 0,
+          "p50Ms": 385,
+          "p95Ms": 587,
+          "maxMs": 2472
+        },
+        "/companies": {
+          "requests": 299,
+          "errors": 0,
+          "p50Ms": 341,
+          "p95Ms": 566,
+          "maxMs": 2351
+        },
+        "/tags": {
+          "requests": 299,
+          "errors": 0,
+          "p50Ms": 353,
+          "p95Ms": 570,
+          "maxMs": 2349
+        },
+        "/connections": {
+          "requests": 298,
+          "errors": 0,
+          "p50Ms": 362,
+          "p95Ms": 625,
+          "maxMs": 2284
+        }
+      }
+    },
+    {
+      "concurrency": 50,
+      "requests": 3567,
+      "errors": 0,
+      "p50Ms": 384,
+      "p95Ms": 601,
+      "maxMs": 2788,
+      "durationSeconds": 30.4,
+      "routes": {
+        "/home": {
+          "requests": 595,
+          "errors": 0,
+          "p50Ms": 511,
+          "p95Ms": 714,
+          "maxMs": 1005
+        },
+        "/passport": {
+          "requests": 595,
+          "errors": 0,
+          "p50Ms": 385,
+          "p95Ms": 616,
+          "maxMs": 2788
+        },
+        "/ranking": {
+          "requests": 595,
+          "errors": 0,
+          "p50Ms": 391,
+          "p95Ms": 585,
+          "maxMs": 2247
+        },
+        "/companies": {
+          "requests": 594,
+          "errors": 0,
+          "p50Ms": 347,
+          "p95Ms": 518,
+          "maxMs": 2395
+        },
+        "/tags": {
+          "requests": 594,
+          "errors": 0,
+          "p50Ms": 361,
+          "p95Ms": 528,
+          "maxMs": 2410
+        },
+        "/connections": {
+          "requests": 594,
+          "errors": 0,
+          "p50Ms": 364,
+          "p95Ms": 553,
+          "maxMs": 2377
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Vercel preview with remote test Firestore; preview configuration may differ from production",
+    "Synthetic authenticated sessions; excludes Google OAuth",
+    "Full HTML reads only; excludes browser rendering, assets, and mutation concurrency",
+    "Closed-loop concurrency without think time; not a count of simultaneous people",
+    "Firestore read billing not measured"
+  ],
+  "catalogItemsPerActiveParticipant": [4, 8],
+  "existingParticipants": 152,
+  "temporaryDocuments": 13090,
+  "remoteSeedVerified": true,
+  "coldHomeMs": 2674,
+  "cleanup": "completed",
+  "finishedAt": "2026-09-09T17:08:14.803Z"
+}

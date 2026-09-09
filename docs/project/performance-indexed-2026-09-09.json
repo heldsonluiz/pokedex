@@ -1,0 +1,244 @@
+{
+  "participants": 1020,
+  "activeParticipants": 850,
+  "concurrency": [1, 10, 25, 50],
+  "stageSeconds": 30,
+  "routes": [
+    "/home",
+    "/passport",
+    "/ranking",
+    "/companies",
+    "/tags",
+    "/connections"
+  ],
+  "baseUrl": "http://127.0.0.1:3107",
+  "runId": "perf-cd7385bd-cf73-4c30-a4be-9c8474030764",
+  "startedAt": "2026-09-09T16:47:26.054Z",
+  "stages": [
+    {
+      "concurrency": 1,
+      "requests": 18,
+      "errors": 0,
+      "p50Ms": 1860,
+      "p95Ms": 2118,
+      "maxMs": 2118,
+      "durationSeconds": 30.7,
+      "routes": {
+        "/home": {
+          "requests": 3,
+          "errors": 0,
+          "p50Ms": 2047,
+          "p95Ms": 2081,
+          "maxMs": 2081
+        },
+        "/passport": {
+          "requests": 3,
+          "errors": 0,
+          "p50Ms": 1897,
+          "p95Ms": 1929,
+          "maxMs": 1929
+        },
+        "/ranking": {
+          "requests": 3,
+          "errors": 0,
+          "p50Ms": 2116,
+          "p95Ms": 2118,
+          "maxMs": 2118
+        },
+        "/companies": {
+          "requests": 3,
+          "errors": 0,
+          "p50Ms": 1189,
+          "p95Ms": 1215,
+          "maxMs": 1215
+        },
+        "/tags": {
+          "requests": 3,
+          "errors": 0,
+          "p50Ms": 1191,
+          "p95Ms": 1203,
+          "maxMs": 1203
+        },
+        "/connections": {
+          "requests": 3,
+          "errors": 0,
+          "p50Ms": 2077,
+          "p95Ms": 2081,
+          "maxMs": 2081
+        }
+      }
+    },
+    {
+      "concurrency": 10,
+      "requests": 431,
+      "errors": 0,
+      "p50Ms": 730,
+      "p95Ms": 904,
+      "maxMs": 1742,
+      "durationSeconds": 30.6,
+      "routes": {
+        "/home": {
+          "requests": 72,
+          "errors": 0,
+          "p50Ms": 769,
+          "p95Ms": 887,
+          "maxMs": 1742
+        },
+        "/passport": {
+          "requests": 72,
+          "errors": 0,
+          "p50Ms": 784,
+          "p95Ms": 983,
+          "maxMs": 1547
+        },
+        "/ranking": {
+          "requests": 72,
+          "errors": 0,
+          "p50Ms": 789,
+          "p95Ms": 1004,
+          "maxMs": 1570
+        },
+        "/companies": {
+          "requests": 72,
+          "errors": 0,
+          "p50Ms": 531,
+          "p95Ms": 744,
+          "maxMs": 1311
+        },
+        "/tags": {
+          "requests": 72,
+          "errors": 0,
+          "p50Ms": 537,
+          "p95Ms": 736,
+          "maxMs": 1075
+        },
+        "/connections": {
+          "requests": 71,
+          "errors": 0,
+          "p50Ms": 726,
+          "p95Ms": 878,
+          "maxMs": 1360
+        }
+      }
+    },
+    {
+      "concurrency": 25,
+      "requests": 1026,
+      "errors": 0,
+      "p50Ms": 770,
+      "p95Ms": 934,
+      "maxMs": 1110,
+      "durationSeconds": 31,
+      "routes": {
+        "/home": {
+          "requests": 171,
+          "errors": 0,
+          "p50Ms": 818,
+          "p95Ms": 956,
+          "maxMs": 1041
+        },
+        "/passport": {
+          "requests": 171,
+          "errors": 0,
+          "p50Ms": 842,
+          "p95Ms": 981,
+          "maxMs": 1110
+        },
+        "/ranking": {
+          "requests": 171,
+          "errors": 0,
+          "p50Ms": 831,
+          "p95Ms": 949,
+          "maxMs": 1067
+        },
+        "/companies": {
+          "requests": 171,
+          "errors": 0,
+          "p50Ms": 572,
+          "p95Ms": 691,
+          "maxMs": 749
+        },
+        "/tags": {
+          "requests": 171,
+          "errors": 0,
+          "p50Ms": 579,
+          "p95Ms": 670,
+          "maxMs": 757
+        },
+        "/connections": {
+          "requests": 171,
+          "errors": 0,
+          "p50Ms": 795,
+          "p95Ms": 925,
+          "maxMs": 1022
+        }
+      }
+    },
+    {
+      "concurrency": 50,
+      "requests": 1661,
+      "errors": 0,
+      "p50Ms": 945,
+      "p95Ms": 1140,
+      "maxMs": 1499,
+      "durationSeconds": 30.9,
+      "routes": {
+        "/home": {
+          "requests": 277,
+          "errors": 0,
+          "p50Ms": 1003,
+          "p95Ms": 1137,
+          "maxMs": 1443
+        },
+        "/passport": {
+          "requests": 277,
+          "errors": 0,
+          "p50Ms": 1052,
+          "p95Ms": 1242,
+          "maxMs": 1499
+        },
+        "/ranking": {
+          "requests": 277,
+          "errors": 0,
+          "p50Ms": 985,
+          "p95Ms": 1118,
+          "maxMs": 1318
+        },
+        "/companies": {
+          "requests": 277,
+          "errors": 0,
+          "p50Ms": 712,
+          "p95Ms": 860,
+          "maxMs": 1009
+        },
+        "/tags": {
+          "requests": 277,
+          "errors": 0,
+          "p50Ms": 752,
+          "p95Ms": 946,
+          "maxMs": 1089
+        },
+        "/connections": {
+          "requests": 276,
+          "errors": 0,
+          "p50Ms": 948,
+          "p95Ms": 1063,
+          "maxMs": 1334
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Local server and remote test Firestore; not production hosting capacity",
+    "Synthetic authenticated sessions; excludes Google OAuth",
+    "Full HTML reads only; excludes browser rendering, assets, and mutation concurrency",
+    "Closed-loop concurrency without think time; not a count of simultaneous people",
+    "Firestore read billing not measured"
+  ],
+  "catalogItemsPerActiveParticipant": [4, 8],
+  "existingParticipants": 152,
+  "temporaryDocuments": 13090,
+  "coldHomeMs": 2629,
+  "cleanup": "completed",
+  "finishedAt": "2026-09-09T16:51:38.130Z"
+}

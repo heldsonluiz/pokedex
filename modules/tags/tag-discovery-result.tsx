@@ -2,10 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 
-import {
-  AnimatedXpReward,
-  TagRevealCard,
-} from "@/components/motion/achievement-celebration"
+import { ActivityRevealCard } from "@/modules/qr-code/activity-reveal-card"
 import { QrResult } from "@/modules/qr-code/qr-result"
 
 import { discoverTagAction, type DiscoverTagActionResult } from "./tag.actions"
@@ -95,6 +92,7 @@ export function TagDiscoveryResult({
   if (state.status === "loading") {
     return (
       <QrResult
+        appearance="reveal"
         status="loading"
         title="Revelando a tag"
         description="Aguarde enquanto verificamos sua descoberta e pontuação."
@@ -107,7 +105,12 @@ export function TagDiscoveryResult({
 
     return (
       <QrResult
+        appearance="reveal"
         status="error"
+        actionHref="/scan"
+        actionLabel="Ler QR novamente"
+        secondaryActionHref="/tags"
+        secondaryActionLabel="Ver coleção"
         title={feedback.title}
         description={feedback.description}
       />
@@ -117,32 +120,15 @@ export function TagDiscoveryResult({
   const alreadyDiscovered = state.result.code === "TAG_ALREADY_DISCOVERED"
 
   return (
-    <QrResult
-      status="success"
-      icon={
-        <TagRevealCard
-          imageUrl={state.result.imageUrl}
-          name={state.result.tagName}
-          celebrate={!alreadyDiscovered}
-        />
-      }
-      secondaryActionHref="/scan"
-      secondaryActionLabel="Voltar para o scanner"
-      title={
-        alreadyDiscovered
-          ? `${state.result.tagName} já foi encontrada`
-          : `${state.result.tagName} revelada`
-      }
-      description={
-        alreadyDiscovered
-          ? `Você já recebeu ${state.result.xpAwarded} XP por esta tag.`
-          : "Ela foi adicionada à sua coleção."
-      }
-      subtitle={alreadyDiscovered ? "" : `${state.result.tagDescription}`}
-    >
-      {!alreadyDiscovered && (
-        <AnimatedXpReward amount={state.result.xpAwarded} />
-      )}
-    </QrResult>
+    <ActivityRevealCard
+      kind="tag"
+      title={state.result.tagName}
+      description={state.result.tagDescription}
+      imageUrl={state.result.imageUrl}
+      xpAwarded={state.result.xpAwarded}
+      repeated={alreadyDiscovered}
+      href="/tags"
+      actionLabel="Ver coleção"
+    />
   )
 }

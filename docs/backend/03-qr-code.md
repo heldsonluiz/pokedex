@@ -14,9 +14,9 @@ Tipos: `user`, `company`, `mission` e `tag`.
 
 O contrato central em `modules/qr-code/qr-code.contract.ts` define os tipos, constrói URLs e interpreta valores externos. A URL completa aceita no máximo 4.096 caracteres, deve usar `http` ou `https`, possuir a mesma origem de `NEXT_PUBLIC_APP_URL`, não pode conter credenciais ou fragmento e deve corresponder exatamente ao formato documentado. O `eventId` deve ser o `EVENT_ID` da implantação e `qrId` deve ser um UUID válido.
 
-QR Codes de empresas, missões automáticas e tags são fixos e não expiram. Seu
+QR Codes de empresas, missões com `validationType: "qr"` e tags são fixos e não expiram. Seu
 uso pode ser interrompido desativando a entidade no Firestore. Palestras não
-possuem QR Code; suas avaliações são liberadas após o horário de encerramento.
+possuem QR Code; suas avaliações são liberadas manualmente por administradores.
 O QR Code de participante acrescenta um token temporário:
 
 ```text
@@ -87,11 +87,12 @@ Action autenticada. A primeira descoberta registra uma conclusão permanente e
 concede o XP padrão ou sobrescrito; releituras não duplicam a recompensa. Nome,
 imagem e descrição são apresentados somente depois da validação do servidor.
 
-Missões automáticas abrem `/qr/{eventId}/mission/{qrId}`. O servidor confirma
+Missões com `validationType: "qr"` abrem `/qr/{eventId}/mission/{qrId}`. O servidor confirma
 que a missão aceita QR, está ativa, teve seus pré-requisitos cumpridos e ainda
 não foi concluída. Missões presenciais não possuem QR próprio: um reviewer ou
 admin escolhe a missão e usa o scanner em modo de revisão para ler o QR
-temporário do participante.
+temporário do participante. Missões com `validationType: "automatic"` não
+possuem QR próprio e são concluídas por metas de progresso.
 
 Uma leitura válida de participante feita pelo scanner cria a conexão
 automaticamente e concede 5 XP a cada participante. A operação é idempotente:
@@ -105,16 +106,17 @@ O parser e a assinatura possuem testes automatizados para URLs válidas, quatro 
 
 ## Material para impressão
 
-O script `scripts/generate-event-qr-pdf.mjs` consulta o Firestore e gera
-`artifacts/event-qr-codes-a4.pdf`, um PDF multipágina em tamanho A4. O material
-é separado por categoria e inclui:
+O comando `pnpm generate-qr-images` consulta o Firestore e recria as imagens
+PNG e o arquivo `qr-links.json` em `artifacts/qr`. Em seguida,
+`pnpm generate-qr-pdf` monta `artifacts/pdf-de-qrs.pdf` a partir dessas imagens,
+em páginas A4. O material é separado por categoria e inclui:
 
 - empresas ativas com `qrId`;
 - tags ativas com `qrId`;
 - missões ativas com `validationType: "qr"` e `qrId`.
 
 Entidades inativas e missões validadas por reviewer não são incluídas. Cada
-quadro reproduz o material individual: tipo, nome, QR Code vetorial, instrução
+quadro reproduz o material individual: tipo, nome, QR Code em PNG, instrução
 de leitura e nome do evento, sem expor a URL ou o ID interno. Empresas são
 distribuídas em uma grade 2×2, com cada quadro próximo do tamanho A6. Tags e
 missões usam uma grade 3×3. Linhas finas nos espaços entre os quadros ajudam no
@@ -123,8 +125,13 @@ corte sem invadir a margem de segurança dos QR Codes.
 Para gerar ou atualizar o arquivo:
 
 ```bash
-node --env-file=.env.local scripts/generate-event-qr-pdf.mjs
+pnpm generate-qr-images
+pnpm generate-qr-pdf
 ```
+
+A geração de imagens carrega `.env`; use `pnpm generate-qr-images --local`
+para sobrescrever os valores com `.env.local`, ou `--mobile` para usar
+`.env.mobile`. A pasta `artifacts/qr` é limpa antes de cada geração.
 
 As URLs são construídas com `EVENT_ID` e `NEXT_PUBLIC_APP_URL` do ambiente
 carregado. Portanto, um PDF gerado com `NEXT_PUBLIC_APP_URL` apontando para

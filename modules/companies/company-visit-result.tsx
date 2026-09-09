@@ -2,10 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 
-import {
-  AnimatedXpReward,
-  CompanyVisitStamp,
-} from "@/components/motion/achievement-celebration"
+import { ActivityRevealCard } from "@/modules/qr-code/activity-reveal-card"
 import { QrResult } from "@/modules/qr-code/qr-result"
 
 import {
@@ -99,6 +96,7 @@ export function CompanyVisitResult({
   if (state.status === "loading") {
     return (
       <QrResult
+        appearance="reveal"
         status="loading"
         title="Validando sua visita"
         description="Aguarde enquanto verificamos a empresa e sua pontuação."
@@ -111,7 +109,12 @@ export function CompanyVisitResult({
 
     return (
       <QrResult
+        appearance="reveal"
         status="error"
+        actionHref="/scan"
+        actionLabel="Ler QR novamente"
+        secondaryActionHref="/passport"
+        secondaryActionLabel="Ver passaporte"
         title={feedback.title}
         description={feedback.description}
       />
@@ -121,28 +124,15 @@ export function CompanyVisitResult({
   const alreadyVisited = state.result.code === "COMPANY_ALREADY_VISITED"
 
   return (
-    <QrResult
-      status="success"
-      icon={
-        <CompanyVisitStamp
-          name={state.result.companyName}
-          celebrate={!alreadyVisited}
-        />
-      }
-      secondaryActionHref="/scan"
-      secondaryActionLabel="Voltar para o scanner"
-      title={
-        alreadyVisited
-          ? `${state.result.companyName} já está no seu passaporte`
-          : `Visita à ${state.result.companyName} registrada`
-      }
-      description={
-        alreadyVisited
-          ? `Você já recebeu ${state.result.xpAwarded} XP por esta empresa.`
-          : "Um novo carimbo foi adicionado ao seu passaporte."
-      }
-    >
-      {!alreadyVisited && <AnimatedXpReward amount={state.result.xpAwarded} />}
-    </QrResult>
+    <ActivityRevealCard
+      kind="company"
+      title={state.result.companyName}
+      description={state.result.companyDescription}
+      imageUrl={state.result.companyLogoUrl}
+      xpAwarded={state.result.xpAwarded}
+      repeated={alreadyVisited}
+      href="/passport"
+      actionLabel="Ver passaporte"
+    />
   )
 }

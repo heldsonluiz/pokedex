@@ -67,3 +67,9 @@ Antes de adicionar uma biblioteca, confirme que:
 ## Próximo documento
 
 ➡️ [Arquitetura do projeto](./03-project-architecture.md)
+
+## Celebrações
+
+`canvas-confetti` complementa as animações de interface do Motion com confetes
+nos resultados de novas conquistas e coleções completas. A biblioteca é
+carregada sob demanda, com canvas local e suporte a movimento reduzido.

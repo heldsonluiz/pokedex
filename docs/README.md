@@ -4,9 +4,10 @@ Esta pasta contém a documentação funcional, técnica e arquitetural do projet
 
 O objetivo é centralizar as decisões, padrões, fluxos e requisitos necessários para desenvolver e manter a aplicação.
 
-## Decisões de produto
+## Escopo e regras de produto
 
-- [Questionário respondido e definições pendentes](./project-questionnaire.md)
+- [Escopo, fases concluídas e próximas entregas](./project/06-roadmap.md)
+- [Contratos de dados e regras de domínio](./backend/01-firestore.md)
 
 ## Projeto
 
@@ -18,6 +19,8 @@ O objetivo é centralizar as decisões, padrões, fluxos e requisitos necessári
 - [Roadmap](./project/06-roadmap.md)
 - [Fluxo de desenvolvimento](./project/07-development-workflow.md)
 - [Scripts de reset e seed do Firestore](./project/08-database-maintenance-scripts.md)
+
+- [Validação de desempenho](./project/09-performance-validation.md)
 
 ## Frontend
 

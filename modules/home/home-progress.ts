@@ -13,7 +13,7 @@ export type HomeObjective = Readonly<{
   eyebrow: string
   title: string
   description: string
-  xpAwarded: number
+  xpAwarded: number | null
   actionLabel: string
 }>
 
@@ -37,49 +37,86 @@ export function selectHomeObjective(
   summary: ParticipantSummary,
   totals: HomeCatalogTotals
 ): HomeObjective {
-  if (summary.companiesVisitedCount < totals.companies) {
+  if (summary.connectionsCount === 0) {
     return {
-      type: "company",
-      href: "/companies",
-      eyebrow: "Próxima atividade",
-      title: "Visite um novo estande",
+      type: "connection",
+      href: "/scan",
+      eyebrow: "Comece por aqui",
+      title: "Faça sua primeira conexão",
       description:
-        "Conheça as empresas participantes e encontre seus QR Codes.",
-      xpAwarded: SCORES.COMPANY_VISIT,
-      actionLabel: "Explorar empresas",
+        "Converse com alguém e leia o QR Code do perfil dessa pessoa. Os dois ganham XP.",
+      xpAwarded: SCORES.PARTICIPANT_CONNECTION,
+      actionLabel: "Conhecer alguém",
     }
+  }
+
+  const collections = [
+    {
+      type: "company" as const,
+      completed: summary.companiesVisitedCount,
+      total: totals.companies,
+    },
+    {
+      type: "tag" as const,
+      completed: summary.tagsDiscoveredCount,
+      total: totals.tags,
+    },
+  ]
+    .filter(({ completed, total }) => total > 0 && completed < total)
+    .sort((a, b) => b.completed / b.total - a.completed / a.total)
+  const next = collections[0]
+
+  if (next) {
+    const remaining = next.total - next.completed
+    return next.type === "company"
+      ? {
+          type: "company",
+          href: "/companies",
+          eyebrow: "Continue seu passaporte",
+          title:
+            remaining === 1
+              ? "Falta visitar 1 empresa"
+              : `Faltam visitar ${remaining} empresas`,
+          description:
+            "Conheça um novo estande e leia o QR Code da empresa para registrar a visita.",
+          xpAwarded: null,
+          actionLabel: "Explorar empresas",
+        }
+      : {
+          type: "tag",
+          href: "/tags",
+          eyebrow: "Continue sua coleção",
+          title:
+            remaining === 1
+              ? "Falta encontrar 1 tag"
+              : `Faltam encontrar ${remaining} tags`,
+          description:
+            "Procure os QR Codes espalhados pelo evento. Cada descoberta revela uma nova tag.",
+          xpAwarded: null,
+          actionLabel: "Ver minha coleção",
+        }
   }
 
   if (summary.missionsCompletedCount < totals.missions) {
     return {
       type: "mission",
       href: "/missions",
-      eyebrow: "Próximo desafio",
-      title: "Complete uma missão",
-      description: "Confira os desafios disponíveis e avance na sua jornada.",
-      xpAwarded: SCORES.MISSION_COMPLETION,
-      actionLabel: "Ver missões",
-    }
-  }
-
-  if (summary.tagsDiscoveredCount < totals.tags) {
-    return {
-      type: "tag",
-      href: "/tags",
-      eyebrow: "Continue explorando",
-      title: "Encontre uma tag escondida",
-      description: "Procure os QR Codes secretos espalhados pelo evento.",
-      xpAwarded: SCORES.TAG_DISCOVERY,
-      actionLabel: "Ver coleção",
+      eyebrow: "Explore os desafios",
+      title: "Confira suas próximas missões",
+      description:
+        "Veja o progresso e os requisitos de cada desafio. Algumas missões são concluídas automaticamente.",
+      xpAwarded: null,
+      actionLabel: "Consultar missões",
     }
   }
 
   return {
     type: "connection",
     href: "/scan",
-    eyebrow: "Jornada em dia",
+    eyebrow: "Continue participando",
     title: "Faça uma nova conexão",
-    description: "Use o scanner para conhecer outro participante do evento.",
+    description:
+      "Conheça alguém novo: pergunte qual palestra a pessoa mais quer assistir e troquem QR Codes.",
     xpAwarded: SCORES.PARTICIPANT_CONNECTION,
     actionLabel: "Abrir scanner",
   }

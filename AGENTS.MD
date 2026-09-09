@@ -4,7 +4,7 @@
 
 O DevFest Triângulo Pokedex é uma aplicação mobile first para participantes do evento. Cada implantação atende uma edição, mas a base deve ser reutilizável em edições futuras.
 
-O produto inclui autenticação com Google, perfil, onboarding, networking por QR Code, empresas, tags, missões, passaporte, palestras, XP, níveis, ranking, badges e tickets por nível para sorteios.
+O produto inclui autenticação com Google, perfil, onboarding, networking por QR Code, empresas, tags, missões, passaporte, palestras, XP, níveis, ranking e tickets por conversão de XP para sorteios. Badges foram removidas do produto.
 
 O painel administrativo já existe em outro projeto e está fora deste repositório. Não implemente gestão administrativa, cadastro de conteúdo ou relatórios administrativos aqui, salvo uma integração explicitamente solicitada.
 
@@ -55,7 +55,7 @@ UI → Server Action/Route Handler → Service → Repository → Firestore
 
 - Nunca confie em dados enviados pelo cliente.
 - Autenticação não substitui autorização; valide permissão por operação e recurso.
-- XP, níveis, `xpReachedAt`, badges, scans, conexões e tickets são controlados pelo servidor.
+- XP, níveis, `xpReachedAt`, scans, conexões e tickets são controlados pelo servidor.
 - Operações repetíveis devem ser idempotentes.
 - Use transações ou operações atômicas quando houver concorrência.
 - IDs internos do Firestore não podem aparecer em QR Codes.
@@ -71,8 +71,8 @@ UI → Server Action/Route Handler → Service → Repository → Firestore
 - Tipos: `user`, `company`, `mission` e `tag`.
 - Scans exigem conexão e validação no servidor.
 - O QR Code do participante expira após um minuto.
-- QR Codes de empresas, missões automáticas e tags são fixos e controlados pelo estado da entidade.
-- Palestras não possuem QR Code; a avaliação é liberada pelo horário de encerramento configurado.
+- QR Codes de empresas, missões com `validationType: "qr"` e tags são fixos e controlados pelo estado da entidade.
+- Palestras não possuem QR Code; a avaliação é liberada manualmente por administradores.
 - Abrir diretamente um deep link não deve ignorar autenticação, autorização ou validação.
 
 ### Networking
@@ -99,10 +99,9 @@ scan → conexão automática → concessão de XP
 - cada tag possui um único QR Code fixo e pode ser descoberta uma vez por participante;
 - descobertas e seus XP são permanentes e não possuem fluxo de remoção;
 - tags bloqueadas exibem somente slots anônimos; nome, imagem e descrição são revelados após o scan;
-- descoberta e XP são registrados atomicamente e de forma idempotente;
-- critérios de badges baseados em tags pertencem à fase de badges.
+- descoberta e XP são registrados atomicamente e de forma idempotente.
 
-### XP, ranking, badges e tickets
+### XP, ranking e tickets
 
 - XP não é moeda e não pode ser gasto;
 - níveis usam as dez faixas fixas de `config/levels.ts`;
@@ -112,15 +111,11 @@ scan → conexão automática → concessão de XP
 - em empate, fica à frente quem atingiu primeiro a pontuação atual, usando `xpReachedAt`;
 - persistindo o empate, o ID do perfil define uma ordem determinística;
 - somente perfis concluídos com papel `participant` aparecem no ranking;
-- durante o MVP, o ranking ordena em memória os perfis do evento e usa cache
-  compartilhado de 60 segundos;
-- a consulta indexada e paginada fica registrada como melhoria pós-MVP;
-- badges são conquistas visuais e não concedem XP;
-- badges usam critérios `activity`, `activityCount`, `allOf` e `anyOf`;
-- somente empresas, tags e missões permanentes participam desses critérios;
-- concessões são retroativas, idempotentes e persistidas em
-  `participantBadges`;
-- badges secretas ocultam seus dados até serem conquistadas;
+- o ranking usa consultas indexadas e contagem até o cursor do participante;
+- participantes no pódio recebem o Top 10; os demais recebem o Top 3 e até
+  três vizinhos de cada lado, sem repetir o pódio;
+- a ordenação completa em memória, com cache de 60 segundos, permanece como
+  fallback temporário somente para o erro `failed-precondition` do Firestore;
 - concluir o onboarding concede um ticket inicial, inclusive retroativamente;
 - cada 200 XP ainda não convertidos pode gerar um ticket;
 - converter XP não reduz XP, nível ou posição no ranking;
@@ -138,10 +133,11 @@ scan → conexão automática → concessão de XP
 - `role` continua sendo o cargo público e nunca concede autorização;
 - `reviewer` e `admin` podem validar missões presenciais;
 - staff só recebe XP se também possuir explicitamente o papel `participant`;
-- missões podem ser validadas automaticamente por QR Code ou submetidas a revisores;
+- missões usam `validationType` igual a `qr`, `reviewer` ou `automatic`;
+- missões `automatic` são concluídas por metas de progresso e não possuem QR próprio;
 - qualquer usuário com papel de reviewer pode validar uma missão que exija revisão;
 - missões podem exigir visitas ou outras conclusões como pré-requisitos;
-- avaliações de palestra são liberadas após o horário de encerramento, sem QR Code de presença;
+- avaliações de palestra são liberadas manualmente por administradores, sem QR Code de presença;
 - enviar uma avaliação válida conclui sua missão e concede XP uma única vez;
 - avaliações são vinculadas ao perfil do avaliador.
 
@@ -155,9 +151,13 @@ scan → conexão automática → concessão de XP
 
 ## Decisões pendentes
 
-Consulte `docs/project-questionnaire.md`. Não invente regras marcadas como `A definir`, especialmente valores de XP, faixas dos níveis, tipos e critérios das missões, badges, sorteios, avaliações e métricas.
+Consulte `docs/project/06-roadmap.md` para o escopo e as fases pendentes e
+`docs/backend/01-firestore.md` para os contratos de domínio documentados.
+Valores de XP, níveis e conversão de tickets ficam em `config/scores.ts`,
+`config/levels.ts` e `config/tickets.ts`.
 
-Se uma tarefa depender de uma dessas decisões, solicite definição antes de implementar o comportamento.
+Se uma tarefa depender de uma regra ainda não definida nesses documentos ou
+contratos, solicite definição antes de implementar o comportamento.
 
 ## Documentação
 

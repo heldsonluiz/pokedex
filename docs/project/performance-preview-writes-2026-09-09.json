@@ -1,0 +1,114 @@
+{
+  "runId": "perf-http-c1aff9a5-16ae-4663-a30c-5d3df0376181",
+  "origin": "https://pokedex-33t00z9e8-heldsonluizs-projects.vercel.app",
+  "startedAt": "2026-09-09T17:08:50.298Z",
+  "groups": [
+    {
+      "label": "20 fresh company HTTP actions",
+      "operations": 20,
+      "durationMs": 12764,
+      "p95Ms": 12310,
+      "maxMs": 12764,
+      "statuses": {
+        "COMPANY_VISITED": 20
+      }
+    },
+    {
+      "label": "20 repeated company HTTP actions",
+      "operations": 20,
+      "durationMs": 8499,
+      "p95Ms": 8151,
+      "maxMs": 8499,
+      "statuses": {
+        "COMPANY_ALREADY_VISITED": 20
+      }
+    },
+    {
+      "label": "20 fresh tag HTTP actions",
+      "operations": 20,
+      "durationMs": 8253,
+      "p95Ms": 7860,
+      "maxMs": 8253,
+      "statuses": {
+        "TAG_DISCOVERED": 20
+      }
+    },
+    {
+      "label": "20 repeated tag HTTP actions",
+      "operations": 20,
+      "durationMs": 7706,
+      "p95Ms": 7319,
+      "maxMs": 7706,
+      "statuses": {
+        "TAG_ALREADY_DISCOVERED": 20
+      }
+    },
+    {
+      "label": "20 fresh mission HTTP actions",
+      "operations": 20,
+      "durationMs": 8581,
+      "p95Ms": 8166,
+      "maxMs": 8581,
+      "statuses": {
+        "MISSION_COMPLETED": 20
+      }
+    },
+    {
+      "label": "20 repeated mission HTTP actions",
+      "operations": 20,
+      "durationMs": 7837,
+      "p95Ms": 7456,
+      "maxMs": 7837,
+      "statuses": {
+        "MISSION_ALREADY_COMPLETED": 20
+      }
+    },
+    {
+      "label": "10 bidirectional HTTP connection pairs",
+      "operations": 20,
+      "durationMs": 8537,
+      "p95Ms": 8118,
+      "maxMs": 8536,
+      "statuses": {
+        "CONNECTION_CREATED": 10,
+        "ALREADY_CONNECTED": 10
+      }
+    },
+    {
+      "label": "8 repeated HTTP ticket conversions",
+      "operations": 8,
+      "durationMs": 2666,
+      "p95Ms": 2665,
+      "maxMs": 2665,
+      "statuses": {
+        "success": 8
+      }
+    },
+    {
+      "label": "8 HTTP ticket conversions competing for balance",
+      "operations": 8,
+      "durationMs": 3950,
+      "p95Ms": 3950,
+      "maxMs": 3950,
+      "statuses": {
+        "success": 1,
+        "rejected": 7
+      }
+    }
+  ],
+  "checks": [
+    "Unauthenticated HTTP action rejected without recording activity",
+    "Invalid signed participant QR rejected",
+    "20 participants: 180 XP each, three completions and one connection, no duplicate rewards",
+    "HTTP ticket conversions preserve ranking XP and cannot spend the same balance twice"
+  ],
+  "limitations": [
+    "Synthetic sessions; Google OAuth is not exercised",
+    "Short integration test, not sustained write capacity",
+    "Uses Server Action references and RSC encoding of the deployed Next.js app"
+  ],
+  "remoteSeedVerified": true,
+  "cleanup": "completed",
+  "deletedReferences": 116,
+  "finishedAt": "2026-09-09T17:10:23.614Z"
+}

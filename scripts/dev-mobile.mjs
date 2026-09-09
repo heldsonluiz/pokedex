@@ -41,12 +41,7 @@ function sleep(milliseconds) {
  * @param {string} name
  * @param {NodeJS.ProcessEnv} [environment]
  */
-function startProcess(
-  command,
-  args,
-  name,
-  environment = process.env
-) {
+function startProcess(command, args, name, environment = process.env) {
   const child = spawn(command, args, {
     cwd: process.cwd(),
     env: environment,
@@ -117,16 +112,12 @@ async function getNgrokPublicUrl(attempts = 30) {
       // A API local ainda pode não estar disponível.
     }
 
-    console.log(
-      `[MOBILE] Aguardando túnel do ngrok... ${attempt}/${attempts}`
-    )
+    console.log(`[MOBILE] Aguardando túnel do ngrok... ${attempt}/${attempts}`)
 
     await sleep(1_000)
   }
 
-  throw new Error(
-    `Não foi possível encontrar o túnel ${NGROK_PUBLIC_URL}.`
-  )
+  throw new Error(`Não foi possível encontrar o túnel ${NGROK_PUBLIC_URL}.`)
 }
 
 /**
@@ -206,27 +197,15 @@ async function main() {
   console.log("")
   console.log("[MOBILE] Variáveis utilizadas pelo Next.js:")
   console.log(`AUTH_URL=${mobileEnvironment.AUTH_URL}`)
-  console.log(
-    `AUTH_TRUST_HOST=${mobileEnvironment.AUTH_TRUST_HOST}`
-  )
-  console.log(
-    `NEXT_PUBLIC_APP_URL=${mobileEnvironment.NEXT_PUBLIC_APP_URL}`
-  )
+  console.log(`AUTH_TRUST_HOST=${mobileEnvironment.AUTH_TRUST_HOST}`)
+  console.log(`NEXT_PUBLIC_APP_URL=${mobileEnvironment.NEXT_PUBLIC_APP_URL}`)
   console.log("")
   console.log("[MOBILE] Iniciando Next.js...")
   console.log("")
 
   nextProcess = startProcess(
     "pnpm",
-    [
-      "exec",
-      "next",
-      "dev",
-      "--hostname",
-      "0.0.0.0",
-      "-p",
-      PORT,
-    ],
+    ["exec", "next", "dev", "--hostname", "0.0.0.0", "-p", PORT],
     "NEXT",
     mobileEnvironment
   )
@@ -236,9 +215,7 @@ async function main() {
       return
     }
 
-    console.log(
-      `[NEXT] Processo encerrado. Código: ${code}, sinal: ${signal}`
-    )
+    console.log(`[NEXT] Processo encerrado. Código: ${code}, sinal: ${signal}`)
 
     shutdown(code ?? 0)
   })

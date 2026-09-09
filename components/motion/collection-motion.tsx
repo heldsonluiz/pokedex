@@ -12,8 +12,9 @@ import {
 import { motion, useAnimationControls, useReducedMotion } from "motion/react"
 import Link from "next/link"
 import type { ReactNode } from "react"
-import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useState } from "react"
 
+import { AchievementConfetti } from "@/components/motion/achievement-confetti"
 import { cn } from "@/lib/utils"
 
 const RECENT_ACHIEVEMENT_WINDOW_MS = 30 * 60 * 1000
@@ -211,65 +212,50 @@ export function CollectionCompletionCelebration({
   enabled: boolean
   label: string
 }>) {
-  const controls = useAnimationControls()
   const reduceMotion = useReducedMotion()
-  const appearanceRegistered = useRef(false)
-  const [visible, setVisible] = useState(true)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    if (
-      !enabled ||
-      !achievementKey ||
-      !completedAt ||
-      appearanceRegistered.current
-    )
-      return
+    if (!enabled || !achievementKey || !completedAt) return
 
-    const isRecent = Date.now() - completedAt <= RECENT_ACHIEVEMENT_WINDOW_MS
-    if (!isRecent) return
+    const age = Date.now() - completedAt
+    if (age < 0 || age > RECENT_ACHIEVEMENT_WINDOW_MS) return
 
     const storageKey = `pokedex:collection-banner-count:v1:${achievementKey}:${completedAt}`
-    const appearances = Number(window.localStorage.getItem(storageKey) ?? 0)
-    if (appearances >= 1) {
-      controls.set({ display: "none" })
-      return
+    let hideTimeout: ReturnType<typeof setTimeout> | undefined
+    const showTimeout = window.setTimeout(() => {
+      try {
+        if (Number(window.localStorage.getItem(storageKey) ?? 0) >= 1) return
+        window.localStorage.setItem(storageKey, "1")
+      } catch {
+        // Storage restrictions must not leave an invisible overlay on the page.
+      }
+      setVisible(true)
+      hideTimeout = setTimeout(() => setVisible(false), 5_000)
+    }, 0)
+
+    return () => {
+      window.clearTimeout(showTimeout)
+      clearTimeout(hideTimeout)
     }
+  }, [achievementKey, completedAt, enabled])
 
-    appearanceRegistered.current = true
-    window.localStorage.setItem(storageKey, String(appearances + 1))
-
-    if (reduceMotion) {
-      controls.set({ opacity: 1, scale: 1, y: 0 })
-      window.setTimeout(() => setVisible(false), 5000)
-      return
-    }
-
-    void controls
-      .start({
-        opacity: [0, 1, 1, 0],
-        scale: [0.96, 1.02, 1, 0.98],
-        y: [-28, 0, 0, -12],
-        transition: { duration: 5, times: [0, 0.1, 0.9, 1] },
-      })
-      .then(() => setVisible(false))
-  }, [achievementKey, completedAt, controls, enabled, reduceMotion])
-
-  if (!visible) return null
+  if (!enabled || !achievementKey || !completedAt || !visible) return null
 
   function closeCelebration() {
-    void controls
-      .start({ opacity: 0, scale: 0.98, y: -8 }, { duration: 0.16 })
-      .then(() => setVisible(false))
+    setVisible(false)
   }
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: -28 }}
-      animate={controls}
+      initial={reduceMotion ? false : { opacity: 0, scale: 0.96, y: -28 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.25 }}
       className="fixed top-5 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 overflow-hidden rounded-2xl bg-(image:--gradient-gamification) p-4 py-4 pr-12 text-gamification-foreground shadow-glow-gamification ring-1 ring-gamification/40"
       role="status"
       aria-live="polite"
     >
+      <AchievementConfetti />
       <span className="absolute inset-x-0 top-0 h-1 bg-foreground/20" />
       <Sparkles className="absolute right-10 bottom-3 size-3 text-gamification-foreground/55" />
 

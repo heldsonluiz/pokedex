@@ -16,7 +16,15 @@ Para participantes, a navegação inferior mantém o Passaporte. Contas
 `reviewer` e `admin` veem Operações no mesmo espaço; acessar `/passport` com
 esses papéis redireciona para `/operations`.
 
-O layout autenticado mantém os controles de navegação fora da área rolável. Home, Missões, Scanner, Passaporte e Perfil não exibem header; elas usam somente a navegação inferior, com o item atual identificado visualmente e por `aria-current`. Telas secundárias, como edição de perfil e exibição do QR Code, ocultam a navegação inferior e exibem header com retorno explícito para `/profile`.
+O layout autenticado mantém os controles de navegação fora da área rolável.
+Home, Scanner, Operações e Perfil usam a navegação inferior, com o item atual
+identificado visualmente e por `aria-current`. Missões e Passaporte exibem
+header com retorno e ocultam a navegação inferior. Telas secundárias, como
+edição de perfil e exibição do QR Code, também usam header com retorno.
+
+O `AppShell` oferece “Pular para o conteúdo” como primeiro link, visível ao
+receber foco pelo teclado. O destino é o elemento `main`, que aceita foco sem
+acrescentar uma parada à sequência de Tab.
 
 O scanner usa o tema dark; as demais rotas principais seguem a preferência
 global `Sistema`, `Claro` ou `Escuro`, selecionada no Perfil. Telas secundárias
@@ -57,9 +65,31 @@ Preserve o destino original quando seguro para permitir retorno após o login. N
 
 ## Botão voltar e estado
 
-Use histórico quando houver origem conhecida; caso contrário, forneça destino seguro. Preserve filtros e posição de scroll quando isso melhorar o retorno a listas. Loading e transições não devem permitir ações duplicadas.
+No Passaporte, o retorno aponta explicitamente para `/home`. Destinos de
+retorno definidos no header são links navegáveis, inclusive antes da hidratação
+do JavaScript.
 
-Telas compartilhadas podem receber uma origem enumerada para definir o retorno contextual. `/profile/qr-code` aceita somente `source=home`; esse valor retorna para `/home`, enquanto qualquer valor ausente ou desconhecido mantém `/profile` como destino seguro. Não use URLs arbitrárias recebidas por query string como destino de retorno.
+Os destinos ficam centralizados em `components/layout/route-layout.ts`.
+Tags, Ranking, Tickets, Passaporte, Empresas, Conexões e Palestras retornam
+à Home. Missões retorna à Home para participantes e a Operações para contas
+com permissão de atendimento. Detalhes retornam às respectivas listas;
+ferramentas operacionais retornam a Operações. O header nunca usa o histórico
+como fallback: um retorno sem destino explícito aponta para `/home`.
+
+Navegação para uma nova área usa links comuns. Encerrar uma etapa usa
+`replace`: scanner para resultado de QR, resultado para coleção ou novo scan,
+revisão para Missões, scanner operacional para atendimento, próximo atendimento
+e edição de perfil ao salvar ou cancelar. O retorno do header também substitui
+a entrada atual. Isso evita reabrir resultados que executam ações ao montar.
+Não é possível apagar entradas antigas já existentes no histórico do navegador;
+recarregar ou abrir diretamente uma URL de resultado continua protegido pela
+idempotência do servidor.
+
+O fechamento do modal interceptado de empresa mantém `router.back()` para
+restaurar sua tela de origem. A página completa de empresa usa retorno explícito
+para `/companies`. Loading e transições não devem permitir ações duplicadas.
+
+Telas compartilhadas podem receber uma origem enumerada para definir o retorno contextual. `/profile/qr-code` aceita `source=home` e `source=missions`, retornando para `/home` e `/missions`, respectivamente. Um valor ausente ou desconhecido mantém `/profile` como destino seguro. Não use URLs arbitrárias recebidas por query string como destino de retorno.
 
 O documento usa `viewport-fit=cover` para que navegadores móveis exponham corretamente as safe areas. O header considera a safe area superior, e a navegação inferior soma a safe area inferior ao espaçamento visual do componente. Somente o conteúdo central deve rolar, preservando os controles principais em telas pequenas.
 

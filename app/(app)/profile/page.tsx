@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils"
 import { signOutCurrentUser } from "@/modules/auth/auth.actions"
 import { getLinkedinProfileUrl } from "@/modules/profile/profile.schema"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
+import { ProfileHelp } from "@/modules/profile/profile-help"
 import { findSkillBySlug } from "@/modules/profile/profile-skills"
 
 export const metadata: Metadata = {
@@ -172,6 +173,8 @@ export default async function ProfilePage() {
           <ThemeSelector />
         </CardContent>
       </Card>
+      <ProfileHelp />
+
       <form action={signOutCurrentUser}>
         <SignOutButton className="w-full" />
       </form>

@@ -2,10 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 
-import {
-  AnimatedXpReward,
-  MissionCompletionBadge,
-} from "@/components/motion/achievement-celebration"
+import { ActivityRevealCard } from "@/modules/qr-code/activity-reveal-card"
 import { QrResult } from "@/modules/qr-code/qr-result"
 
 import {
@@ -114,6 +111,7 @@ export function MissionCompletionResult({
   if (state.status === "loading") {
     return (
       <QrResult
+        appearance="reveal"
         status="loading"
         title="Validando missão"
         description="Aguarde enquanto verificamos a conclusão e a pontuação."
@@ -126,7 +124,12 @@ export function MissionCompletionResult({
 
     return (
       <QrResult
+        appearance="reveal"
         status="error"
+        actionHref="/scan"
+        actionLabel="Ler QR novamente"
+        secondaryActionHref="/missions"
+        secondaryActionLabel="Ver missões"
         title={feedback.title}
         description={feedback.description}
       />
@@ -136,30 +139,15 @@ export function MissionCompletionResult({
   const repeated = state.result.code === "MISSION_ALREADY_COMPLETED"
 
   return (
-    <QrResult
-      status="success"
-      icon={
-        <MissionCompletionBadge
-          imageUrl={state.result.missionImageUrl ?? undefined}
-          title={state.result.missionTitle}
-          celebrate={!repeated}
-        />
-      }
-      secondaryActionHref="/scan"
-      secondaryActionLabel="Voltar para o scanner"
-      title={
-        repeated
-          ? "Missão já concluída"
-          : `${state.result.missionTitle} concluída`
-      }
-      description={
-        repeated
-          ? `Você já recebeu ${state.result.xpAwarded} XP por esta missão.`
-          : "Seu progresso e sua pontuação foram atualizados."
-      }
-      subtitle={repeated ? "" : `${state.result.missionDescription}`}
-    >
-      {!repeated && <AnimatedXpReward amount={state.result.xpAwarded} />}
-    </QrResult>
+    <ActivityRevealCard
+      kind="mission"
+      title={state.result.missionTitle}
+      description={state.result.missionDescription}
+      imageUrl={state.result.missionImageUrl}
+      xpAwarded={state.result.xpAwarded}
+      repeated={repeated}
+      href="/missions"
+      actionLabel="Ver missões"
+    />
   )
 }
