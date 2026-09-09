@@ -65,7 +65,8 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root {
+:root,
+.qr-reveal-card {
   --background: #f8fafc;
   --foreground: #020617;
   --card: #ffffff;

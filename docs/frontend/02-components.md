@@ -72,3 +72,15 @@ polimento do MVP; os padrões permanentes permanecem documentados neste diretór
 ## Próximo documento
 
 ➡️ [Páginas](./03-pages.md)
+
+## Confete de conquistas
+
+`AchievementConfetti` carrega `canvas-confetti` sob demanda e desenha uma
+explosão curta de partículas quadradas nas cores do aplicativo em um canvas
+restrito ao card. O canvas é decorativo e não intercepta cliques. A animação
+respeita movimento reduzido e é encerrada ao sair do componente.
+
+Novas visitas, tags, missões e conexões disparam o efeito; registros já
+existentes e erros não disparam. O banner de coleção completa do Passaporte
+reutiliza o mesmo efeito e mantém sua regra de exibição única por conquista
+recente no navegador. O efeito não altera pontuação ou concessões.

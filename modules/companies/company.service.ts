@@ -24,6 +24,8 @@ export type CompanyVisitOperationResult =
       success: true
       code: "COMPANY_VISITED" | "COMPANY_ALREADY_VISITED"
       companyName: string
+      companyDescription: string | null
+      companyLogoUrl: string
       xpAwarded: number
     }>
   | Readonly<{
@@ -128,6 +130,8 @@ export async function visitCompanyForSession(
         success: true,
         code: "COMPANY_VISITED",
         companyName: result.company.name,
+        companyDescription: result.company.description,
+        companyLogoUrl: result.company.logoUrl,
         xpAwarded: result.visit.xpAwarded,
       }
     case "already-visited":
@@ -135,6 +139,8 @@ export async function visitCompanyForSession(
         success: true,
         code: "COMPANY_ALREADY_VISITED",
         companyName: result.company.name,
+        companyDescription: result.company.description,
+        companyLogoUrl: result.company.logoUrl,
         xpAwarded: result.visit.xpAwarded,
       }
     case "inactive":

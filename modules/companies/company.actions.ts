@@ -12,6 +12,8 @@ export type VisitCompanyActionResult =
       success: true
       code: "COMPANY_VISITED" | "COMPANY_ALREADY_VISITED"
       companyName: string
+      companyDescription: string | null
+      companyLogoUrl: string
       xpAwarded: number
     }>
   | Readonly<{

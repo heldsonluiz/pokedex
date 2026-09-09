@@ -80,3 +80,7 @@ ou já existente.
 ## Próximo documento
 
 ➡️ [Deployment](./07-deployment.md)
+
+A resposta de sucesso de `visitCompanyAction` inclui `companyDescription` e
+`companyLogoUrl`, provenientes da empresa validada na transação, para compor
+o card de revelação sem uma consulta adicional.
