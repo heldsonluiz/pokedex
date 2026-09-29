@@ -47,6 +47,7 @@ export const raffleEntryChunkFieldsSchema = z.object({
 export const raffleFieldsSchema = z.object({
   id: z.string().trim().min(1).max(128),
   eventId: z.string().trim().min(1).max(128),
+  sponsorId: z.string().trim().min(1).max(128).nullable().optional(),
   prizeName: z.string().trim().min(1).max(120),
   description: z.string().trim().max(240).nullable(),
   imageUrl: z.url().nullable(),
