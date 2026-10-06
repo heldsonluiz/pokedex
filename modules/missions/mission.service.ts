@@ -23,17 +23,20 @@ import {
 import {
   completeKeywordMissionInputSchema,
   completeQrMissionInputSchema,
+  completeQuizMissionInputSchema,
   reviewMissionInputSchema,
 } from "./mission.schema"
+import { type PublicMissionQuiz, publicMissionQuiz } from "./mission-quiz"
 
 export type MissionListItem = Readonly<{
   id: string
   title: string
   description: string
   imageUrl: string | null
-  validationType: "qr" | "reviewer" | "automatic" | "keyword"
+  validationType: "qr" | "reviewer" | "automatic" | "keyword" | "quiz"
   status: "available" | "blocked" | "completed"
   xpAwarded: number
+  quiz?: PublicMissionQuiz
   networkingByInterest?: boolean
   keywordMaxAttempts?: number
   completedAt: Date | null
@@ -58,6 +61,9 @@ export type MissionOperationResult =
   | Readonly<{
       success: false
       code:
+        | "QUIZ_NOT_PASSED"
+        | "INVALID_ANSWERS"
+        | "QUIZ_CHANGED"
         | "INCORRECT_ANSWER"
         | "ATTEMPTS_EXHAUSTED"
         | "FORBIDDEN"
@@ -186,6 +192,14 @@ export async function listMissionsForSession(
       description: mission.description,
       imageUrl: mission.imageUrl,
       validationType: mission.validationType,
+      ...(mission.quizConfig
+        ? {
+            quiz: publicMissionQuiz(
+              mission.quizConfig,
+              mission.updatedAt.getTime()
+            ),
+          }
+        : {}),
       ...(mission.progressRequirement?.type === "shared-interests"
         ? { networkingByInterest: true }
         : {}),
@@ -310,6 +324,12 @@ function mapCompletionResult(
   result: Awaited<ReturnType<typeof completeMission>>
 ): MissionOperationResult {
   switch (result.status) {
+    case "quiz-not-passed":
+      return { success: false, code: "QUIZ_NOT_PASSED" }
+    case "invalid-answers":
+      return { success: false, code: "INVALID_ANSWERS" }
+    case "quiz-changed":
+      return { success: false, code: "QUIZ_CHANGED" }
     case "incorrect-answer":
       return { success: false, code: "INCORRECT_ANSWER" }
     case "attempts-exhausted":
@@ -362,6 +382,29 @@ export async function completeKeywordMissionForSession(
       missionId: target.missionId,
       answer: target.answer,
       validationType: "keyword",
+      defaultXpAwarded: SCORES.MISSION_COMPLETION,
+    })
+  )
+}
+
+export async function completeQuizMissionForSession(
+  session: Session,
+  input: unknown
+): Promise<MissionOperationResult> {
+  const target = completeQuizMissionInputSchema.parse(input)
+  const participant = await requireProfileForSession(session)
+  if (participant.eventId !== env.EVENT_ID)
+    return { success: false, code: "INVALID_EVENT" }
+  if (!hasPermission(participant, "participate"))
+    return { success: false, code: "FORBIDDEN" }
+  return mapCompletionResult(
+    await completeMission({
+      eventId: participant.eventId,
+      participantId: participant.userId,
+      missionId: target.missionId,
+      answers: target.answers,
+      revision: target.revision,
+      validationType: "quiz",
       defaultXpAwarded: SCORES.MISSION_COMPLETION,
     })
   )

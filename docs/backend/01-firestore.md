@@ -148,8 +148,8 @@ concedido.
 ### Missões
 
 Cada missão possui `validationType` igual a `qr`, `reviewer`, `automatic` ou
-`keyword`. Apenas missões `qr` possuem `qrId`; os outros tipos usam `null`.
-Missões QR, presenciais e por palavra-chave podem declarar pré-requisitos de
+`keyword` ou `quiz`. Apenas missões `qr` possuem `qrId`; os outros tipos usam `null`.
+Missões QR, presenciais, por palavra-chave e quiz podem declarar pré-requisitos de
 visita a empresa ou conclusão de outra missão. Automáticas usam somente
 `progressRequirement` com metas de conexões, empresas ou conexões com interesses
 em comum (`shared-interests`). Veja [networking por interesse](./08-interest-networking-missions.md).

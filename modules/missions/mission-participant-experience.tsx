@@ -33,6 +33,7 @@ import {
   orderMissionsForDisplay,
   selectFeaturedMission,
 } from "./mission-presentation"
+import { MissionQuizForm } from "./mission-quiz-form"
 
 const statusContent = {
   available: { label: "Disponível", icon: CircleDot },
@@ -214,7 +215,9 @@ function MissionRow({ mission }: Readonly<{ mission: MissionListItem }>) {
                       : "Progresso automático"
                     : mission.validationType === "keyword"
                       ? "Descubra a palavra-chave"
-                      : "Encontre o QR Code"}
+                      : mission.validationType === "quiz"
+                        ? "Quiz relâmpago"
+                        : "Encontre o QR Code"}
               </span>
             )}
           </span>
@@ -295,7 +298,7 @@ function MissionDialog({
     <Dialog>
       <DialogTrigger render={trigger} />
       <DialogContent
-        className="block overflow-hidden rounded-3xl bg-[#070b18] p-0 text-white ring-white/10 sm:max-w-sm"
+        className="block max-h-[90dvh] overflow-y-auto rounded-3xl bg-[#070b18] p-0 text-white ring-white/10 sm:max-w-sm"
         showCloseButton={false}
       >
         <div className="flex min-h-64 items-center justify-center bg-[#070b18] p-8">
@@ -346,7 +349,9 @@ function MissionDialog({
                       : "Continue participando. A missão será concluída automaticamente quando você atingir a meta."
                     : mission.validationType === "keyword"
                       ? "Descubra a palavra-chave e envie sua resposta abaixo. As tentativas são limitadas."
-                      : "Encontre e leia o QR Code desta missão durante o evento."}
+                      : mission.validationType === "quiz"
+                        ? "Responda às perguntas e alcance o mínimo de acertos para concluir."
+                        : "Encontre e leia o QR Code desta missão durante o evento."}
               </p>
             </div>
           </div>
@@ -386,6 +391,13 @@ function MissionDialog({
                 maxAttempts={mission.keywordMaxAttempts}
               />
             )}
+          {mission.status === "available" && mission.quiz && (
+            <MissionQuizForm
+              key={mission.quiz.revision}
+              missionId={mission.id}
+              quiz={mission.quiz}
+            />
+          )}
           <DialogFooter className="mx-0 mb-0 flex-row rounded-none border-0 bg-transparent p-0 pt-2">
             <DialogClose
               render={
