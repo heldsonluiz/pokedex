@@ -3,7 +3,7 @@ import { createHash } from "node:crypto"
 const asset = (origin, folder, slug) =>
   new URL(`/images/assets/${folder}/${slug}.png`, origin).toString()
 
-function deterministicUuid(type, slug) {
+export function deterministicUuid(type, slug) {
   const hash = createHash("sha256")
     .update(`devfest-triangulo-2026:${type}:${slug}`)
     .digest("hex")
