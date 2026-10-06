@@ -22,8 +22,11 @@ possuem QR próprio nem pré-requisitos, e usam o fluxo automático já existent
 ## Interesses e conexões
 
 O perfil e o onboarding permitem selecionar opcionalmente até cinco interesses.
-IDs padronizados: `ai`, `cloud`, `web`, `mobile`, `data`, `security`,
-`accessibility`, `career`, `open-source`, `entrepreneurship` e `design`.
+A lista padronizada é mantida em `modules/profile/profile-interests.ts`. Inclui
+IA, cloud, web, mobile, dados, segurança, acessibilidade, carreira, open source,
+empreendedorismo, design, frontend, backend, DevOps, testes, arquitetura, bancos
+de dados, IA generativa, machine learning, IoT, jogos, automação, liderança,
+comunidades, educação, métodos ágeis, observabilidade, performance e privacidade.
 Perfis antigos sem `interests` continuam válidos e são tratados como sem interesses.
 
 Ao criar uma conexão, a transação lê os interesses dos dois perfis e grava a
