@@ -24,6 +24,7 @@ import {
   type MissionCompletion,
   missionCompletionFieldsSchema,
 } from "./mission-completion.schema"
+import { normalizeKeyword } from "./mission-keyword"
 
 const MISSIONS_COLLECTION = getFirestoreCollectionName("missions")
 const COMPLETIONS_COLLECTION = getFirestoreCollectionName("activityCompletions")
@@ -36,6 +37,7 @@ const missionDocumentSchema = z.object({
   description: missionFieldsSchema.shape.description,
   imageUrl: missionFieldsSchema.shape.imageUrl,
   validationType: missionFieldsSchema.shape.validationType,
+  keywordConfig: missionFieldsSchema.shape.keywordConfig,
   progressRequirement: missionFieldsSchema.shape.progressRequirement,
   prerequisites: missionFieldsSchema.shape.prerequisites,
   active: missionFieldsSchema.shape.active,
@@ -68,6 +70,8 @@ export type CompleteMissionResult =
     }>
   | Readonly<{
       status:
+        | "incorrect-answer"
+        | "attempts-exhausted"
         | "inactive"
         | "invalid-validation-type"
         | "not-found"
@@ -249,13 +253,15 @@ export async function completeMission({
   missionId,
   qrId,
   validatedBy,
+  answer,
 }: {
   eventId: string
   participantId: string
-  validationType: "qr" | "reviewer"
+  validationType: "qr" | "reviewer" | "keyword"
   defaultXpAwarded: number
   missionId?: string
   qrId?: string
+  answer?: string
   validatedBy?: string
 }): Promise<CompleteMissionResult> {
   const validatedEventId =
@@ -303,6 +309,9 @@ export async function completeMission({
   const completionRef = firestore
     .collection(COMPLETIONS_COLLECTION)
     .doc(completionId)
+  const attemptRef = firestore
+    .collection(getFirestoreCollectionName("missionAttempts"))
+    .doc(completionId)
   const prerequisiteRefs = mission.prerequisites.map((prerequisite) =>
     firestore
       .collection(COMPLETIONS_COLLECTION)
@@ -317,12 +326,17 @@ export async function completeMission({
   )
 
   return firestore.runTransaction(async (transaction) => {
-    const [profileSnapshot, completionSnapshot, ...prerequisiteSnapshots] =
-      await Promise.all([
-        transaction.get(profileRef),
-        transaction.get(completionRef),
-        ...prerequisiteRefs.map((reference) => transaction.get(reference)),
-      ])
+    const [
+      profileSnapshot,
+      completionSnapshot,
+      attemptSnapshot,
+      ...prerequisiteSnapshots
+    ] = await Promise.all([
+      transaction.get(profileRef),
+      transaction.get(completionRef),
+      transaction.get(attemptRef),
+      ...prerequisiteRefs.map((reference) => transaction.get(reference)),
+    ])
 
     if (!profileSnapshot.exists) {
       return { status: "profile-unavailable" }
@@ -352,6 +366,35 @@ export async function completeMission({
 
     if (prerequisiteSnapshots.some((snapshot) => !snapshot.exists)) {
       return { status: "prerequisite-missing" }
+    }
+
+    if (validationType === "keyword") {
+      const config = mission.keywordConfig!
+      const attempts = z
+        .number()
+        .int()
+        .nonnegative()
+        .parse(attemptSnapshot.data()?.attempts ?? 0)
+      if (attempts >= config.maxAttempts)
+        return { status: "attempts-exhausted" }
+      const correct = config.acceptedAnswers.some(
+        (accepted) =>
+          normalizeKeyword(accepted) === normalizeKeyword(answer ?? "")
+      )
+      transaction.set(attemptRef, {
+        eventId: validatedEventId,
+        participantId: validatedParticipantId,
+        missionId: mission.id,
+        attempts: attempts + 1,
+        updatedAt: Timestamp.now(),
+      })
+      if (!correct)
+        return {
+          status:
+            attempts + 1 >= config.maxAttempts
+              ? "attempts-exhausted"
+              : "incorrect-answer",
+        }
     }
 
     const now = Timestamp.now()

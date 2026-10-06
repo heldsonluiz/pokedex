@@ -20,6 +20,7 @@ import {
   findMissionProgressByParticipant,
 } from "./mission.repository"
 import {
+  completeKeywordMissionInputSchema,
   completeQrMissionInputSchema,
   reviewMissionInputSchema,
 } from "./mission.schema"
@@ -29,9 +30,10 @@ export type MissionListItem = Readonly<{
   title: string
   description: string
   imageUrl: string | null
-  validationType: "qr" | "reviewer" | "automatic"
+  validationType: "qr" | "reviewer" | "automatic" | "keyword"
   status: "available" | "blocked" | "completed"
   xpAwarded: number
+  keywordMaxAttempts?: number
   completedAt: Date | null
   blockedBy: ReadonlyArray<
     Readonly<{
@@ -54,6 +56,8 @@ export type MissionOperationResult =
   | Readonly<{
       success: false
       code:
+        | "INCORRECT_ANSWER"
+        | "ATTEMPTS_EXHAUSTED"
         | "FORBIDDEN"
         | "INVALID_EVENT"
         | "INVALID_QR"
@@ -167,6 +171,9 @@ export async function listMissionsForSession(
       description: mission.description,
       imageUrl: mission.imageUrl,
       validationType: mission.validationType,
+      ...(mission.keywordConfig
+        ? { keywordMaxAttempts: mission.keywordConfig.maxAttempts }
+        : {}),
       status: completion
         ? "completed"
         : blockedBy.length === 0
@@ -285,6 +292,10 @@ function mapCompletionResult(
   result: Awaited<ReturnType<typeof completeMission>>
 ): MissionOperationResult {
   switch (result.status) {
+    case "incorrect-answer":
+      return { success: false, code: "INCORRECT_ANSWER" }
+    case "attempts-exhausted":
+      return { success: false, code: "ATTEMPTS_EXHAUSTED" }
     case "completed":
       return {
         success: true,
@@ -314,4 +325,26 @@ function mapCompletionResult(
     case "profile-unavailable":
       return { success: false, code: "PROFILE_UNAVAILABLE" }
   }
+}
+
+export async function completeKeywordMissionForSession(
+  session: Session,
+  input: unknown
+): Promise<MissionOperationResult> {
+  const target = completeKeywordMissionInputSchema.parse(input)
+  const participant = await requireProfileForSession(session)
+  if (participant.eventId !== env.EVENT_ID)
+    return { success: false, code: "INVALID_EVENT" }
+  if (!hasPermission(participant, "participate"))
+    return { success: false, code: "FORBIDDEN" }
+  return mapCompletionResult(
+    await completeMission({
+      eventId: participant.eventId,
+      participantId: participant.userId,
+      missionId: target.missionId,
+      answer: target.answer,
+      validationType: "keyword",
+      defaultXpAwarded: SCORES.MISSION_COMPLETION,
+    })
+  )
 }

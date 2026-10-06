@@ -28,6 +28,7 @@ import {
 import { cn } from "@/lib/utils"
 
 import type { MissionListItem } from "./mission.service"
+import { MissionKeywordForm } from "./mission-keyword-form"
 import {
   orderMissionsForDisplay,
   selectFeaturedMission,
@@ -209,7 +210,9 @@ function MissionRow({ mission }: Readonly<{ mission: MissionListItem }>) {
                   ? "Validação presencial"
                   : mission.validationType === "automatic"
                     ? "Progresso automático"
-                    : "Encontre o QR Code"}
+                    : mission.validationType === "keyword"
+                      ? "Descubra a palavra-chave"
+                      : "Encontre o QR Code"}
               </span>
             )}
           </span>
@@ -337,7 +340,9 @@ function MissionDialog({
                   ? "Realize a atividade e apresente seu QR Code para uma pessoa da organização."
                   : mission.validationType === "automatic"
                     ? "Continue participando. A missão será concluída automaticamente quando você atingir a meta."
-                    : "Encontre e leia o QR Code desta missão durante o evento."}
+                    : mission.validationType === "keyword"
+                      ? "Descubra a palavra-chave e envie sua resposta abaixo. As tentativas são limitadas."
+                      : "Encontre e leia o QR Code desta missão durante o evento."}
               </p>
             </div>
           </div>
@@ -361,6 +366,13 @@ function MissionDialog({
               </ul>
             </div>
           )}
+          {mission.status === "available" &&
+            mission.validationType === "keyword" && (
+              <MissionKeywordForm
+                missionId={mission.id}
+                maxAttempts={mission.keywordMaxAttempts}
+              />
+            )}
           <DialogFooter className="mx-0 mb-0 flex-row rounded-none border-0 bg-transparent p-0 pt-2">
             <DialogClose
               render={

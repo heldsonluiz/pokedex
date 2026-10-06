@@ -20,6 +20,14 @@ const errors: Record<
   Extract<MissionActionResult, { success: false }>["code"],
   Readonly<{ title: string; description: string }>
 > = {
+  INCORRECT_ANSWER: {
+    title: "Resposta incorreta",
+    description: "Confira a palavra-chave e tente novamente.",
+  },
+  ATTEMPTS_EXHAUSTED: {
+    title: "Tentativas esgotadas",
+    description: "Você atingiu o limite de tentativas desta missão.",
+  },
   FORBIDDEN: {
     title: "Ação não permitida",
     description: "Esta conta não pode concluir atividades de participante.",
