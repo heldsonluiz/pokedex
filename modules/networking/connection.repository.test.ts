@@ -76,6 +76,29 @@ describe("connection repository", () => {
     expect(removeConnection).toBeTypeOf("function")
   })
 
+  it("matches legacy skills with unified interests without requiring a profile save", async () => {
+    mocks.get
+      .mockResolvedValueOnce({ exists: false, data: () => ({}) })
+      .mockResolvedValueOnce({
+        exists: true,
+        data: () => ({ skills: ["front-end", "react", "typescript"] }),
+      })
+      .mockResolvedValueOnce({
+        exists: true,
+        data: () => ({ interests: ["frontend", "react"] }),
+      })
+    await requestConnection({
+      eventId: "event-1",
+      requesterId: "participant-a",
+      recipientId: "participant-b",
+      xpAwardedPerParticipant: 5,
+    })
+    expect(mocks.create).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ sharedInterests: ["frontend", "react"] })
+    )
+  })
+
   it("increments both profiles without reading their current XP", async () => {
     const result = await requestConnection({
       eventId: "event-1",

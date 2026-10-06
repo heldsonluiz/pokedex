@@ -22,7 +22,7 @@ import { signOutCurrentUser } from "@/modules/auth/auth.actions"
 import { getLinkedinProfileUrl } from "@/modules/profile/profile.schema"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
 import { ProfileHelp } from "@/modules/profile/profile-help"
-import { findSkillBySlug } from "@/modules/profile/profile-skills"
+import { INTERESTS } from "@/modules/profile/profile-interests"
 
 export const metadata: Metadata = {
   title: "Perfil",
@@ -100,24 +100,24 @@ export default async function ProfilePage() {
 
       <Card className="rounded-2xl">
         <CardHeader>
-          <CardTitle>Habilidades</CardTitle>
+          <CardTitle>Áreas de interesse</CardTitle>
         </CardHeader>
         <CardContent>
-          {profile.skills.length > 0 ? (
+          {(profile.interests ?? []).length > 0 ? (
             <div className="flex flex-wrap gap-2">
-              {profile.skills.map((skill) => (
+              {(profile.interests ?? []).map((skill) => (
                 <Badge
                   variant="secondary"
                   className="h-8 gap-1.5 border border-primary bg-transparent px-3 py-1 text-sm text-foreground"
                   key={skill}
                 >
-                  {findSkillBySlug(skill)?.name ?? skill}
+                  {INTERESTS.find(({ id }) => id === skill)?.label ?? skill}
                 </Badge>
               ))}
             </div>
           ) : (
             <p className="text-muted-foreground">
-              Adicione habilidades para facilitar novas conexões.
+              Adicione áreas de interesse para facilitar novas conexões.
             </p>
           )}
         </CardContent>

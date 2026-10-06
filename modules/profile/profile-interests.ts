@@ -1,6 +1,8 @@
 import * as z from "zod"
 
-export const INTERESTS = [
+import { skills } from "@/data/skills"
+
+const AREA_INTERESTS = [
   { id: "ai", label: "Inteligência artificial" },
   { id: "cloud", label: "Cloud" },
   { id: "web", label: "Desenvolvimento web" },
@@ -32,6 +34,47 @@ export const INTERESTS = [
   { id: "privacy", label: "Privacidade e proteção de dados" },
 ] as const
 
+export const MAX_PROFILE_INTERESTS = 10
+
+const LEGACY_EQUIVALENTS: Record<string, string> = {
+  "front-end": "frontend",
+  "back-end": "backend",
+  "banco-de-dados": "databases",
+  "inteligencia-artificial": "ai",
+  dados: "data",
+  qa: "testing",
+  "testes-de-software": "testing",
+  "ui-ux": "design",
+  automacao: "automation",
+  lideranca: "leadership",
+  "metodologias-ageis": "agile",
+  observability: "observability",
+}
+
+export const INTERESTS: readonly { id: string; label: string }[] = [
+  ...AREA_INTERESTS,
+  ...skills
+    .filter(
+      ({ slug }) =>
+        !LEGACY_EQUIVALENTS[slug] &&
+        !AREA_INTERESTS.some(({ id }) => id === slug)
+    )
+    .map(({ slug, name }) => ({ id: slug, label: name })),
+]
+
+export function getProfileInterests(profile: {
+  interests?: readonly string[]
+  skills?: readonly string[]
+}): string[] {
+  return [
+    ...new Set(
+      [...(profile.interests ?? []), ...(profile.skills ?? [])]
+        .map((id) => LEGACY_EQUIVALENTS[id] ?? id)
+        .filter((id) => INTERESTS.some((interest) => interest.id === id))
+    ),
+  ]
+}
+
 export const interestsSchema = z
   .array(
     z
@@ -41,7 +84,7 @@ export const interestsSchema = z
         "Selecione um interesse válido"
       )
   )
-  .max(5)
+  .max(MAX_PROFILE_INTERESTS, "Selecione no máximo 10 áreas de interesse")
   .refine(
     (items) => new Set(items).size === items.length,
     "Não repita interesses"

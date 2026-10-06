@@ -65,6 +65,11 @@ describe("networking by interest", () => {
         "mobile",
         "data",
         "career",
+        "security",
+        "design",
+        "frontend",
+        "backend",
+        "testing",
       ]).success
     ).toBe(false)
   })

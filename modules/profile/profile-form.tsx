@@ -16,14 +16,13 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 
+import { InterestSelector } from "./interest-selector"
 import type { UpdateProfileActionResult } from "./profile.actions"
 import {
   GENDER_OPTIONS,
   type ProfileUpdateInput,
   profileUpdateSchema,
 } from "./profile.schema"
-import { INTERESTS } from "./profile-interests"
-import { SkillSelector } from "./skill-selector"
 
 type ProfileFormProps = Readonly<{
   defaultValues: ProfileUpdateInput
@@ -174,12 +173,12 @@ export function ProfileForm({
         >
           {step === 1
             ? "Informações pessoais e profissionais"
-            : "Habilidades e interesses"}
+            : "Áreas de interesse"}
         </h2>
         <p className="text-sm text-muted-foreground">
           {step === 1
             ? "Informe seus dados e como as pessoas podem conhecer você."
-            : "Selecione de 3 a 5 habilidades e, se quiser, até 5 interesses."}
+            : "Selecione o que você já conhece ou quer aprender. Isso ajuda você a encontrar pessoas com interesses em comum."}
         </p>
         <div className="flex gap-2" aria-hidden="true">
           <span className="h-1 flex-1 rounded-full bg-primary" />
@@ -348,65 +347,22 @@ export function ProfileForm({
         </div>
       </fieldset>
       <fieldset hidden={step !== 2} disabled={isPending} className="space-y-6">
-        <legend className="sr-only">Habilidades e interesses</legend>
+        <legend className="sr-only">Áreas de interesse</legend>
         <fieldset className="space-y-3">
-          <legend className="text-sm font-medium">Habilidades</legend>
+          <legend className="text-sm font-medium">
+            Quais assuntos fazem parte do seu universo?
+          </legend>
           <Controller
             control={control}
-            name="skills"
+            name="interests"
             render={({ field, fieldState }) => (
-              <SkillSelector
-                value={field.value}
+              <InterestSelector
+                value={field.value ?? []}
                 onChange={field.onChange}
                 error={fieldState.error?.message}
                 disabled={isPending}
               />
             )}
-          />
-        </fieldset>
-
-        <fieldset className="space-y-3">
-          <legend className="text-sm font-medium">Interesses (opcional)</legend>
-          <p className="text-xs text-muted-foreground">
-            Escolha até 5 interesses para participar das missões de networking.
-          </p>
-          <Controller
-            control={control}
-            name="interests"
-            render={({ field }) => (
-              <div className="flex flex-wrap gap-2">
-                {INTERESTS.map(({ id, label }) => {
-                  const selected = (field.value ?? []).includes(id)
-                  return (
-                    <Button
-                      key={id}
-                      type="button"
-                      variant={selected ? "default" : "outline"}
-                      aria-pressed={selected}
-                      disabled={
-                        isPending ||
-                        (!selected && (field.value ?? []).length >= 5)
-                      }
-                      onClick={() =>
-                        field.onChange(
-                          selected
-                            ? (field.value ?? []).filter(
-                                (value) => value !== id
-                              )
-                            : [...(field.value ?? []), id]
-                        )
-                      }
-                    >
-                      {label}
-                    </Button>
-                  )
-                })}
-              </div>
-            )}
-          />
-          <FieldError
-            id="interests-error"
-            message={errors.interests?.message}
           />
         </fieldset>
       </fieldset>

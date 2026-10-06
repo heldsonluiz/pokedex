@@ -225,6 +225,6 @@ export async function getConnectedProfileForSession(
     gender: connectedProfile.gender,
     linkedinUsername: connectedProfile.linkedinUsername,
     website: connectedProfile.website,
-    skills: connectedProfile.skills,
+    interests: connectedProfile.interests ?? [],
   }
 }

@@ -11,9 +11,19 @@ const baseProfile = {
   linkedinUsername: "",
   website: "",
   skills: ["javascript", "typescript", "react"],
+  interests: ["frontend", "react"],
 }
 
 describe("profile update schema", () => {
+  it("accepts a single interest without requiring skills", () => {
+    const { skills: _skills, ...input } = baseProfile
+    expect(
+      profileUpdateSchema.parse({ ...input, interests: ["career"] }).skills
+    ).toEqual([])
+    expect(
+      profileUpdateSchema.safeParse({ ...input, interests: [] }).success
+    ).toBe(false)
+  })
   it("requires a gender option", () => {
     expect(
       profileUpdateSchema.safeParse({ ...baseProfile, gender: "" }).success

@@ -30,7 +30,7 @@ export default async function EditProfilePage() {
           company: profile.company ?? "",
           linkedinUsername: profile.linkedinUsername ?? "",
           website: profile.website ?? "",
-          skills: [...profile.skills],
+          skills: [],
           interests: [...(profile.interests ?? [])],
         }}
         submitAction={updateProfileAction}
