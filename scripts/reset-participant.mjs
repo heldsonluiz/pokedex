@@ -17,6 +17,7 @@
  */
 import { FieldValue, Timestamp } from "firebase-admin/firestore"
 
+import { getDatabaseEnvironment } from "./lib/database-environment.mjs"
 import {
   assertDestructiveConfirmation,
   deleteDocumentTrees,
@@ -28,8 +29,13 @@ import {
   requireEnvironment,
 } from "./lib/firestore-admin.mjs"
 
-await loadLocalEnvironment()
-const args = parseArguments()
+const args = parseArguments(process.argv.slice(2), {
+  booleanArguments: ["apply", "local", "production"],
+})
+const { environmentFile, environment, environmentFlag } =
+  getDatabaseEnvironment(args)
+await loadLocalEnvironment(environmentFile, { override: true })
+console.log(`Ambiente: ${environment} | arquivo: ${environmentFile}`)
 const email = args.email?.trim().toLocaleLowerCase("pt-BR")
 if (!email)
   throw new Error(
@@ -110,6 +116,8 @@ if (resumeAfterCompensation && !args.apply)
   throw new Error("--recovery compensated só pode ser usado junto com --apply.")
 const plan = {
   mode: args.apply ? "APLICAÇÃO" : "SIMULAÇÃO (nenhuma gravação)",
+  environment,
+  environmentFile,
   projectId,
   eventId,
   participant: {
@@ -144,7 +152,7 @@ if (
   })
 ) {
   console.log(
-    `\nPara aplicar: npm run db:reset-participant -- --email "${email}" --apply --confirm "${expected}"`
+    `\nPara aplicar: npm run db:reset-participant --${environmentFlag} --email "${email}" --apply --confirm "${expected}"`
   )
   process.exit(0)
 }

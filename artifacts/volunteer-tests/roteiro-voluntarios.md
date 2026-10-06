@@ -64,6 +64,21 @@ Para cada etapa, anote **Passou**, **Falhou** ou **Não testei**, com um motivo.
 
 **Esperado:** uma missão só conclui após os pré-requisitos e concede 50 XP uma única vez. Metas automáticas acompanham o progresso. Missões por reviewer não possuem QR público para conclusão autônoma.
 
+### Palavra-chave
+
+1. Abra **A palavra da comunidade** e envie uma resposta incorreta. Confira a mensagem de erro e a ausência de XP.
+2. Envie **CONEXAO**, sem acento. A resposta deve ser aceita e conceder 50 XP uma única vez.
+3. Abra **A senha da Aurora**. Após visitar **Aurora Cloud**, envie **Nuvem** ou **Cloud**.
+4. Se a organização designar uma conta para testar o limite, use essa conta para esgotar as tentativas; não faça isso na conta que seguirá o quiz final.
+
+### Quiz relâmpago
+
+1. Abra **Quiz relâmpago de Web** e confira as três perguntas, as alternativas e o mínimo de acertos.
+2. Envie respostas abaixo do mínimo. Confira a mensagem de erro e a ausência de XP.
+3. Responda novamente: **HTML**, **CSS** e **JavaScript**. Confira a conclusão e os 50 XP.
+4. Após concluir **A palavra da comunidade**, abra **Quiz final da Nuvem**. As respostas de teste são **Adicionar mais instâncias** e **Reduzir o tempo de acesso a dados frequentes**.
+5. Reabra uma missão concluída e confirme que a recompensa não se repete. O quiz de Web permite três tentativas; o de Cloud permite duas.
+
 ## T06 — Conexões com outras pessoas
 
 1. Combine com um colega. Peça que ele abra seu QR pessoal atualizado e escaneie pelo scanner **dentro da Pokédex**.
@@ -75,6 +90,15 @@ Para cada etapa, anote **Passou**, **Falhou** ou **Não testei**, com um motivo.
 7. Tente ler o seu próprio QR, exibindo-o em outra tela. A autoconexão deve ser recusada.
 
 **Esperado:** os dois lados mostram estados consistentes. Abrir o link pessoal diretamente na câmera externa não cria a conexão; use o scanner interno. Não espere que capturas antigas do QR pessoal continuem válidas. A meta de 10 conexões exige ao menos 11 pessoas; marque “Não testei” se o grupo disponível for menor.
+
+### Networking por interesse
+
+1. Antes de criar uma nova conexão, você e um colega devem escolher pelo menos um interesse igual em **Perfil → Editar perfil → Habilidades e interesses** e salvar.
+2. Criem a conexão pelo scanner e abram **Missões**. **Encontre um interesse em comum** deve concluir para ambos, com 50 XP adicionais.
+3. Se possível, conecte-se com mais duas pessoas com interesses em comum para concluir **Encontre sua tribo**.
+4. Uma conexão com alguém sem interesses em comum não deve avançar essas metas. Editar interesses depois de conectar não altera o registro original.
+
+**Esperado:** cada pessoa conta uma vez, mesmo com vários interesses compartilhados. Antes da conclusão, remover uma conexão reduz o progresso; depois de concluída, a missão e seus 50 XP permanecem.
 
 ## T07 — Palestras, palestrantes e avaliações
 

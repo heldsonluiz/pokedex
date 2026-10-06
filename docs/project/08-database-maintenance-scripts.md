@@ -10,11 +10,25 @@ recriar a massa de testes e preparar o Firestore para o lançamento.
 | `db:prepare-launch`    | apagar o Firestore antes do cadastro real      | banco inteiro              |
 
 Os scripts não alteram o Firebase Authentication nem o Firebase Storage. Eles
-atuam no Firestore configurado em `.env.local`. Quando `DEVMODE=true`, eles
+atuam no Firestore configurado em `.env.local` por padrão. Para usar `.env`,
+informe `--production`. O flag `--local` continua disponível explicitamente;
+`--local` e `--production` não podem ser combinados. A simulação mostra o arquivo
+e o ambiente escolhidos, e seu comando de aplicação preserva essa escolha.
+Quando `DEVMODE=true`, eles
 consultam, apagam e gravam somente coleções raiz com o prefixo `test_`; as
 coleções sem prefixo são preservadas. Os dois comandos de limpeza
 integral também esvaziam `public/images/qr` e `artifacts`, pois esses diretórios
 podem conter materiais apontando para documentos que deixaram de existir.
+
+Para escolher o ambiente nos comandos com npm:
+
+```bash
+npm run db:prepare-launch
+npm run db:seed
+npm run db:prepare-launch -- --production
+npm run db:seed -- --production
+npm run db:reset-participant -- --production --email pessoa@exemplo.com
+```
 
 ## Pré-requisitos
 
@@ -134,16 +148,16 @@ Arquivos:
 
 ### Simular
 
-Produção, usando exclusivamente as variáveis de `.env`:
+Ambiente local por padrão, usando as variáveis de `.env.local`:
 
 ```bash
 pnpm db:seed
 ```
 
-Ambiente local, usando exclusivamente as variáveis de `.env.local`:
+Produção, usando as variáveis de `.env`:
 
 ```bash
-pnpm db:seed --local
+pnpm db:seed --production
 ```
 
 ### Aplicar
@@ -152,10 +166,10 @@ pnpm db:seed --local
 pnpm db:seed --apply --confirm "RESET_AND_SEED:projeto:evento"
 ```
 
-Para aplicar no ambiente local, preserve `--local` no comando:
+Para aplicar em produção, preserve `--production` no comando:
 
 ```bash
-pnpm db:seed --local --apply --confirm "RESET_AND_SEED:projeto:evento"
+pnpm db:seed --production --apply --confirm "RESET_AND_SEED:projeto:evento"
 ```
 
 O script monta e valida a massa em memória antes da primeira exclusão. Depois,

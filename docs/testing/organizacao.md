@@ -118,3 +118,17 @@ Preencher prazo, horário e contato antes de enviar. Nenhum convite foi enviado 
 - `pnpm check` aprovado: tipos, lint, formatação e 184 testes; `pnpm build` aprovado.
 - Domínio respondeu 200 em `/login`. O login real Google e a configuração remota do banco ainda precisam ser conferidos antes dos convites.
 - Publicação da branch, deploy das imagens e acesso dos convidados ao GitHub permanecem pendentes.
+
+## Conferência da rodada com novas missões
+
+O catálogo de voluntários agora inclui 23 missões, com palavra-chave, quiz e
+networking por interesse. O roteiro inclui respostas conhecidas para testar
+aprovação, reprovação e limites de tentativas. O banco deve começar sem perfis
+fictícios: os voluntários criam seus perfis ao autenticar.
+
+Na conferência de disponibilidade das 45 imagens do catálogo em
+`https://pokedex.heldsonluiz.dev.br`, 43 responderam como imagens. Os caminhos
+`/images/assets/missions/caldeirao-do-codigo.png` e
+`/images/assets/missions/guardiao-dos-dados.png` retornaram HTML, embora os PNGs
+existam no projeto local. Publicar esses dois assets e repetir a conferência
+antes de marcar sua apresentação visual como validada.
