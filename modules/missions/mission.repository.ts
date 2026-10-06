@@ -24,6 +24,9 @@ import {
   type MissionCompletion,
   missionCompletionFieldsSchema,
 } from "./mission-completion.schema"
+import { normalizeKeyword } from "./mission-keyword"
+import { countSharedInterestConnections } from "./mission-networking"
+import { scoreMissionQuiz } from "./mission-quiz"
 
 const MISSIONS_COLLECTION = getFirestoreCollectionName("missions")
 const COMPLETIONS_COLLECTION = getFirestoreCollectionName("activityCompletions")
@@ -36,6 +39,8 @@ const missionDocumentSchema = z.object({
   description: missionFieldsSchema.shape.description,
   imageUrl: missionFieldsSchema.shape.imageUrl,
   validationType: missionFieldsSchema.shape.validationType,
+  quizConfig: missionFieldsSchema.shape.quizConfig,
+  keywordConfig: missionFieldsSchema.shape.keywordConfig,
   progressRequirement: missionFieldsSchema.shape.progressRequirement,
   prerequisites: missionFieldsSchema.shape.prerequisites,
   active: missionFieldsSchema.shape.active,
@@ -68,6 +73,11 @@ export type CompleteMissionResult =
     }>
   | Readonly<{
       status:
+        | "quiz-not-passed"
+        | "invalid-answers"
+        | "quiz-changed"
+        | "incorrect-answer"
+        | "attempts-exhausted"
         | "inactive"
         | "invalid-validation-type"
         | "not-found"
@@ -249,13 +259,19 @@ export async function completeMission({
   missionId,
   qrId,
   validatedBy,
+  answer,
+  answers,
+  revision,
 }: {
   eventId: string
   participantId: string
-  validationType: "qr" | "reviewer"
+  validationType: "qr" | "reviewer" | "keyword" | "quiz"
   defaultXpAwarded: number
   missionId?: string
   qrId?: string
+  revision?: number
+  answers?: Array<{ questionId: string; optionIndex: number }>
+  answer?: string
   validatedBy?: string
 }): Promise<CompleteMissionResult> {
   const validatedEventId =
@@ -303,6 +319,9 @@ export async function completeMission({
   const completionRef = firestore
     .collection(COMPLETIONS_COLLECTION)
     .doc(completionId)
+  const attemptRef = firestore
+    .collection(getFirestoreCollectionName("missionAttempts"))
+    .doc(completionId)
   const prerequisiteRefs = mission.prerequisites.map((prerequisite) =>
     firestore
       .collection(COMPLETIONS_COLLECTION)
@@ -317,12 +336,23 @@ export async function completeMission({
   )
 
   return firestore.runTransaction(async (transaction) => {
-    const [profileSnapshot, completionSnapshot, ...prerequisiteSnapshots] =
-      await Promise.all([
-        transaction.get(profileRef),
-        transaction.get(completionRef),
-        ...prerequisiteRefs.map((reference) => transaction.get(reference)),
-      ])
+    const [
+      profileSnapshot,
+      completionSnapshot,
+      attemptSnapshot,
+      missionSnapshot,
+      ...prerequisiteSnapshots
+    ] = await Promise.all([
+      transaction.get(profileRef),
+      transaction.get(completionRef),
+      transaction.get(attemptRef),
+      validationType === "quiz"
+        ? transaction.get(
+            firestore.collection(MISSIONS_COLLECTION).doc(mission.id)
+          )
+        : Promise.resolve(null),
+      ...prerequisiteRefs.map((reference) => transaction.get(reference)),
+    ])
 
     if (!profileSnapshot.exists) {
       return { status: "profile-unavailable" }
@@ -352,6 +382,80 @@ export async function completeMission({
 
     if (prerequisiteSnapshots.some((snapshot) => !snapshot.exists)) {
       return { status: "prerequisite-missing" }
+    }
+
+    if (validationType === "quiz") {
+      if (!missionSnapshot?.exists) return { status: "not-found" }
+      const currentMission = parseMissionDocument(
+        missionSnapshot.id,
+        missionSnapshot.data()
+      )
+      if (!currentMission.active) return { status: "inactive" }
+      if (
+        currentMission.validationType !== "quiz" ||
+        !currentMission.quizConfig
+      )
+        return { status: "invalid-validation-type" }
+      if (currentMission.eventId !== validatedEventId)
+        return { status: "not-found" }
+      if (
+        currentMission.updatedAt.getTime() !== revision ||
+        currentMission.updatedAt.getTime() !== mission.updatedAt.getTime()
+      )
+        return { status: "quiz-changed" }
+      const config = currentMission.quizConfig!
+      const attempts = z
+        .number()
+        .int()
+        .nonnegative()
+        .parse(attemptSnapshot.data()?.attempts ?? 0)
+      if (attempts >= config.maxAttempts)
+        return { status: "attempts-exhausted" }
+      const score = scoreMissionQuiz(config, answers ?? [])
+      if (score === null) return { status: "invalid-answers" }
+      transaction.set(attemptRef, {
+        eventId: validatedEventId,
+        participantId: validatedParticipantId,
+        missionId: mission.id,
+        attempts: attempts + 1,
+        updatedAt: Timestamp.now(),
+      })
+      if (score < config.minCorrectAnswers)
+        return {
+          status:
+            attempts + 1 >= config.maxAttempts
+              ? "attempts-exhausted"
+              : "quiz-not-passed",
+        }
+    }
+
+    if (validationType === "keyword") {
+      const config = mission.keywordConfig!
+      const attempts = z
+        .number()
+        .int()
+        .nonnegative()
+        .parse(attemptSnapshot.data()?.attempts ?? 0)
+      if (attempts >= config.maxAttempts)
+        return { status: "attempts-exhausted" }
+      const correct = config.acceptedAnswers.some(
+        (accepted) =>
+          normalizeKeyword(accepted) === normalizeKeyword(answer ?? "")
+      )
+      transaction.set(attemptRef, {
+        eventId: validatedEventId,
+        participantId: validatedParticipantId,
+        missionId: mission.id,
+        attempts: attempts + 1,
+        updatedAt: Timestamp.now(),
+      })
+      if (!correct)
+        return {
+          status:
+            attempts + 1 >= config.maxAttempts
+              ? "attempts-exhausted"
+              : "incorrect-answer",
+        }
     }
 
     const now = Timestamp.now()
@@ -479,6 +583,21 @@ export async function completeEligibleAutomaticMissions({
       return 0
     }
 
+    const interestConnections = automaticMissions.some(
+      (mission) => mission.progressRequirement?.type === "shared-interests"
+    )
+      ? await transaction.get(
+          sharedInterestConnectionsQuery(validatedParticipantId)
+        )
+      : null
+    const sharedInterestCount = interestConnections
+      ? countSharedInterestConnections(
+          validatedEventId,
+          validatedParticipantId,
+          interestConnections.docs.map((document) => document.data())
+        )
+      : 0
+
     const eligibleMissions = automaticMissions.filter((mission, index) => {
       if (completionSnapshots[index].exists || !mission.progressRequirement) {
         return false
@@ -492,7 +611,9 @@ export async function completeEligibleAutomaticMissions({
       const current =
         requirement.type === "connections"
           ? summary.connectionsCount
-          : summary.companiesVisitedCount
+          : requirement.type === "shared-interests"
+            ? sharedInterestCount
+            : summary.companiesVisitedCount
 
       return target > 0 && current >= target
     })
@@ -547,4 +668,22 @@ export async function completeEligibleAutomaticMissions({
 
     return eligibleMissions.length
   })
+}
+
+function sharedInterestConnectionsQuery(participantId: string) {
+  return firestore
+    .collection(getFirestoreCollectionName("connections"))
+    .where("participantIds", "array-contains", participantId)
+}
+
+export async function findSharedInterestConnectionCount(
+  eventId: string,
+  participantId: string
+): Promise<number> {
+  const snapshots = await sharedInterestConnectionsQuery(participantId).get()
+  return countSharedInterestConnections(
+    eventId,
+    participantId,
+    snapshots.docs.map((document) => document.data())
+  )
 }

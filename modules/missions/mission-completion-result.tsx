@@ -20,6 +20,26 @@ const errors: Record<
   Extract<MissionActionResult, { success: false }>["code"],
   Readonly<{ title: string; description: string }>
 > = {
+  QUIZ_NOT_PASSED: {
+    title: "Tente novamente",
+    description: "Você ainda não atingiu o mínimo de acertos.",
+  },
+  INVALID_ANSWERS: {
+    title: "Respostas inválidas",
+    description: "Responda todas as perguntas.",
+  },
+  QUIZ_CHANGED: {
+    title: "Quiz atualizado",
+    description: "Atualize a página para responder às perguntas atuais.",
+  },
+  INCORRECT_ANSWER: {
+    title: "Resposta incorreta",
+    description: "Confira a palavra-chave e tente novamente.",
+  },
+  ATTEMPTS_EXHAUSTED: {
+    title: "Tentativas esgotadas",
+    description: "Você atingiu o limite de tentativas desta missão.",
+  },
   FORBIDDEN: {
     title: "Ação não permitida",
     description: "Esta conta não pode concluir atividades de participante.",

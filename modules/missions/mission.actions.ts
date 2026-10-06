@@ -6,7 +6,9 @@ import { ZodError } from "zod"
 import { requireAuth } from "@/lib/require-auth"
 
 import {
+  completeKeywordMissionForSession,
   completeQrMissionForSession,
+  completeQuizMissionForSession,
   type MissionOperationResult,
   reviewMissionForSession,
 } from "./mission.service"
@@ -54,4 +56,16 @@ async function runMissionAction(
 
     return { success: false, code: "UNEXPECTED_ERROR" }
   }
+}
+
+export async function completeKeywordMissionAction(
+  input: unknown
+): Promise<MissionActionResult> {
+  return runMissionAction(input, completeKeywordMissionForSession)
+}
+
+export async function completeQuizMissionAction(
+  input: unknown
+): Promise<MissionActionResult> {
+  return runMissionAction(input, completeQuizMissionForSession)
 }

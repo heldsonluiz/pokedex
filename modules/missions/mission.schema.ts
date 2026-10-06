@@ -1,12 +1,22 @@
 import * as z from "zod"
 
+import { missionQuizConfigSchema } from "./mission-quiz"
+
 export const missionValidationTypeSchema = z.enum([
   "qr",
   "reviewer",
   "automatic",
+  "keyword",
+  "quiz",
 ])
 
 export const missionProgressRequirementSchema = z.discriminatedUnion("type", [
+  z
+    .object({
+      type: z.literal("shared-interests"),
+      target: z.number().int().positive(),
+    })
+    .strict(),
   z
     .object({
       type: z.literal("connections"),
@@ -45,6 +55,18 @@ export const missionFieldsSchema = z
     description: z.string().trim().min(1).max(1_000),
     imageUrl: z.url().nullable(),
     validationType: missionValidationTypeSchema,
+    quizConfig: missionQuizConfigSchema.nullable().default(null),
+    keywordConfig: z
+      .object({
+        acceptedAnswers: z
+          .array(z.string().trim().min(1).max(120))
+          .min(1)
+          .max(20),
+        maxAttempts: z.number().int().min(1).max(100),
+      })
+      .strict()
+      .nullable()
+      .default(null),
     progressRequirement: missionProgressRequirementSchema
       .nullable()
       .default(null),
@@ -57,6 +79,35 @@ export const missionFieldsSchema = z
   })
   .strict()
   .superRefine((mission, context) => {
+    if ((mission.validationType === "quiz") !== Boolean(mission.quizConfig))
+      context.addIssue({
+        code: "custom",
+        path: ["quizConfig"],
+        message: "Only quiz missions must define quiz configuration",
+      })
+    if (mission.validationType === "quiz" && mission.qrId)
+      context.addIssue({
+        code: "custom",
+        path: ["qrId"],
+        message: "Quiz missions must not have a QR identifier",
+      })
+    if (
+      (mission.validationType === "keyword") !==
+      Boolean(mission.keywordConfig)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["keywordConfig"],
+        message: "Only keyword missions must define keyword configuration",
+      })
+    }
+    if (mission.validationType === "keyword" && mission.qrId) {
+      context.addIssue({
+        code: "custom",
+        path: ["qrId"],
+        message: "Keyword missions must not have a QR identifier",
+      })
+    }
     if (mission.validationType === "qr" && !mission.qrId) {
       context.addIssue({
         code: "custom",
@@ -130,3 +181,28 @@ export const reviewMissionInputSchema = z
 
 export type Mission = z.infer<typeof missionFieldsSchema>
 export type MissionPrerequisite = z.infer<typeof missionPrerequisiteSchema>
+
+export const completeKeywordMissionInputSchema = z
+  .object({
+    missionId: z.string().trim().min(1).max(128),
+    answer: z.string().trim().min(1).max(120),
+  })
+  .strict()
+
+export const completeQuizMissionInputSchema = z
+  .object({
+    missionId: z.string().trim().min(1).max(128),
+    revision: z.number().int().nonnegative(),
+    answers: z
+      .array(
+        z
+          .object({
+            questionId: z.string().trim().min(1).max(128),
+            optionIndex: z.number().int().min(0).max(2),
+          })
+          .strict()
+      )
+      .min(1)
+      .max(10),
+  })
+  .strict()
