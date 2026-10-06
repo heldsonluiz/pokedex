@@ -43,6 +43,7 @@ export const connectionFieldsSchema = z
     requesterId: participantIdSchema,
     recipientId: participantIdSchema,
     status: connectionStatusSchema,
+    sharedInterests: z.array(z.string()).optional(),
     requestCount: z.number().int().positive(),
     xpAwardedPerParticipant: z.number().int().positive().nullable(),
     firstRequestedAt: z.date(),

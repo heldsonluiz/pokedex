@@ -147,9 +147,17 @@ concedido.
 
 ### Missões
 
-Cada missão possui `validationType` igual a `qr` ou `reviewer`. Missões `qr`
-possuem um `qrId` fixo; missões `reviewer` não possuem QR próprio. Ambas podem
-declarar pré-requisitos de visita a empresa ou conclusão de outra missão.
+Cada missão possui `validationType` igual a `qr`, `reviewer`, `automatic` ou
+`keyword` ou `quiz`. Apenas missões `qr` possuem `qrId`; os outros tipos usam `null`.
+Missões QR, presenciais, por palavra-chave e quiz podem declarar pré-requisitos de
+visita a empresa ou conclusão de outra missão. Automáticas usam somente
+`progressRequirement` com metas de conexões, empresas ou conexões com interesses
+em comum (`shared-interests`). Veja [networking por interesse](./08-interest-networking-missions.md).
+
+Missões `keyword` exigem `keywordConfig` com `acceptedAnswers` (1 a 20 respostas
+de até 120 caracteres) e `maxAttempts` (1 a 100). Nos outros tipos,
+`keywordConfig` deve ser omitido ou `null`, mantendo compatibilidade com os
+cadastros existentes. Veja o [contrato de palavra-chave](./07-keyword-missions.md).
 
 Na validação presencial, um usuário `reviewer` ou `admin` escolhe a missão e
 escaneia o QR temporário do participante. Não existe submissão pendente: a

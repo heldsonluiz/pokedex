@@ -1,8 +1,10 @@
-import { describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => {
   const create = vi.fn()
-  const get = vi.fn().mockResolvedValue({ exists: false })
+  const get = vi
+    .fn()
+    .mockResolvedValue({ exists: false, data: () => ({ interests: [] }) })
   const set = vi.fn()
   const update = vi.fn()
   const increment = vi.fn((amount: number) => ({ increment: amount }))
@@ -40,6 +42,35 @@ vi.mock("firebase-admin/firestore", () => {
 import { removeConnection, requestConnection } from "./connection.repository"
 
 describe("connection repository", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.get.mockResolvedValue({
+      exists: false,
+      data: () => ({ interests: [] }),
+    })
+  })
+  it("records the intersection of both profiles when creating a connection", async () => {
+    mocks.get
+      .mockResolvedValueOnce({ exists: false, data: () => ({ interests: [] }) })
+      .mockResolvedValueOnce({
+        exists: true,
+        data: () => ({ interests: ["ai", "cloud"] }),
+      })
+      .mockResolvedValueOnce({
+        exists: true,
+        data: () => ({ interests: ["ai", "career"] }),
+      })
+    await requestConnection({
+      eventId: "event-1",
+      requesterId: "participant-a",
+      recipientId: "participant-b",
+      xpAwardedPerParticipant: 5,
+    })
+    expect(mocks.create).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ sharedInterests: ["ai"] })
+    )
+  })
   it("loads the repository contract without evaluating a database query", () => {
     expect(requestConnection).toBeTypeOf("function")
     expect(removeConnection).toBeTypeOf("function")
@@ -54,7 +85,7 @@ describe("connection repository", () => {
     })
 
     expect(result).toBe("connected")
-    expect(mocks.get).toHaveBeenCalledTimes(1)
+    expect(mocks.get).toHaveBeenCalledTimes(3)
     expect(mocks.create).toHaveBeenCalledTimes(1)
     expect(mocks.increment).toHaveBeenNthCalledWith(1, 5)
     expect(mocks.increment).toHaveBeenNthCalledWith(2, 5)

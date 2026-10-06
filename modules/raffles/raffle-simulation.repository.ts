@@ -218,6 +218,7 @@ export async function startRaffleSimulation(
     batch.create(runRef.collection("raffles").doc(raffle.id), {
       eventId: validatedEventId,
       prizeName: raffle.prizeName,
+      sponsorId: raffle.sponsorId ?? null,
       description: raffle.description,
       imageUrl: raffle.imageUrl,
       order: raffle.order,

@@ -31,6 +31,7 @@ export default async function EditProfilePage() {
           linkedinUsername: profile.linkedinUsername ?? "",
           website: profile.website ?? "",
           skills: [...profile.skills],
+          interests: [...(profile.interests ?? [])],
         }}
         submitAction={updateProfileAction}
         successRedirect="/profile"

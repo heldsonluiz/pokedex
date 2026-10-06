@@ -8,6 +8,10 @@ import * as z from "zod"
 import { firestore } from "@/lib/firebase/admin"
 import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 import { incrementParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
+import {
+  interestsSchema,
+  sharedInterests,
+} from "@/modules/profile/profile-interests"
 
 import {
   type Connection,
@@ -109,6 +113,14 @@ export async function requestConnection({
 
   return firestore.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(connectionRef)
+    const [requesterSnapshot, recipientSnapshot] = await Promise.all([
+      transaction.get(requesterRef),
+      transaction.get(recipientRef),
+    ])
+    const shared = sharedInterests(
+      interestsSchema.parse(requesterSnapshot.data()?.interests ?? []),
+      interestsSchema.parse(recipientSnapshot.data()?.interests ?? [])
+    )
     const now = Timestamp.now()
 
     if (!snapshot.exists) {
@@ -118,6 +130,7 @@ export async function requestConnection({
         requesterId,
         recipientId,
         status: "accepted",
+        sharedInterests: shared,
         requestCount: 1,
         xpAwardedPerParticipant,
         firstRequestedAt: now,

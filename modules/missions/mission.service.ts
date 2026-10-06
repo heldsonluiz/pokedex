@@ -18,20 +18,27 @@ import {
   completeMission,
   findActiveMissions,
   findMissionProgressByParticipant,
+  findSharedInterestConnectionCount,
 } from "./mission.repository"
 import {
+  completeKeywordMissionInputSchema,
   completeQrMissionInputSchema,
+  completeQuizMissionInputSchema,
   reviewMissionInputSchema,
 } from "./mission.schema"
+import { type PublicMissionQuiz, publicMissionQuiz } from "./mission-quiz"
 
 export type MissionListItem = Readonly<{
   id: string
   title: string
   description: string
   imageUrl: string | null
-  validationType: "qr" | "reviewer" | "automatic"
+  validationType: "qr" | "reviewer" | "automatic" | "keyword" | "quiz"
   status: "available" | "blocked" | "completed"
   xpAwarded: number
+  quiz?: PublicMissionQuiz
+  networkingByInterest?: boolean
+  keywordMaxAttempts?: number
   completedAt: Date | null
   blockedBy: ReadonlyArray<
     Readonly<{
@@ -54,6 +61,11 @@ export type MissionOperationResult =
   | Readonly<{
       success: false
       code:
+        | "QUIZ_NOT_PASSED"
+        | "INVALID_ANSWERS"
+        | "QUIZ_CHANGED"
+        | "INCORRECT_ANSWER"
+        | "ATTEMPTS_EXHAUSTED"
         | "FORBIDDEN"
         | "INVALID_EVENT"
         | "INVALID_QR"
@@ -80,6 +92,11 @@ export async function listMissionsForSession(
     findMissionProgressByParticipant(profile.eventId, profile.userId),
     findOrInitializeParticipantSummary(profile.eventId, profile.userId),
   ])
+  const sharedInterestCount = missions.some(
+    (mission) => mission.progressRequirement?.type === "shared-interests"
+  )
+    ? await findSharedInterestConnectionCount(profile.eventId, profile.userId)
+    : 0
   const completedMissionIds = new Set(
     initialProgress.completions.map((completion) => completion.activityId)
   )
@@ -98,7 +115,9 @@ export async function listMissionsForSession(
     const current =
       requirement.type === "connections"
         ? summary.connectionsCount
-        : summary.companiesVisitedCount
+        : requirement.type === "shared-interests"
+          ? sharedInterestCount
+          : summary.companiesVisitedCount
 
     return target > 0 && current >= target
   })
@@ -151,9 +170,15 @@ export async function listMissionsForSession(
       const current =
         progressRequirement.type === "connections"
           ? summary.connectionsCount
-          : summary.companiesVisitedCount
+          : progressRequirement.type === "shared-interests"
+            ? sharedInterestCount
+            : summary.companiesVisitedCount
       const activityLabel =
-        progressRequirement.type === "connections" ? "conexões" : "empresas"
+        progressRequirement.type === "connections"
+          ? "conexões"
+          : progressRequirement.type === "shared-interests"
+            ? "conexões com interesses em comum"
+            : "empresas"
 
       blockedBy.push({
         type: "progress",
@@ -167,6 +192,20 @@ export async function listMissionsForSession(
       description: mission.description,
       imageUrl: mission.imageUrl,
       validationType: mission.validationType,
+      ...(mission.quizConfig
+        ? {
+            quiz: publicMissionQuiz(
+              mission.quizConfig,
+              mission.updatedAt.getTime()
+            ),
+          }
+        : {}),
+      ...(mission.progressRequirement?.type === "shared-interests"
+        ? { networkingByInterest: true }
+        : {}),
+      ...(mission.keywordConfig
+        ? { keywordMaxAttempts: mission.keywordConfig.maxAttempts }
+        : {}),
       status: completion
         ? "completed"
         : blockedBy.length === 0
@@ -285,6 +324,16 @@ function mapCompletionResult(
   result: Awaited<ReturnType<typeof completeMission>>
 ): MissionOperationResult {
   switch (result.status) {
+    case "quiz-not-passed":
+      return { success: false, code: "QUIZ_NOT_PASSED" }
+    case "invalid-answers":
+      return { success: false, code: "INVALID_ANSWERS" }
+    case "quiz-changed":
+      return { success: false, code: "QUIZ_CHANGED" }
+    case "incorrect-answer":
+      return { success: false, code: "INCORRECT_ANSWER" }
+    case "attempts-exhausted":
+      return { success: false, code: "ATTEMPTS_EXHAUSTED" }
     case "completed":
       return {
         success: true,
@@ -314,4 +363,49 @@ function mapCompletionResult(
     case "profile-unavailable":
       return { success: false, code: "PROFILE_UNAVAILABLE" }
   }
+}
+
+export async function completeKeywordMissionForSession(
+  session: Session,
+  input: unknown
+): Promise<MissionOperationResult> {
+  const target = completeKeywordMissionInputSchema.parse(input)
+  const participant = await requireProfileForSession(session)
+  if (participant.eventId !== env.EVENT_ID)
+    return { success: false, code: "INVALID_EVENT" }
+  if (!hasPermission(participant, "participate"))
+    return { success: false, code: "FORBIDDEN" }
+  return mapCompletionResult(
+    await completeMission({
+      eventId: participant.eventId,
+      participantId: participant.userId,
+      missionId: target.missionId,
+      answer: target.answer,
+      validationType: "keyword",
+      defaultXpAwarded: SCORES.MISSION_COMPLETION,
+    })
+  )
+}
+
+export async function completeQuizMissionForSession(
+  session: Session,
+  input: unknown
+): Promise<MissionOperationResult> {
+  const target = completeQuizMissionInputSchema.parse(input)
+  const participant = await requireProfileForSession(session)
+  if (participant.eventId !== env.EVENT_ID)
+    return { success: false, code: "INVALID_EVENT" }
+  if (!hasPermission(participant, "participate"))
+    return { success: false, code: "FORBIDDEN" }
+  return mapCompletionResult(
+    await completeMission({
+      eventId: participant.eventId,
+      participantId: participant.userId,
+      missionId: target.missionId,
+      answers: target.answers,
+      revision: target.revision,
+      validationType: "quiz",
+      defaultXpAwarded: SCORES.MISSION_COMPLETION,
+    })
+  )
 }
