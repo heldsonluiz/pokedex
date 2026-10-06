@@ -242,6 +242,108 @@ export const TEST_MISSIONS = [
     description: "Complete seu passaporte visitando todas as empresas ativas.",
     progressRequirement: { type: "companies", target: "all" },
   },
+  {
+    id: "palavra-da-comunidade",
+    title: "A palavra da comunidade",
+    validationType: "keyword",
+    description:
+      "Descubra a palavra revelada na abertura e envie sua resposta.",
+    keywordConfig: {
+      acceptedAnswers: ["Conexão", "Networking"],
+      maxAttempts: 3,
+    },
+  },
+  {
+    id: "senha-da-aurora",
+    title: "A senha da Aurora",
+    validationType: "keyword",
+    description:
+      "Após visitar a Aurora Cloud, descubra a palavra-chave no estande.",
+    keywordConfig: { acceptedAnswers: ["Nuvem", "Cloud"], maxAttempts: 2 },
+    prerequisites: [{ type: "company", activityId: "aurora-cloud" }],
+  },
+  {
+    id: "primeiro-interesse-em-comum",
+    title: "Encontre um interesse em comum",
+    validationType: "automatic",
+    description:
+      "Selecione seus interesses no perfil e conecte-se com uma pessoa que compartilhe pelo menos um deles.",
+    progressRequirement: { type: "shared-interests", target: 1 },
+  },
+  {
+    id: "tribo-dos-interesses",
+    title: "Encontre sua tribo",
+    validationType: "automatic",
+    description:
+      "Conecte-se com três pessoas diferentes com interesses em comum.",
+    progressRequirement: { type: "shared-interests", target: 3 },
+  },
+  {
+    id: "quiz-web-relampago",
+    title: "Quiz relâmpago de Web",
+    validationType: "quiz",
+    description:
+      "Teste seus conhecimentos de Web. Acerte pelo menos duas perguntas.",
+    quizConfig: {
+      questions: [
+        {
+          id: "web-estrutura",
+          prompt: "Qual tecnologia define a estrutura de uma página web?",
+          options: ["HTML", "CSS", "SQL"],
+          correctOptionIndex: 0,
+        },
+        {
+          id: "web-estilo",
+          prompt: "Qual tecnologia é usada para estilizar uma página web?",
+          options: ["SQL", "CSS", "HTTP"],
+          correctOptionIndex: 1,
+        },
+        {
+          id: "web-interacao",
+          prompt:
+            "Qual linguagem permite adicionar interatividade no navegador?",
+          options: ["HTML", "CSS", "JavaScript"],
+          correctOptionIndex: 2,
+        },
+      ],
+      minCorrectAnswers: 2,
+      maxAttempts: 3,
+    },
+  },
+  {
+    id: "quiz-cloud-final",
+    title: "Quiz final da Nuvem",
+    validationType: "quiz",
+    description:
+      "Descubra a palavra da comunidade e responda ao desafio de Cloud. Acerte todas as perguntas.",
+    prerequisites: [{ type: "mission", activityId: "palavra-da-comunidade" }],
+    quizConfig: {
+      questions: [
+        {
+          id: "cloud-escala",
+          prompt: "O que significa escalar horizontalmente uma aplicação?",
+          options: [
+            "Adicionar mais instâncias",
+            "Aumentar a memória de uma única instância",
+            "Desativar o serviço",
+          ],
+          correctOptionIndex: 0,
+        },
+        {
+          id: "cloud-cache",
+          prompt: "Qual é uma finalidade comum do cache?",
+          options: [
+            "Apagar dados persistentes",
+            "Reduzir o tempo de acesso a dados frequentes",
+            "Substituir toda autenticação",
+          ],
+          correctOptionIndex: 1,
+        },
+      ],
+      minCorrectAnswers: 2,
+      maxAttempts: 2,
+    },
+  },
 ]
 
 export const TEST_REWARDS = [
@@ -425,11 +527,10 @@ export function createCatalogFixture({ eventId, appOrigin, now }) {
           : null,
       title: mission.title,
       description: mission.description,
-      imageUrl:
-        mission.validationType === "automatic"
-          ? null
-          : asset(appOrigin, "missions", mission.id),
+      imageUrl: asset(appOrigin, "missions", mission.id),
       validationType: mission.validationType,
+      keywordConfig: mission.keywordConfig ?? null,
+      quizConfig: mission.quizConfig ?? null,
       progressRequirement: mission.progressRequirement ?? null,
       prerequisites: mission.prerequisites ?? [],
       active: true,
@@ -582,4 +683,19 @@ export function createCatalogFixture({ eventId, appOrigin, now }) {
     ...talks,
     ...schedule,
   ]
+}
+
+const TEST_INTEREST_GROUPS = [
+  ["ai", "cloud", "web"],
+  ["cloud", "data", "databases"],
+  ["mobile", "design", "games"],
+  [],
+]
+
+export function getTestParticipantInterests(index) {
+  return [...TEST_INTEREST_GROUPS[index % TEST_INTEREST_GROUPS.length]]
+}
+
+export function getTestSharedInterests(first, second) {
+  return [...new Set(first.filter((interest) => second.includes(interest)))]
 }
