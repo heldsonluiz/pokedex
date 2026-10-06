@@ -7,6 +7,10 @@ export function ProfileHelp() {
       "Faça conexões, visite empresas, descubra tags, conclua missões e avalie palestras. Confira os requisitos de cada atividade; repetir uma leitura já registrada não duplica o XP.",
     ],
     [
+      "Como funcionam os tickets?",
+      "Converta o XP disponível em tickets na página Tickets. Você pode gastá-los na lojinha, onde cada brinde tem um preço específico, ou guardá-los para os sorteios finais. Quanto mais tickets disponíveis no momento do sorteio, maiores são suas chances de ganhar. Tickets gastos não são reembolsáveis, e a conversão não pode ser desfeita; confirme sua escolha antes de converter ou resgatar.",
+    ],
+    [
       "Converter XP reduz meus pontos?",
       `Não. Cada ${TICKET_EXCHANGE_RATE_XP} XP ainda não convertidos rende um ticket. Seu XP, nível e ranking são preservados. A conversão fica disponível enquanto estiver liberada pela organização.`,
     ],
