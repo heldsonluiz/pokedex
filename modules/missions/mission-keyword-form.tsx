@@ -21,6 +21,7 @@ export function MissionKeywordForm({
   const [pending, setPending] = useState(false)
   const [finished, setFinished] = useState(false)
   const [message, setMessage] = useState("")
+  const [isError, setIsError] = useState(false)
 
   return (
     <form
@@ -34,6 +35,7 @@ export function MissionKeywordForm({
             missionId,
             answer,
           })
+          setIsError(!result.success)
           if (result.success) {
             setFinished(true)
             setMessage(
@@ -55,6 +57,7 @@ export function MissionKeywordForm({
             if (result.code === "ATTEMPTS_EXHAUSTED") setFinished(true)
           }
         } catch {
+          setIsError(true)
           setMessage("Não foi possível enviar a resposta. Tente novamente.")
         } finally {
           setPending(false)
@@ -79,7 +82,10 @@ export function MissionKeywordForm({
         autoComplete="off"
         disabled={pending || finished}
       />
-      <p role="status" className="text-sm text-white/70">
+      <p
+        role="status"
+        className={`text-sm ${isError ? "text-destructive" : "text-white/70"}`}
+      >
         {message}
       </p>
       <Button
