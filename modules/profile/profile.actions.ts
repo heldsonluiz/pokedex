@@ -22,6 +22,7 @@ const PROFILE_FIELDS = [
   "linkedinUsername",
   "website",
   "skills",
+  "interests",
 ] as const satisfies readonly ProfileField[]
 
 export type UpdateProfileActionResult =

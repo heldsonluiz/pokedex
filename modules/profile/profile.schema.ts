@@ -114,15 +114,6 @@ const skillSchema = z
   .trim()
   .refine(isValidSkillSlug, "Selecione uma habilidade válida")
 
-const selectedSkillsSchema = z
-  .array(skillSchema)
-  .min(3, "Selecione pelo menos 3 habilidades")
-  .max(5, "Selecione no máximo 5 habilidades")
-  .refine(
-    (selectedSkills) => new Set(selectedSkills).size === selectedSkills.length,
-    "Não selecione a mesma habilidade mais de uma vez"
-  )
-
 const storedSkillsSchema = z
   .array(skillSchema)
   .max(5)
@@ -148,8 +139,11 @@ export const profileUpdateSchema = z
     company: optionalCompanySchema,
     linkedinUsername: optionalLinkedinUsernameSchema,
     website: optionalWebsiteSchema,
-    skills: selectedSkillsSchema,
-    interests: interestsSchema.default([]),
+    skills: z.array(skillSchema).max(5).default([]),
+    interests: interestsSchema.min(
+      1,
+      "Selecione pelo menos uma área de interesse"
+    ),
   })
   .strict()
 

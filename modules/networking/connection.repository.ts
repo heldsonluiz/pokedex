@@ -9,7 +9,7 @@ import { firestore } from "@/lib/firebase/admin"
 import { getFirestoreCollectionName } from "@/lib/firebase/firestore-collection"
 import { incrementParticipantSummary } from "@/modules/participant-summary/participant-summary.repository"
 import {
-  interestsSchema,
+  getProfileInterests,
   sharedInterests,
 } from "@/modules/profile/profile-interests"
 
@@ -118,8 +118,8 @@ export async function requestConnection({
       transaction.get(recipientRef),
     ])
     const shared = sharedInterests(
-      interestsSchema.parse(requesterSnapshot.data()?.interests ?? []),
-      interestsSchema.parse(recipientSnapshot.data()?.interests ?? [])
+      getProfileInterests(requesterSnapshot.data() ?? {}),
+      getProfileInterests(recipientSnapshot.data() ?? {})
     )
     const now = Timestamp.now()
 

@@ -16,7 +16,7 @@ import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
 import { getConnectedProfileForSession } from "@/modules/networking/connection.service"
 import { getLinkedinProfileUrl } from "@/modules/profile/profile.schema"
-import { findSkillBySlug } from "@/modules/profile/profile-skills"
+import { INTERESTS } from "@/modules/profile/profile-interests"
 
 export const metadata: Metadata = {
   title: "Perfil da conexão",
@@ -104,15 +104,15 @@ export default async function ConnectedProfilePage({
       )}
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Habilidades</h2>
+        <h2 className="text-lg font-semibold">Áreas de interesse</h2>
         <div className="flex flex-wrap gap-2">
-          {profile.skills.map((skill) => (
+          {(profile.interests ?? []).map((skill) => (
             <Badge
               key={skill}
               variant="secondary"
               className="h-8 border border-primary bg-transparent px-3 text-sm text-foreground"
             >
-              {findSkillBySlug(skill)?.name ?? skill}
+              {INTERESTS.find(({ id }) => id === skill)?.label ?? skill}
             </Badge>
           ))}
         </div>

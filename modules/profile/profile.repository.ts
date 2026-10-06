@@ -17,6 +17,7 @@ import {
   storedProfileFieldsSchema,
 } from "./profile.schema"
 import type { Profile } from "./profile.types"
+import { getProfileInterests } from "./profile-interests"
 
 const PROFILES_COLLECTION = getFirestoreCollectionName("profiles")
 const INITIAL_PROFILE_FIELDS = storedProfileFieldsSchema.parse({})
@@ -100,6 +101,7 @@ export async function findProfileByUserId(
 
   return {
     ...profile,
+    interests: getProfileInterests(profile),
     xpReachedAt: xpReachedAt?.toDate() ?? null,
     createdAt: createdAt.toDate(),
     updatedAt: updatedAt.toDate(),
@@ -138,6 +140,7 @@ export async function findProfileByEmail(
 
   return {
     ...profile,
+    interests: getProfileInterests(profile),
     xpReachedAt: xpReachedAt?.toDate() ?? null,
     createdAt: createdAt.toDate(),
     updatedAt: updatedAt.toDate(),
@@ -181,6 +184,7 @@ export async function findProfileByQrId(
 
   return {
     ...profile,
+    interests: getProfileInterests(profile),
     xpReachedAt: xpReachedAt?.toDate() ?? null,
     createdAt: createdAt.toDate(),
     updatedAt: updatedAt.toDate(),
@@ -207,6 +211,7 @@ export async function updateProfileByUserId(
 
     transaction.update(profileRef, {
       ...validatedInput,
+      skills: [],
       updatedAt: Timestamp.now(),
     })
   })
@@ -231,6 +236,7 @@ export async function completeProfileByUserId(
 
     transaction.update(profileRef, {
       ...validatedInput,
+      skills: [],
       onboardingCompleted: true,
       updatedAt: Timestamp.now(),
     })

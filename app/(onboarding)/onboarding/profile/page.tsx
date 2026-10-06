@@ -23,7 +23,7 @@ export default async function OnboardingProfilePage() {
         <div className="mb-6 space-y-2">
           <h1 className="text-xl font-semibold">Conte um pouco sobre você</h1>
           <p className="text-sm text-muted-foreground">
-            Informe seu nome, gênero e selecione pelo menos três habilidades. Os
+            Informe seu nome, gênero e selecione suas áreas de interesse. Os
             demais campos são opcionais.
           </p>
         </div>
@@ -37,7 +37,7 @@ export default async function OnboardingProfilePage() {
             company: profile.company ?? "",
             linkedinUsername: profile.linkedinUsername ?? "",
             website: profile.website ?? "",
-            skills: [...profile.skills],
+            skills: [],
             interests: [...(profile.interests ?? [])],
           }}
           submitAction={completeProfileOnboardingAction}
