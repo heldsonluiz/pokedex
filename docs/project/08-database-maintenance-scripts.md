@@ -164,12 +164,12 @@ esvazia os materiais locais gerados e grava a nova massa.
 
 ### Dados criados
 
-- 150 perfis fictícios com XP e tickets variados;
-- 450 conexões aceitas distribuídas entre os participantes;
+- 150 perfis fictícios com XP, tickets e interesses variados (incluindo perfis sem interesses);
+- 450 conexões aceitas distribuídas entre os participantes, com os interesses em comum registrados;
 - resumos individuais coerentes com as conexões;
 - 8 empresas ativas;
 - 22 tags com imagens pixel art;
-- 15 missões por QR, reviewer ou progresso automático, incluindo pré-requisitos;
+- 21 missões por QR, reviewer, palavra-chave, quiz ou progresso automático, incluindo networking por interesse e pré-requisitos;
 - 6 brindes ativos com custos, estoques e limites variados;
 - 6 prêmios de sorteio ativos em estado pendente;
 - 26 palestrantes;
@@ -198,6 +198,22 @@ Code continuam apontando para as mesmas entidades depois de recriar a base.
 
 Os e-mails terminados em `@example.test` são apenas dados do Firestore. Eles não
 representam contas Google e não podem autenticar.
+
+### Novas missões para teste
+
+- `palavra-da-comunidade`: aceita **Conexão** ou **Networking**, até 3 tentativas.
+- `senha-da-aurora`: aceita **Nuvem** ou **Cloud**, até 2 tentativas, após visitar `aurora-cloud`.
+- `primeiro-interesse-em-comum`: meta de 1 pessoa com interesses em comum.
+- `tribo-dos-interesses`: meta de 3 pessoas com interesses em comum.
+- `quiz-web-relampago`: 3 perguntas, mínimo de 2 acertos e até 3 tentativas; gabarito **HTML, CSS, JavaScript**.
+- `quiz-cloud-final`: 2 perguntas, exige todos os acertos e permite 2 tentativas; desbloqueado após `palavra-da-comunidade`. Gabarito: **Adicionar mais instâncias** e **Reduzir o tempo de acesso a dados frequentes**.
+
+Todas as 21 missões usam imagens locais de `public/images/assets/missions`,
+incluindo 11 novas ilustrações pixel art em 256×256. Os participantes fictícios
+incluem interesses comuns, distintos e vazios. As conexões preservam a
+interseção desses interesses, permitindo testar metas alcançadas e pendentes.
+Missões por palavra-chave e quiz começam sem tentativas ou conclusões gravadas.
+A caça ao tesouro ainda não é incluída porque seu formato não foi implementado.
 
 ### Limitação de atomicidade
 

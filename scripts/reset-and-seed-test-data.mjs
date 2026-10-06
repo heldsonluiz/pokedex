@@ -24,7 +24,11 @@ import { createHash, randomUUID } from "node:crypto"
 
 import { Timestamp } from "firebase-admin/firestore"
 
-import { createCatalogFixture } from "./fixtures/event-test-data.mjs"
+import {
+  createCatalogFixture,
+  getTestParticipantInterests,
+  getTestSharedInterests,
+} from "./fixtures/event-test-data.mjs"
 import {
   applyDatabaseCleanup,
   assertDestructiveConfirmation,
@@ -116,7 +120,18 @@ console.log(
       seed: {
         participants: 150,
         companies: 8,
-        missions: 15,
+        missions: documents.filter((item) => item.collection === "missions")
+          .length,
+        missionTypes: Object.fromEntries(
+          ["qr", "reviewer", "automatic", "keyword", "quiz"].map((type) => [
+            type,
+            documents.filter(
+              (item) =>
+                item.collection === "missions" &&
+                item.data.validationType === type
+            ).length,
+          ])
+        ),
         raffles: 6,
         rewards: 6,
         tags: 22,
@@ -173,6 +188,7 @@ for (let index = 1; index <= 150; index += 1) {
       skills[(index + 2) % skills.length],
       skills[(index + 4) % skills.length],
     ],
+    interests: getTestParticipantInterests(index),
     accessRoles: ["participant"],
     ticketBalance: index % 11,
     convertedXp: (index % 8) * 200,
@@ -216,6 +232,9 @@ for (let index = 0; index < participants.length; index += 1) {
     pairs.add(JSON.stringify(pair))
   }
 }
+const participantById = new Map(
+  participants.map((participant) => [participant.userId, participant])
+)
 const connectionCounts = new Map(participants.map((item) => [item.userId, 0]))
 for (const serialized of pairs) {
   const pair = JSON.parse(serialized)
@@ -231,6 +250,10 @@ for (const serialized of pairs) {
       participantIds: pair,
       requesterId: pair[0],
       recipientId: pair[1],
+      sharedInterests: getTestSharedInterests(
+        participantById.get(pair[0]).interests,
+        participantById.get(pair[1]).interests
+      ),
       status: "accepted",
       requestCount: 1,
       xpAwardedPerParticipant: 5,
