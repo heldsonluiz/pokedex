@@ -25,6 +25,7 @@ import {
   missionCompletionFieldsSchema,
 } from "./mission-completion.schema"
 import { normalizeKeyword } from "./mission-keyword"
+import { countSharedInterestConnections } from "./mission-networking"
 
 const MISSIONS_COLLECTION = getFirestoreCollectionName("missions")
 const COMPLETIONS_COLLECTION = getFirestoreCollectionName("activityCompletions")
@@ -522,6 +523,21 @@ export async function completeEligibleAutomaticMissions({
       return 0
     }
 
+    const interestConnections = automaticMissions.some(
+      (mission) => mission.progressRequirement?.type === "shared-interests"
+    )
+      ? await transaction.get(
+          sharedInterestConnectionsQuery(validatedParticipantId)
+        )
+      : null
+    const sharedInterestCount = interestConnections
+      ? countSharedInterestConnections(
+          validatedEventId,
+          validatedParticipantId,
+          interestConnections.docs.map((document) => document.data())
+        )
+      : 0
+
     const eligibleMissions = automaticMissions.filter((mission, index) => {
       if (completionSnapshots[index].exists || !mission.progressRequirement) {
         return false
@@ -535,7 +551,9 @@ export async function completeEligibleAutomaticMissions({
       const current =
         requirement.type === "connections"
           ? summary.connectionsCount
-          : summary.companiesVisitedCount
+          : requirement.type === "shared-interests"
+            ? sharedInterestCount
+            : summary.companiesVisitedCount
 
       return target > 0 && current >= target
     })
@@ -590,4 +608,22 @@ export async function completeEligibleAutomaticMissions({
 
     return eligibleMissions.length
   })
+}
+
+function sharedInterestConnectionsQuery(participantId: string) {
+  return firestore
+    .collection(getFirestoreCollectionName("connections"))
+    .where("participantIds", "array-contains", participantId)
+}
+
+export async function findSharedInterestConnectionCount(
+  eventId: string,
+  participantId: string
+): Promise<number> {
+  const snapshots = await sharedInterestConnectionsQuery(participantId).get()
+  return countSharedInterestConnections(
+    eventId,
+    participantId,
+    snapshots.docs.map((document) => document.data())
+  )
 }

@@ -18,6 +18,7 @@ import {
   completeMission,
   findActiveMissions,
   findMissionProgressByParticipant,
+  findSharedInterestConnectionCount,
 } from "./mission.repository"
 import {
   completeKeywordMissionInputSchema,
@@ -33,6 +34,7 @@ export type MissionListItem = Readonly<{
   validationType: "qr" | "reviewer" | "automatic" | "keyword"
   status: "available" | "blocked" | "completed"
   xpAwarded: number
+  networkingByInterest?: boolean
   keywordMaxAttempts?: number
   completedAt: Date | null
   blockedBy: ReadonlyArray<
@@ -84,6 +86,11 @@ export async function listMissionsForSession(
     findMissionProgressByParticipant(profile.eventId, profile.userId),
     findOrInitializeParticipantSummary(profile.eventId, profile.userId),
   ])
+  const sharedInterestCount = missions.some(
+    (mission) => mission.progressRequirement?.type === "shared-interests"
+  )
+    ? await findSharedInterestConnectionCount(profile.eventId, profile.userId)
+    : 0
   const completedMissionIds = new Set(
     initialProgress.completions.map((completion) => completion.activityId)
   )
@@ -102,7 +109,9 @@ export async function listMissionsForSession(
     const current =
       requirement.type === "connections"
         ? summary.connectionsCount
-        : summary.companiesVisitedCount
+        : requirement.type === "shared-interests"
+          ? sharedInterestCount
+          : summary.companiesVisitedCount
 
     return target > 0 && current >= target
   })
@@ -155,9 +164,15 @@ export async function listMissionsForSession(
       const current =
         progressRequirement.type === "connections"
           ? summary.connectionsCount
-          : summary.companiesVisitedCount
+          : progressRequirement.type === "shared-interests"
+            ? sharedInterestCount
+            : summary.companiesVisitedCount
       const activityLabel =
-        progressRequirement.type === "connections" ? "conexões" : "empresas"
+        progressRequirement.type === "connections"
+          ? "conexões"
+          : progressRequirement.type === "shared-interests"
+            ? "conexões com interesses em comum"
+            : "empresas"
 
       blockedBy.push({
         type: "progress",
@@ -171,6 +186,9 @@ export async function listMissionsForSession(
       description: mission.description,
       imageUrl: mission.imageUrl,
       validationType: mission.validationType,
+      ...(mission.progressRequirement?.type === "shared-interests"
+        ? { networkingByInterest: true }
+        : {}),
       ...(mission.keywordConfig
         ? { keywordMaxAttempts: mission.keywordConfig.maxAttempts }
         : {}),

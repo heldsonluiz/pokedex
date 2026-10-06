@@ -22,6 +22,7 @@ import {
   type ProfileUpdateInput,
   profileUpdateSchema,
 } from "./profile.schema"
+import { INTERESTS } from "./profile-interests"
 import { SkillSelector } from "./skill-selector"
 
 type ProfileFormProps = Readonly<{
@@ -280,6 +281,46 @@ export function ProfileForm({
             />
           )}
         />
+      </fieldset>
+
+      <fieldset className="space-y-3">
+        <legend className="text-sm font-medium">Interesses (opcional)</legend>
+        <p className="text-xs text-muted-foreground">
+          Escolha até 5 interesses para participar das missões de networking.
+        </p>
+        <Controller
+          control={control}
+          name="interests"
+          render={({ field }) => (
+            <div className="flex flex-wrap gap-2">
+              {INTERESTS.map(({ id, label }) => {
+                const selected = (field.value ?? []).includes(id)
+                return (
+                  <Button
+                    key={id}
+                    type="button"
+                    variant={selected ? "default" : "outline"}
+                    aria-pressed={selected}
+                    disabled={
+                      isPending ||
+                      (!selected && (field.value ?? []).length >= 5)
+                    }
+                    onClick={() =>
+                      field.onChange(
+                        selected
+                          ? (field.value ?? []).filter((value) => value !== id)
+                          : [...(field.value ?? []), id]
+                      )
+                    }
+                  >
+                    {label}
+                  </Button>
+                )
+              })}
+            </div>
+          )}
+        />
+        <FieldError id="interests-error" message={errors.interests?.message} />
       </fieldset>
 
       {result && !result.success && !result.fieldErrors && (

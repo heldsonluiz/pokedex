@@ -38,6 +38,7 @@ export default async function OnboardingProfilePage() {
             linkedinUsername: profile.linkedinUsername ?? "",
             website: profile.website ?? "",
             skills: [...profile.skills],
+            interests: [...(profile.interests ?? [])],
           }}
           submitAction={completeProfileOnboardingAction}
           successRedirect="/home"

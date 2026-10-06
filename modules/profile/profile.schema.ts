@@ -1,5 +1,6 @@
 import * as z from "zod"
 
+import { interestsSchema } from "./profile-interests"
 import { isValidSkillSlug } from "./profile-skills"
 
 export const ACCESS_ROLES = [
@@ -148,6 +149,7 @@ export const profileUpdateSchema = z
     linkedinUsername: optionalLinkedinUsernameSchema,
     website: optionalWebsiteSchema,
     skills: selectedSkillsSchema,
+    interests: interestsSchema.default([]),
   })
   .strict()
 
@@ -163,6 +165,7 @@ export const storedProfileFieldsSchema = z.object({
     .nullable()
     .default(null),
   skills: storedSkillsSchema.default([]),
+  interests: interestsSchema.optional(),
   accessRoles: accessRolesSchema.default(["participant"]),
   ticketBalance: z.number().int().nonnegative().default(0),
   convertedXp: z.number().int().nonnegative().default(0),

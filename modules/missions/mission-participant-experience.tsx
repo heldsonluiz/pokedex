@@ -209,7 +209,9 @@ function MissionRow({ mission }: Readonly<{ mission: MissionListItem }>) {
                 {mission.validationType === "reviewer"
                   ? "Validação presencial"
                   : mission.validationType === "automatic"
-                    ? "Progresso automático"
+                    ? mission.networkingByInterest
+                      ? "Networking por interesse"
+                      : "Progresso automático"
                     : mission.validationType === "keyword"
                       ? "Descubra a palavra-chave"
                       : "Encontre o QR Code"}
@@ -339,7 +341,9 @@ function MissionDialog({
                 {mission.validationType === "reviewer"
                   ? "Realize a atividade e apresente seu QR Code para uma pessoa da organização."
                   : mission.validationType === "automatic"
-                    ? "Continue participando. A missão será concluída automaticamente quando você atingir a meta."
+                    ? mission.networkingByInterest
+                      ? "Escolha seus interesses no perfil e conecte-se com pessoas que tenham pelo menos um interesse em comum. Cada pessoa conta uma vez."
+                      : "Continue participando. A missão será concluída automaticamente quando você atingir a meta."
                     : mission.validationType === "keyword"
                       ? "Descubra a palavra-chave e envie sua resposta abaixo. As tentativas são limitadas."
                       : "Encontre e leia o QR Code desta missão durante o evento."}
@@ -365,6 +369,15 @@ function MissionDialog({
                 ))}
               </ul>
             </div>
+          )}
+          {mission.networkingByInterest && mission.status !== "completed" && (
+            <Button
+              variant="outline"
+              render={<Link href="/profile/edit" />}
+              nativeButton={false}
+            >
+              Editar meus interesses
+            </Button>
           )}
           {mission.status === "available" &&
             mission.validationType === "keyword" && (
