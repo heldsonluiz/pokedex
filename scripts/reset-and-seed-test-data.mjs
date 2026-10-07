@@ -7,11 +7,11 @@
  * Authentication nem arquivos do Storage.
  *
  * Simular, sem apagar ou gravar documentos:
- * Produção, carregando .env:
+ * Local por padrão, carregando .env.local:
  *   pnpm db:seed
  *
- * Local, carregando .env.local:
- *   pnpm db:seed --local
+ * Produção explicitamente, carregando .env:
+ *   pnpm db:seed --production
  *
  * Ao final da simulação, o terminal exibirá o comando completo para recriar a
  * base. Confira projeto e evento e então copie e execute a linha inteira, que
@@ -29,6 +29,7 @@ import {
   getTestParticipantInterests,
   getTestSharedInterests,
 } from "./fixtures/event-test-data.mjs"
+import { getDatabaseEnvironment } from "./lib/database-environment.mjs"
 import {
   applyDatabaseCleanup,
   assertDestructiveConfirmation,
@@ -41,15 +42,16 @@ import {
 } from "./lib/firestore-admin.mjs"
 
 const args = parseArguments(process.argv.slice(2), {
-  booleanArguments: ["apply", "local"],
+  booleanArguments: ["apply", "local", "production"],
 })
-const environmentFile = args.local ? ".env.local" : ".env"
+const { environmentFile, environment, environmentFlag } =
+  getDatabaseEnvironment(args)
 await loadLocalEnvironment(environmentFile, { override: true })
 const eventId = requireEnvironment("EVENT_ID")
 const appOrigin = new URL(requireEnvironment("NEXT_PUBLIC_APP_URL"))
 const localHostnames = new Set(["localhost", "127.0.0.1", "::1"])
 
-if (!args.local && localHostnames.has(appOrigin.hostname)) {
+if (args.production && localHostnames.has(appOrigin.hostname)) {
   throw new Error(
     `Seed de produção recusado: NEXT_PUBLIC_APP_URL em ${environmentFile} aponta para ${appOrigin.origin}`
   )
@@ -88,7 +90,7 @@ if (invalidCatalogAsset) {
 }
 
 console.log(
-  `Ambiente: ${args.local ? "local" : "produção"} | arquivo: ${environmentFile} | origem: ${appOrigin.origin}`
+  `Ambiente: ${environment} | arquivo: ${environmentFile} | origem: ${appOrigin.origin}`
 )
 
 const { firestore, projectId } = initializeFirestore()
@@ -105,7 +107,7 @@ console.log(
   JSON.stringify(
     {
       mode: args.apply ? "APLICAÇÃO" : "SIMULAÇÃO (nenhuma gravação)",
-      environment: args.local ? "local" : "produção",
+      environment,
       environmentFile,
       appOrigin: appOrigin.origin,
       projectId,
@@ -152,7 +154,7 @@ if (
   })
 ) {
   console.log(
-    `\nPara aplicar: pnpm db:seed${args.local ? " --local" : ""} --apply --confirm "${expected}"`
+    `\nPara aplicar: pnpm db:seed${environmentFlag} --apply --confirm "${expected}"`
   )
   process.exit(0)
 }
