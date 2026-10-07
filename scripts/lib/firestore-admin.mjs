@@ -22,6 +22,7 @@ const APPLICATION_SUBCOLLECTIONS = [
 ]
 
 export const APPLICATION_COLLECTIONS = [
+  "missionAttempts",
   "activityCompletions",
   "connections",
   "eventOperations",

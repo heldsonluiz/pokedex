@@ -55,6 +55,7 @@ if (eventProfiles.length > 1)
 const profile = eventProfiles[0]
 const participantId = profile.id
 const participantCollections = [
+  "missionAttempts",
   "activityCompletions",
   "participantSummaries",
   "rewardRedemptions",

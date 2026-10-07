@@ -27,6 +27,8 @@ vi.mock("@/lib/firebase/admin", () => {
   return {
     firestore: {
       collection: (name: string) => ({ doc: (id: string) => ref(name, id) }),
+      getAll: async (...refs: { path: string; id: string }[]) =>
+        refs.map((reference) => snapshot(reference.path, reference.id)),
       runTransaction: (
         callback: (transaction: unknown) => Promise<unknown>
       ) => {
@@ -61,7 +63,10 @@ vi.mock("@/lib/firebase/admin", () => {
   }
 })
 
-import { completeMission } from "./mission.repository"
+import {
+  completeMission,
+  findMissionAttemptsByParticipant,
+} from "./mission.repository"
 
 const revision = 1700000000000
 const id = createHash("sha256")
@@ -168,6 +173,53 @@ describe("quiz completion transaction", () => {
       (await completeMission({ ...input, answers: correctAnswers })).status
     ).toBe("attempts-exhausted")
     expect(mock.documents.get("profiles/user-1")).toMatchObject({ xp: 10 })
+    expect(mock.documents.get(`missionAttempts/${id}`)).toMatchObject({
+      attempts: 2,
+      outcome: "failed",
+      lastScore: 0,
+      questionCount: 2,
+    })
+    expect(mock.documents.has(`activityCompletions/${id}`)).toBe(false)
+    const persisted = await findMissionAttemptsByParticipant(
+      "event-1",
+      "user-1",
+      ["quiz-1"]
+    )
+    expect(persisted.get("quiz-1")).toMatchObject({
+      outcome: "failed",
+      attempts: 2,
+      lastScore: 0,
+    })
+    const mission = mock.documents.get("missions/quiz-1") as {
+      quizConfig: object
+    }
+    mock.documents.set("missions/quiz-1", {
+      ...mission,
+      quizConfig: { ...mission.quizConfig, maxAttempts: 10 },
+    })
+    expect(
+      (await completeMission({ ...input, answers: correctAnswers })).status
+    ).toBe("attempts-exhausted")
+  })
+  it("serializes simultaneous submissions on the final attempt without granting XP", async () => {
+    const wrong = [
+      { questionId: "q1", optionIndex: 1 },
+      { questionId: "q2", optionIndex: 0 },
+    ]
+    await completeMission({ ...input, answers: wrong })
+    const results = await Promise.all([
+      completeMission({ ...input, answers: wrong }),
+      completeMission({ ...input, answers: correctAnswers }),
+    ])
+    expect(results.map((result) => result.status)).toEqual([
+      "attempts-exhausted",
+      "attempts-exhausted",
+    ])
+    expect(mock.documents.get(`missionAttempts/${id}`)).toMatchObject({
+      attempts: 2,
+      outcome: "failed",
+    })
+    expect(mock.increments).not.toHaveBeenCalled()
   })
   it("does not consume incomplete or stale submissions", async () => {
     expect(

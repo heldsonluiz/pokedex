@@ -10,8 +10,10 @@ import { completeKeywordMissionAction } from "./mission.actions"
 
 export function MissionKeywordForm({
   missionId,
+  attemptsUsed = 0,
   maxAttempts,
 }: {
+  attemptsUsed?: number
   missionId: string
   maxAttempts?: number
 }) {
@@ -20,6 +22,9 @@ export function MissionKeywordForm({
   const [answer, setAnswer] = useState("")
   const [pending, setPending] = useState(false)
   const [finished, setFinished] = useState(false)
+  const [remaining, setRemaining] = useState(
+    Math.max(0, (maxAttempts ?? 1) - attemptsUsed)
+  )
   const [message, setMessage] = useState("")
   const [isError, setIsError] = useState(false)
 
@@ -45,11 +50,22 @@ export function MissionKeywordForm({
             )
             router.refresh()
           } else {
+            if (
+              "attemptsRemaining" in result &&
+              result.attemptsRemaining !== undefined
+            )
+              setRemaining(result.attemptsRemaining)
+            if (
+              result.code === "ATTEMPTS_EXHAUSTED" ||
+              result.code === "QUIZ_NOT_PASSED" ||
+              result.code === "INCORRECT_ANSWER"
+            )
+              router.refresh()
             setMessage(
               result.code === "INCORRECT_ANSWER"
                 ? "Palavra-chave incorreta. Tente novamente."
                 : result.code === "ATTEMPTS_EXHAUSTED"
-                  ? "Você atingiu o limite de tentativas desta missão."
+                  ? "Tentativas esgotadas — missão encerrada sem XP."
                   : result.code === "PREREQUISITE_MISSING"
                     ? "Conclua os pré-requisitos desta missão."
                     : "Não foi possível concluir. Tente novamente."
@@ -69,7 +85,7 @@ export function MissionKeywordForm({
       </label>
       {maxAttempts && (
         <p className="text-sm text-white/70">
-          Até {maxAttempts} tentativas. Maiúsculas e acentos não alteram a
+          Tentativas restantes: {remaining}. Maiúsculas e acentos não alteram a
           resposta.
         </p>
       )}

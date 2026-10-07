@@ -20,6 +20,7 @@ import {
   type Mission,
   missionFieldsSchema,
 } from "./mission.schema"
+import { type MissionAttempt, missionAttemptSchema } from "./mission-attempts"
 import {
   type MissionCompletion,
   missionCompletionFieldsSchema,
@@ -83,6 +84,9 @@ export type CompleteMissionResult =
         | "not-found"
         | "prerequisite-missing"
         | "profile-unavailable"
+      attemptsRemaining?: number
+      lastScore?: number
+      questionCount?: number
     }>
 
 type CachedMission = Omit<Mission, "createdAt" | "updatedAt"> &
@@ -215,6 +219,36 @@ export async function findMissionProgressByParticipant(
   }
 
   return { completions, activityKeys }
+}
+
+export async function findMissionAttemptsByParticipant(
+  eventId: string,
+  participantId: string,
+  missionIds: string[]
+): Promise<Map<string, MissionAttempt>> {
+  if (!missionIds.length) return new Map()
+  const snapshots = await firestore.getAll(
+    ...missionIds.map((missionId) =>
+      firestore
+        .collection(getFirestoreCollectionName("missionAttempts"))
+        .doc(getCompletionId(eventId, participantId, "mission", missionId))
+    )
+  )
+  const attempts = new Map<string, MissionAttempt>()
+  for (const snapshot of snapshots) {
+    if (!snapshot.exists) continue
+    const attempt = missionAttemptSchema.parse(snapshot.data())
+    if (
+      attempt.eventId !== eventId ||
+      attempt.participantId !== participantId ||
+      snapshot.id !==
+        getCompletionId(eventId, participantId, "mission", attempt.missionId)
+    ) {
+      throw new Error("Stored mission attempt identity is invalid")
+    }
+    attempts.set(attempt.missionId, attempt)
+  }
+  return attempts
 }
 
 async function findMissionTarget({
@@ -380,6 +414,15 @@ export async function completeMission({
       }
     }
 
+    if (attemptSnapshot.data()?.outcome === "failed") {
+      return {
+        status: "attempts-exhausted",
+        attemptsRemaining: 0,
+        lastScore: attemptSnapshot.data()?.lastScore,
+        questionCount: attemptSnapshot.data()?.questionCount,
+      }
+    }
+
     if (prerequisiteSnapshots.some((snapshot) => !snapshot.exists)) {
       return { status: "prerequisite-missing" }
     }
@@ -409,8 +452,19 @@ export async function completeMission({
         .int()
         .nonnegative()
         .parse(attemptSnapshot.data()?.attempts ?? 0)
-      if (attempts >= config.maxAttempts)
-        return { status: "attempts-exhausted" }
+      if (attempts >= config.maxAttempts) {
+        transaction.set(attemptRef, {
+          ...attemptSnapshot.data(),
+          outcome: "failed",
+          closedAt: Timestamp.now(),
+        })
+        return {
+          status: "attempts-exhausted",
+          attemptsRemaining: 0,
+          lastScore: attemptSnapshot.data()?.lastScore,
+          questionCount: attemptSnapshot.data()?.questionCount,
+        }
+      }
       const score = scoreMissionQuiz(config, answers ?? [])
       if (score === null) return { status: "invalid-answers" }
       transaction.set(attemptRef, {
@@ -418,6 +472,19 @@ export async function completeMission({
         participantId: validatedParticipantId,
         missionId: mission.id,
         attempts: attempts + 1,
+        outcome:
+          score >= config.minCorrectAnswers
+            ? "completed"
+            : attempts + 1 >= config.maxAttempts
+              ? "failed"
+              : "in-progress",
+        lastScore: score,
+        questionCount: config.questions.length,
+        closedAt:
+          score >= config.minCorrectAnswers ||
+          attempts + 1 >= config.maxAttempts
+            ? Timestamp.now()
+            : null,
         updatedAt: Timestamp.now(),
       })
       if (score < config.minCorrectAnswers)
@@ -426,6 +493,9 @@ export async function completeMission({
             attempts + 1 >= config.maxAttempts
               ? "attempts-exhausted"
               : "quiz-not-passed",
+          attemptsRemaining: config.maxAttempts - attempts - 1,
+          lastScore: score,
+          questionCount: config.questions.length,
         }
     }
 
@@ -436,8 +506,19 @@ export async function completeMission({
         .int()
         .nonnegative()
         .parse(attemptSnapshot.data()?.attempts ?? 0)
-      if (attempts >= config.maxAttempts)
-        return { status: "attempts-exhausted" }
+      if (attempts >= config.maxAttempts) {
+        transaction.set(attemptRef, {
+          ...attemptSnapshot.data(),
+          outcome: "failed",
+          closedAt: Timestamp.now(),
+        })
+        return {
+          status: "attempts-exhausted",
+          attemptsRemaining: 0,
+          lastScore: attemptSnapshot.data()?.lastScore,
+          questionCount: attemptSnapshot.data()?.questionCount,
+        }
+      }
       const correct = config.acceptedAnswers.some(
         (accepted) =>
           normalizeKeyword(accepted) === normalizeKeyword(answer ?? "")
@@ -447,6 +528,15 @@ export async function completeMission({
         participantId: validatedParticipantId,
         missionId: mission.id,
         attempts: attempts + 1,
+        outcome: correct
+          ? "completed"
+          : attempts + 1 >= config.maxAttempts
+            ? "failed"
+            : "in-progress",
+        closedAt:
+          correct || attempts + 1 >= config.maxAttempts
+            ? Timestamp.now()
+            : null,
         updatedAt: Timestamp.now(),
       })
       if (!correct)
@@ -455,6 +545,7 @@ export async function completeMission({
             attempts + 1 >= config.maxAttempts
               ? "attempts-exhausted"
               : "incorrect-answer",
+          attemptsRemaining: config.maxAttempts - attempts - 1,
         }
     }
 

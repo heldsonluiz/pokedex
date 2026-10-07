@@ -45,8 +45,11 @@ retornam a conclusão existente e não consomem tentativas nem concedem novo XP.
 
 A contagem, conclusão, XP do perfil e incremento do resumo usam a mesma
 transação. O servidor não persiste as respostas enviadas nem as inclui em logs.
-Aumentar `maxAttempts` permite novas tentativas; alterar a resposta não zera o
-contador existente.
+Ao esgotar as tentativas sem acertar, o registro recebe `outcome: "failed"` e
+`closedAt`. Esse encerramento não concede XP, não satisfaz pré-requisitos e não
+é revertido ao aumentar `maxAttempts` ou alterar a resposta. A lista consulta
+esses registros e exibe a missão em Encerradas, sem formulário. Registros
+antigos sem `outcome` são reconhecidos pelo contador e pelo limite atual.
 
 ## Acesso
 

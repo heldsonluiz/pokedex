@@ -4,6 +4,7 @@ const statusOrder = {
   available: 0,
   blocked: 1,
   completed: 2,
+  failed: 3,
 } as const
 
 export function orderMissionsForDisplay(
