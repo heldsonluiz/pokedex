@@ -44,7 +44,11 @@ export function CompanyDetailsModal({
   const router = useRouter()
 
   return (
-    <Dialog open onOpenChange={(open) => !open && router.back()}>
+    <Dialog
+      historyMode="route"
+      open
+      onOpenChange={(open) => !open && router.back()}
+    >
       <CompanyDialogContent company={company} />
     </Dialog>
   )

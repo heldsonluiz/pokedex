@@ -1,8 +1,9 @@
 "use client"
 
-import * as React from "react"
 import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer"
+import * as React from "react"
 
+import { useModalHistory } from "@/hooks/use-modal-history"
 import { cn } from "@/lib/utils"
 
 type DrawerContextProps = {
@@ -29,11 +30,28 @@ function Drawer({
   showSwipeHandle = false,
   snapPoints,
   swipeDirection = "down",
+  open: controlledOpen,
+  defaultOpen = false,
+  onOpenChange,
+  actionsRef: externalActionsRef,
   ...props
 }: DrawerPrimitive.Root.Props & {
   showSwipeHandle?: boolean
 }) {
   const hasSnapPoints = snapPoints != null && snapPoints.length > 0
+  const [internalOpen, setInternalOpen] = React.useState(defaultOpen)
+  const open = controlledOpen ?? internalOpen
+  const actionsRef = React.useRef<DrawerPrimitive.Root.Actions | null>(null)
+  const fallbackRef = React.useRef<DrawerPrimitive.Root.Actions | null>(null)
+  React.useImperativeHandle(
+    externalActionsRef ?? fallbackRef,
+    () => ({
+      close: () => actionsRef.current?.close(),
+      unmount: () => actionsRef.current?.unmount(),
+    }),
+    []
+  )
+  useModalHistory(open, () => actionsRef.current?.close())
   const contextValue = React.useMemo(
     () => ({ hasSnapPoints, modal, showSwipeHandle, swipeDirection }),
     [hasSnapPoints, modal, showSwipeHandle, swipeDirection]
@@ -47,6 +65,12 @@ function Drawer({
         snapPoints={snapPoints}
         swipeDirection={swipeDirection}
         {...props}
+        open={open}
+        actionsRef={actionsRef}
+        onOpenChange={(nextOpen, details) => {
+          onOpenChange?.(nextOpen, details)
+          if (!details.isCanceled) setInternalOpen(nextOpen)
+        }}
       />
     </DrawerContext.Provider>
   )
@@ -215,14 +239,14 @@ function DrawerDescription({
 
 export {
   Drawer,
-  DrawerPortal,
-  DrawerOverlay,
-  DrawerSwipeHandle,
-  DrawerTrigger,
   DrawerClose,
   DrawerContent,
-  DrawerHeader,
-  DrawerFooter,
-  DrawerTitle,
   DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerPortal,
+  DrawerSwipeHandle,
+  DrawerTitle,
+  DrawerTrigger,
 }

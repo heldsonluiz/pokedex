@@ -1,18 +1,51 @@
 "use client"
 
-import * as React from "react"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
-
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
+import * as React from "react"
+
+import { Button } from "@/components/ui/button"
+import { useModalHistory } from "@/hooks/use-modal-history"
+import { cn } from "@/lib/utils"
 
 function Dialog({
   modal = "trap-focus",
+  historyMode = "local",
+  open: controlledOpen,
+  defaultOpen = false,
+  onOpenChange,
+  actionsRef: externalActionsRef,
   ...props
-}: DialogPrimitive.Root.Props) {
+}: DialogPrimitive.Root.Props & { historyMode?: "local" | "route" }) {
+  const [internalOpen, setInternalOpen] = React.useState(defaultOpen)
+  const open = controlledOpen ?? internalOpen
+  const actionsRef = React.useRef<DialogPrimitive.Root.Actions | null>(null)
+  const fallbackRef = React.useRef<DialogPrimitive.Root.Actions | null>(null)
+  React.useImperativeHandle(
+    externalActionsRef ?? fallbackRef,
+    () => ({
+      close: () => actionsRef.current?.close(),
+      unmount: () => actionsRef.current?.unmount(),
+    }),
+    []
+  )
+  useModalHistory(
+    open,
+    () => actionsRef.current?.close(),
+    historyMode === "local"
+  )
   return (
-    <DialogPrimitive.Root data-slot="dialog" modal={modal} {...props} />
+    <DialogPrimitive.Root
+      data-slot="dialog"
+      modal={modal}
+      {...props}
+      open={open}
+      actionsRef={actionsRef}
+      onOpenChange={(nextOpen, details) => {
+        onOpenChange?.(nextOpen, details)
+        if (!details.isCanceled) setInternalOpen(nextOpen)
+      }}
+    />
   )
 }
 
@@ -75,8 +108,7 @@ function DialogContent({
               />
             }
           >
-            <XIcon
-            />
+            <XIcon />
             <span className="sr-only">Fechar</span>
           </DialogPrimitive.Close>
         )}
