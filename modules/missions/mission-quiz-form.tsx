@@ -10,8 +10,10 @@ import type { PublicMissionQuiz } from "./mission-quiz"
 
 export function MissionQuizForm({
   missionId,
+  attemptsUsed = 0,
   quiz,
 }: {
+  attemptsUsed?: number
   missionId: string
   quiz: PublicMissionQuiz
 }) {
@@ -20,6 +22,9 @@ export function MissionQuizForm({
   const [answers, setAnswers] = useState<Record<string, number>>({})
   const [pending, setPending] = useState(false)
   const [finished, setFinished] = useState(false)
+  const [remaining, setRemaining] = useState(
+    Math.max(0, quiz.maxAttempts - attemptsUsed)
+  )
   const [message, setMessage] = useState("")
   const [isError, setIsError] = useState(false)
   return (
@@ -48,11 +53,22 @@ export function MissionQuizForm({
             )
             router.refresh()
           } else {
+            if (
+              "attemptsRemaining" in result &&
+              result.attemptsRemaining !== undefined
+            )
+              setRemaining(result.attemptsRemaining)
+            if (
+              result.code === "ATTEMPTS_EXHAUSTED" ||
+              result.code === "QUIZ_NOT_PASSED" ||
+              result.code === "INCORRECT_ANSWER"
+            )
+              router.refresh()
             setMessage(
               result.code === "QUIZ_NOT_PASSED"
                 ? "Você ainda não atingiu o mínimo de acertos. Tente novamente."
                 : result.code === "ATTEMPTS_EXHAUSTED"
-                  ? "Você atingiu o limite de tentativas deste quiz."
+                  ? "Tentativas esgotadas — missão encerrada sem XP."
                   : result.code === "QUIZ_CHANGED"
                     ? "Este quiz foi atualizado. Reabra a missão para responder novamente."
                     : result.code === "PREREQUISITE_MISSING"
@@ -75,7 +91,7 @@ export function MissionQuizForm({
     >
       <p className="text-sm text-white/70">
         Acerte pelo menos {quiz.minCorrectAnswers} de {quiz.questions.length}{" "}
-        perguntas. Até {quiz.maxAttempts} tentativas.
+        perguntas. Tentativas restantes: {remaining}.
       </p>
       {quiz.questions.map((question, index) => (
         <fieldset

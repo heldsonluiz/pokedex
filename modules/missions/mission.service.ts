@@ -17,6 +17,7 @@ import {
   completeEligibleAutomaticMissions,
   completeMission,
   findActiveMissions,
+  findMissionAttemptsByParticipant,
   findMissionProgressByParticipant,
   findSharedInterestConnectionCount,
 } from "./mission.repository"
@@ -26,6 +27,7 @@ import {
   completeQuizMissionInputSchema,
   reviewMissionInputSchema,
 } from "./mission.schema"
+import { hasExhaustedMissionAttempts } from "./mission-attempts"
 import { type PublicMissionQuiz, publicMissionQuiz } from "./mission-quiz"
 
 export type MissionListItem = Readonly<{
@@ -34,10 +36,13 @@ export type MissionListItem = Readonly<{
   description: string
   imageUrl: string | null
   validationType: "qr" | "reviewer" | "automatic" | "keyword" | "quiz"
-  status: "available" | "blocked" | "completed"
+  status: "available" | "blocked" | "completed" | "failed"
   xpAwarded: number
   quiz?: PublicMissionQuiz
   networkingByInterest?: boolean
+  attemptsUsed?: number
+  lastScore?: number
+  questionCount?: number
   keywordMaxAttempts?: number
   completedAt: Date | null
   blockedBy: ReadonlyArray<
@@ -75,6 +80,9 @@ export type MissionOperationResult =
         | "PROFILE_UNAVAILABLE"
         | "QR_EXPIRED"
         | "WRONG_VALIDATION_TYPE"
+      attemptsRemaining?: number
+      lastScore?: number
+      questionCount?: number
     }>
 
 export async function listMissionsForSession(
@@ -92,6 +100,17 @@ export async function listMissionsForSession(
     findMissionProgressByParticipant(profile.eventId, profile.userId),
     findOrInitializeParticipantSummary(profile.eventId, profile.userId),
   ])
+  const attemptsByMission = await findMissionAttemptsByParticipant(
+    profile.eventId,
+    profile.userId,
+    missions
+      .filter(
+        (mission) =>
+          mission.validationType === "keyword" ||
+          mission.validationType === "quiz"
+      )
+      .map((mission) => mission.id)
+  )
   const sharedInterestCount = missions.some(
     (mission) => mission.progressRequirement?.type === "shared-interests"
   )
@@ -186,7 +205,19 @@ export async function listMissionsForSession(
       })
     }
 
+    const attempt = attemptsByMission.get(mission.id)
+    const exhausted = hasExhaustedMissionAttempts(
+      attempt,
+      mission.quizConfig?.maxAttempts ?? mission.keywordConfig?.maxAttempts
+    )
     return {
+      attemptsUsed: attempt?.attempts ?? 0,
+      ...(attempt?.lastScore !== undefined
+        ? { lastScore: attempt.lastScore }
+        : {}),
+      ...(attempt?.questionCount !== undefined
+        ? { questionCount: attempt.questionCount }
+        : {}),
       id: mission.id,
       title: mission.title,
       description: mission.description,
@@ -208,11 +239,14 @@ export async function listMissionsForSession(
         : {}),
       status: completion
         ? "completed"
-        : blockedBy.length === 0
-          ? "available"
-          : "blocked",
+        : exhausted
+          ? "failed"
+          : blockedBy.length === 0
+            ? "available"
+            : "blocked",
       xpAwarded:
-        completion?.xpAwarded ?? mission.xpAwarded ?? SCORES.MISSION_COMPLETION,
+        completion?.xpAwarded ??
+        (exhausted ? 0 : (mission.xpAwarded ?? SCORES.MISSION_COMPLETION)),
       completedAt: completion?.completedAt ?? null,
       blockedBy,
     }
@@ -325,15 +359,31 @@ function mapCompletionResult(
 ): MissionOperationResult {
   switch (result.status) {
     case "quiz-not-passed":
-      return { success: false, code: "QUIZ_NOT_PASSED" }
+      return {
+        success: false,
+        code: "QUIZ_NOT_PASSED",
+        attemptsRemaining: result.attemptsRemaining,
+        lastScore: result.lastScore,
+        questionCount: result.questionCount,
+      }
     case "invalid-answers":
       return { success: false, code: "INVALID_ANSWERS" }
     case "quiz-changed":
       return { success: false, code: "QUIZ_CHANGED" }
     case "incorrect-answer":
-      return { success: false, code: "INCORRECT_ANSWER" }
+      return {
+        success: false,
+        code: "INCORRECT_ANSWER",
+        attemptsRemaining: result.attemptsRemaining,
+      }
     case "attempts-exhausted":
-      return { success: false, code: "ATTEMPTS_EXHAUSTED" }
+      return {
+        success: false,
+        code: "ATTEMPTS_EXHAUSTED",
+        attemptsRemaining: 0,
+        lastScore: result.lastScore,
+        questionCount: result.questionCount,
+      }
     case "completed":
       return {
         success: true,

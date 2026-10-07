@@ -42,6 +42,16 @@ describe("mission presentation", () => {
     ])
   })
 
+  it("does not feature failed missions and lists them after completed missions", () => {
+    expect(selectFeaturedMission([mission("failed", "failed")])).toBeNull()
+    expect(
+      orderMissionsForDisplay([
+        mission("failed", "failed"),
+        mission("completed", "completed"),
+      ]).map((item) => item.id)
+    ).toEqual(["completed", "failed"])
+  })
+
   it("features the first available mission", () => {
     expect(
       selectFeaturedMission([

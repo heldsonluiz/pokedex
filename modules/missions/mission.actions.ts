@@ -41,7 +41,12 @@ async function runMissionAction(
   try {
     const result = await operation(session, input)
 
-    if (result.success) {
+    if (
+      result.success ||
+      result.code === "ATTEMPTS_EXHAUSTED" ||
+      result.code === "QUIZ_NOT_PASSED" ||
+      result.code === "INCORRECT_ANSWER"
+    ) {
       revalidatePath("/missions")
       revalidatePath("/passport")
     }

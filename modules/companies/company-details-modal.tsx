@@ -44,7 +44,11 @@ export function CompanyDetailsModal({
   const router = useRouter()
 
   return (
-    <Dialog open onOpenChange={(open) => !open && router.back()}>
+    <Dialog
+      historyMode="route"
+      open
+      onOpenChange={(open) => !open && router.back()}
+    >
       <CompanyDialogContent company={company} />
     </Dialog>
   )
@@ -102,7 +106,7 @@ function CompanyDialogContent({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10 ring-1 ring-white/10">
+        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl bg-white/10 ring-1 ring-white/10">
           <div className="bg-white/5 p-4">
             <p className="text-xs font-medium text-white/50">Recompensa</p>
             <p className="mt-2 text-xl font-bold text-cyan-300">

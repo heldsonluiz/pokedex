@@ -60,7 +60,8 @@ são corretas nem persiste as respostas enviadas. DEVMODE aplica o prefixo `test
 
 Se a missão for editada, uma resposta com revisão antiga é recusada sem consumir
 tentativa. O participante deve reabrir a missão com o catálogo atualizado.
-Editar perguntas não reinicia tentativas; aumentar o limite permite novos envios.
+Editar perguntas não reinicia tentativas. Aumentar o limite não reabre uma missão
+encerrada com `outcome: "failed"`.
 
 ## Acesso
 
@@ -80,3 +81,14 @@ existente quando atualizar os catálogos.
 7. Editar o quiz durante uma resposta e conferir o pedido para reabrir a missão.
 8. Criar e editar perguntas e alternativas; ativar/desativar a missão e conferir
    que o gabarito e as configurações continuam preservados.
+
+## Encerramento por tentativas esgotadas
+
+Cada envio completo válido consome uma tentativa na transação. O registro de
+`missionAttempts` armazena `outcome` (in-progress, completed ou failed),
+`lastScore`, `questionCount` e `closedAt`. Falhar na última tentativa encerra
+a missão sem XP e sem registrar uma conclusão. Reabrir a página ou aumentar o
+limite no cadastro não reabre um resultado failed. A lista mostra Encerradas,
+sem formulário, e o modal mostra os acertos da última tentativa. Contadores
+antigos já esgotados também são reconhecidos. Um reset explícito de participante
+remove seus registros de tentativas junto das demais atividades.

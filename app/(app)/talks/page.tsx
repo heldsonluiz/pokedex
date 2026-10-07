@@ -14,6 +14,7 @@ import Link from "next/link"
 
 import { EmptyState } from "@/components/layout/empty-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { requireAuth } from "@/lib/require-auth"
 import { cn } from "@/lib/utils"
 import {
@@ -21,6 +22,7 @@ import {
   formatScheduleLocation,
 } from "@/modules/schedule/schedule-format"
 import { listTalksForSession } from "@/modules/talks/talk.service"
+import { getTalkEvaluationGroup } from "@/modules/talks/talk-presentation"
 
 export const metadata: Metadata = { title: "Palestras" }
 export const dynamic = "force-dynamic"
@@ -43,6 +45,24 @@ const statusContent = {
     iconClassName: "bg-destructive/12 text-destructive",
   },
 } as const
+
+const evaluationGroups = [
+  {
+    status: "open",
+    title: "Disponíveis",
+    empty: "Nenhuma avaliação disponível no momento.",
+  },
+  {
+    status: "locked",
+    title: "Bloqueadas",
+    empty: "Nenhuma avaliação bloqueada.",
+  },
+  {
+    status: "closed",
+    title: "Encerradas",
+    empty: "Nenhuma avaliação encerrada ou já respondida.",
+  },
+] as const
 
 export default async function TalksPage() {
   const session = await requireAuth()
@@ -104,85 +124,117 @@ export default async function TalksPage() {
 
       {featuredTalk && <FeaturedTalk talk={featuredTalk} />}
 
-      <section className="space-y-3" aria-labelledby="all-talks-title">
-        <h2 id="all-talks-title" className="text-lg font-semibold">
-          Todas as palestras
-        </h2>
-        <div className="divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
-          {orderedTalks.map((talk) => {
-            const status = statusContent[talk.evaluationStatus]
-            const StatusIcon = talk.rating ? CheckCircle2 : status.icon
-            const firstSpeaker = talk.speakers[0]
+      {evaluationGroups.map(({ status: groupStatus, title, empty }) => {
+        const group = orderedTalks.filter(
+          (talk) => getTalkEvaluationGroup(talk) === groupStatus
+        )
+        const GroupIcon = statusContent[groupStatus].icon
+        return (
+          <section
+            key={groupStatus}
+            className="space-y-3"
+            aria-labelledby={`talks-${groupStatus}-title`}
+          >
+            <h2
+              id={`talks-${groupStatus}-title`}
+              className="flex items-center gap-2 text-lg font-semibold"
+            >
+              <GroupIcon
+                className="size-5 text-muted-foreground"
+                aria-hidden="true"
+              />
+              {title}
+              <Badge variant="secondary" className="ml-auto tabular-nums">
+                {group.length}
+              </Badge>
+            </h2>
+            {group.length ? (
+              <div className="divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
+                {group.map((talk) => {
+                  const status = statusContent[talk.evaluationStatus]
+                  const StatusIcon = talk.rating ? CheckCircle2 : status.icon
+                  const firstSpeaker = talk.speakers[0]
 
-            return (
-              <Link
-                key={talk.id}
-                href={`/talks/${encodeURIComponent(talk.id)}`}
-                className={cn(
-                  "flex min-h-20 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none",
-                  talk.rating && "bg-success/5"
-                )}
-              >
-                <Avatar className="size-11">
-                  <AvatarImage
-                    src={firstSpeaker?.photoUrl ?? undefined}
-                    alt={firstSpeaker ? `Foto de ${firstSpeaker.name}` : ""}
-                  />
-                  <AvatarFallback>
-                    <Mic2 aria-hidden="true" />
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-sm font-semibold">
-                    {talk.title}
-                  </h3>
-                  <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
-                    {talk.speakers.length > 0
-                      ? talk.speakers.map((speaker) => speaker.name).join(", ")
-                      : "Palestrante a confirmar"}
-                  </p>
-                  <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-foreground/70">
-                    <span className="inline-flex items-center gap-1">
-                      <Clock3 className="size-3.5" aria-hidden="true" />
-                      {formatScheduleInterval(
-                        talk.schedule.startAt,
-                        talk.schedule.endAt
+                  return (
+                    <Link
+                      key={talk.id}
+                      href={`/talks/${encodeURIComponent(talk.id)}`}
+                      className={cn(
+                        "flex min-h-20 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none",
+                        talk.rating && "bg-success/5"
                       )}
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin className="size-3.5" aria-hidden="true" />
-                      {formatScheduleLocation(
-                        talk.schedule.track,
-                        talk.schedule.activityType
-                      )}
-                    </span>
-                  </p>
-                  {talk.category && (
-                    <p className="mt-1 truncate text-xs font-medium text-primary">
-                      {talk.category}
-                    </p>
-                  )}
-                </div>
+                    >
+                      <Avatar className="size-11">
+                        <AvatarImage
+                          src={firstSpeaker?.photoUrl ?? undefined}
+                          alt={
+                            firstSpeaker ? `Foto de ${firstSpeaker.name}` : ""
+                          }
+                        />
+                        <AvatarFallback>
+                          <Mic2 aria-hidden="true" />
+                        </AvatarFallback>
+                      </Avatar>
 
-                <span
-                  className={cn(
-                    "flex size-9 shrink-0 items-center justify-center rounded-xl",
-                    talk.rating
-                      ? "bg-success/12 text-success"
-                      : status.iconClassName
-                  )}
-                >
-                  <StatusIcon className="size-4" aria-hidden="true" />
-                  <span className="sr-only">
-                    {talk.rating ? "Avaliada" : status.label}
-                  </span>
-                </span>
-              </Link>
-            )
-          })}
-        </div>
-      </section>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate text-sm font-semibold">
+                          {talk.title}
+                        </h3>
+                        <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
+                          {talk.speakers.length > 0
+                            ? talk.speakers
+                                .map((speaker) => speaker.name)
+                                .join(", ")
+                            : "Palestrante a confirmar"}
+                        </p>
+                        <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-foreground/70">
+                          <span className="inline-flex items-center gap-1">
+                            <Clock3 className="size-3.5" aria-hidden="true" />
+                            {formatScheduleInterval(
+                              talk.schedule.startAt,
+                              talk.schedule.endAt
+                            )}
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <MapPin className="size-3.5" aria-hidden="true" />
+                            {formatScheduleLocation(
+                              talk.schedule.track,
+                              talk.schedule.activityType
+                            )}
+                          </span>
+                        </p>
+                        {talk.category && (
+                          <p className="mt-1 truncate text-xs font-medium text-primary">
+                            {talk.category}
+                          </p>
+                        )}
+                      </div>
+
+                      <span
+                        className={cn(
+                          "flex size-9 shrink-0 items-center justify-center rounded-xl",
+                          talk.rating
+                            ? "bg-success/12 text-success"
+                            : status.iconClassName
+                        )}
+                      >
+                        <StatusIcon className="size-4" aria-hidden="true" />
+                        <span className="sr-only">
+                          {talk.rating ? "Avaliada" : status.label}
+                        </span>
+                      </span>
+                    </Link>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="rounded-2xl bg-muted/50 p-4 text-sm text-muted-foreground">
+                {empty}
+              </p>
+            )}
+          </section>
+        )
+      })}
     </div>
   )
 }

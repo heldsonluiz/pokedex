@@ -132,6 +132,20 @@ describe("keyword completion transaction", () => {
     ).toBe("attempts-exhausted")
     expect(mock.documents.get("profiles/user-1")).toMatchObject({ xp: 10 })
     expect(mock.documents.has(`activityCompletions/${id}`)).toBe(false)
+    expect(mock.documents.get(`missionAttempts/${id}`)).toMatchObject({
+      attempts: 2,
+      outcome: "failed",
+    })
+    const mission = mock.documents.get("missions/keyword-1") as {
+      keywordConfig: object
+    }
+    mock.documents.set("missions/keyword-1", {
+      ...mission,
+      keywordConfig: { ...mission.keywordConfig, maxAttempts: 10 },
+    })
+    expect(
+      (await completeMission({ ...input, answer: "conexao" })).status
+    ).toBe("attempts-exhausted")
   })
   it("allows success on the last permitted attempt", async () => {
     await completeMission({ ...input, answer: "wrong" })
