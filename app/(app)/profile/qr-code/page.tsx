@@ -23,8 +23,8 @@ export default async function ProfileQrCodePage() {
         </p>
       </section>
 
-      <section className="overflow-hidden rounded-3xl bg-(image:--gradient-immersive) p-5 text-white shadow-card">
-        <div className="mb-4 flex items-center gap-3">
+      <section className="rounded-3xl bg-(image:--gradient-immersive) p-5 text-white shadow-card">
+        <div className="mb-6 flex items-center gap-3">
           <span className="flex size-10 items-center justify-center rounded-xl bg-white/10">
             <QrCode className="size-5" aria-hidden="true" />
           </span>

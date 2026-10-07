@@ -152,11 +152,17 @@ export function UserQrCodeCard({
 
   return (
     <div className="space-y-4 text-center text-white">
-      <div
-        className="mx-auto aspect-square w-full max-w-72 overflow-hidden rounded-2xl bg-white p-3 shadow-[0_12px_36px_rgb(0_0_0/0.3)] ring-4 ring-white/15 [&_svg]:h-full [&_svg]:w-full"
-        aria-label="QR Code temporário do participante"
-        dangerouslySetInnerHTML={{ __html: qrCode.svg }}
-      />
+      <div className="-mx-9">
+        <div
+          className="relative z-10 aspect-square w-full overflow-hidden rounded-2xl bg-white shadow-[0_16px_48px_rgb(0_0_0/0.45)] ring-4 ring-white/15"
+          aria-label="QR Code temporário do participante"
+        >
+          <div
+            className="absolute inset-0 leading-none [&_svg]:block [&_svg]:h-full [&_svg]:w-full"
+            dangerouslySetInnerHTML={{ __html: qrCode.svg }}
+          />
+        </div>
+      </div>
 
       <div aria-live="polite">
         <p className="text-sm font-medium">
