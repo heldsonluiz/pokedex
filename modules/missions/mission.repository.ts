@@ -97,6 +97,7 @@ const automaticMissionSummarySchema = z.object({
   participantId: z.string().trim().min(1).max(128),
   connectionsCount: z.number().int().nonnegative().default(0),
   companiesVisitedCount: z.number().int().nonnegative().default(0),
+  tagsDiscoveredCount: z.number().int().nonnegative().default(0),
 })
 
 function getCompletionId(
@@ -603,12 +604,14 @@ export async function completeEligibleAutomaticMissions({
   participantId,
   missions,
   activeCompanyCount,
+  activeTagCount = 0,
   defaultXpAwarded,
 }: {
   eventId: string
   participantId: string
   missions: Mission[]
   activeCompanyCount: number
+  activeTagCount?: number
   defaultXpAwarded: number
 }): Promise<number> {
   const validatedEventId =
@@ -620,6 +623,7 @@ export async function completeEligibleAutomaticMissions({
     .int()
     .nonnegative()
     .parse(activeCompanyCount)
+  const validatedTagCount = z.number().int().nonnegative().parse(activeTagCount)
   const validatedDefaultXp = z.number().int().positive().parse(defaultXpAwarded)
   const automaticMissions = missions.filter(
     (mission) =>
@@ -697,14 +701,18 @@ export async function completeEligibleAutomaticMissions({
       const requirement = mission.progressRequirement
       const target =
         requirement.target === "all"
-          ? validatedCompanyCount
+          ? requirement.type === "tags"
+            ? validatedTagCount
+            : validatedCompanyCount
           : requirement.target
       const current =
         requirement.type === "connections"
           ? summary.connectionsCount
           : requirement.type === "shared-interests"
             ? sharedInterestCount
-            : summary.companiesVisitedCount
+            : requirement.type === "tags"
+              ? summary.tagsDiscoveredCount
+              : summary.companiesVisitedCount
 
       return target > 0 && current >= target
     })

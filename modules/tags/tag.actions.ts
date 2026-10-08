@@ -37,6 +37,7 @@ export async function discoverTagAction(
 
     if (result.success) {
       revalidatePath("/tags")
+      revalidatePath("/missions")
       revalidatePath("/passport")
     }
 

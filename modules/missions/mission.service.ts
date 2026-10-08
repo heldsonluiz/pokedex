@@ -12,6 +12,7 @@ import {
   requireProfileForSession,
 } from "@/modules/profile/profile.service"
 import { validateUserQrToken } from "@/modules/qr-code/user-qr-token"
+import { findActiveTags } from "@/modules/tags/tag.repository"
 
 import {
   completeEligibleAutomaticMissions,
@@ -100,6 +101,11 @@ export async function listMissionsForSession(
     findMissionProgressByParticipant(profile.eventId, profile.userId),
     findOrInitializeParticipantSummary(profile.eventId, profile.userId),
   ])
+  const tags = missions.some(
+    (mission) => mission.progressRequirement?.type === "tags"
+  )
+    ? await findActiveTags(profile.eventId)
+    : []
   const attemptsByMission = await findMissionAttemptsByParticipant(
     profile.eventId,
     profile.userId,
@@ -130,13 +136,19 @@ export async function listMissionsForSession(
 
     const requirement = mission.progressRequirement
     const target =
-      requirement.target === "all" ? companies.length : requirement.target
+      requirement.target === "all"
+        ? requirement.type === "tags"
+          ? tags.length
+          : companies.length
+        : requirement.target
     const current =
       requirement.type === "connections"
         ? summary.connectionsCount
         : requirement.type === "shared-interests"
           ? sharedInterestCount
-          : summary.companiesVisitedCount
+          : requirement.type === "tags"
+            ? summary.tagsDiscoveredCount
+            : summary.companiesVisitedCount
 
     return target > 0 && current >= target
   })
@@ -145,6 +157,7 @@ export async function listMissionsForSession(
     participantId: profile.userId,
     missions: eligibleAutomaticMissions,
     activeCompanyCount: companies.length,
+    activeTagCount: tags.length,
     defaultXpAwarded: SCORES.MISSION_COMPLETION,
   })
   const progress =
@@ -184,20 +197,26 @@ export async function listMissionsForSession(
     if (progressRequirement && !completion) {
       const target =
         progressRequirement.target === "all"
-          ? companies.length
+          ? progressRequirement.type === "tags"
+            ? tags.length
+            : companies.length
           : progressRequirement.target
       const current =
         progressRequirement.type === "connections"
           ? summary.connectionsCount
           : progressRequirement.type === "shared-interests"
             ? sharedInterestCount
-            : summary.companiesVisitedCount
+            : progressRequirement.type === "tags"
+              ? summary.tagsDiscoveredCount
+              : summary.companiesVisitedCount
       const activityLabel =
         progressRequirement.type === "connections"
           ? "conexões"
           : progressRequirement.type === "shared-interests"
             ? "conexões com interesses em comum"
-            : "empresas"
+            : progressRequirement.type === "tags"
+              ? "tags"
+              : "empresas"
 
       blockedBy.push({
         type: "progress",
