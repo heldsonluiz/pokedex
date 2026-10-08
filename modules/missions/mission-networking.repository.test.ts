@@ -156,3 +156,45 @@ describe("networking mission transaction", () => {
     expect(mock.documents.get("profiles/user-1")).toMatchObject({ xp: 60 })
   })
 })
+
+it.each(["companies", "tags"] as const)(
+  "completes all %s only when the catalog target is reached and awards once",
+  async (type) => {
+    const counter =
+      type === "tags" ? "tagsDiscoveredCount" : "companiesVisitedCount"
+    const request = {
+      ...input,
+      activeCompanyCount: 3,
+      activeTagCount: 3,
+      missions: [
+        { ...mission, progressRequirement: { type, target: "all" as const } },
+      ],
+    }
+    mock.documents.set("summaries/user-1", {
+      participantId: "user-1",
+      eventId: "event-1",
+      [counter]: 2,
+    })
+    expect(await completeEligibleAutomaticMissions(request)).toBe(0)
+    mock.documents.set("summaries/user-1", {
+      participantId: "user-1",
+      eventId: "event-1",
+      [counter]: 3,
+    })
+    expect(await completeEligibleAutomaticMissions(request)).toBe(1)
+    expect(await completeEligibleAutomaticMissions(request)).toBe(0)
+    expect(mock.documents.get("profiles/user-1")).toMatchObject({ xp: 60 })
+  }
+)
+
+it("does not complete all tags when the catalog is empty", async () => {
+  expect(
+    await completeEligibleAutomaticMissions({
+      ...input,
+      activeTagCount: 0,
+      missions: [
+        { ...mission, progressRequirement: { type: "tags", target: "all" } },
+      ],
+    })
+  ).toBe(0)
+})

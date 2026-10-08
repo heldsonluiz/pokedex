@@ -68,3 +68,14 @@ describe("mission schema", () => {
     ).toBe(false)
   })
 })
+
+it.each(["companies", "tags"] as const)("accepts all %s", (type) => {
+  expect(
+    missionFieldsSchema.safeParse({
+      ...baseMission,
+      qrId: null,
+      validationType: "automatic",
+      progressRequirement: { type, target: "all" },
+    }).success
+  ).toBe(true)
+})
