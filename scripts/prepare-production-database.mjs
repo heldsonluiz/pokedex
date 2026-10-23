@@ -13,6 +13,7 @@
  * banco. Confira projeto e evento e então copie e execute a linha inteira, que
  * incluirá --apply e uma confirmação exclusiva dessa operação.
  */
+import { getDatabaseEnvironment } from "./lib/database-environment.mjs"
 import {
   applyDatabaseCleanup,
   assertDestructiveConfirmation,
@@ -23,8 +24,13 @@ import {
   requireEnvironment,
 } from "./lib/firestore-admin.mjs"
 
-await loadLocalEnvironment()
-const args = parseArguments()
+const args = parseArguments(process.argv.slice(2), {
+  booleanArguments: ["apply", "local", "production"],
+})
+const { environmentFile, environment, environmentFlag } =
+  getDatabaseEnvironment(args)
+await loadLocalEnvironment(environmentFile, { override: true })
+console.log(`Ambiente: ${environment} | arquivo: ${environmentFile}`)
 const eventId = requireEnvironment("EVENT_ID")
 const { firestore, projectId } = initializeFirestore()
 console.log("Mapeando documentos do Firestore...")
@@ -40,6 +46,8 @@ console.log(
   JSON.stringify(
     {
       mode: args.apply ? "APLICAÇÃO" : "SIMULAÇÃO (nenhuma gravação)",
+      environment,
+      environmentFile,
       projectId,
       eventId,
       documentsToDelete: cleanupPlan.references.length,
@@ -65,7 +73,7 @@ if (
   })
 ) {
   console.log(
-    `\nPara aplicar: npm run db:prepare-launch -- --apply --confirm "${expected}"`
+    `\nPara aplicar: npm run db:prepare-launch --${environmentFlag} --apply --confirm "${expected}"`
   )
   process.exit(0)
 }

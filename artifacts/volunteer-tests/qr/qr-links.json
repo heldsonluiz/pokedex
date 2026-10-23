@@ -1,0 +1,261 @@
+[
+  {
+    "id": "aurora-cloud",
+    "type": "company",
+    "name": "Aurora Cloud",
+    "filename": "empresa-aurora-cloud.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/company/f179b850-1918-5cb4-9f75-f69604546e4e"
+  },
+  {
+    "id": "byte-forge",
+    "type": "company",
+    "name": "Byte Forge",
+    "filename": "empresa-byte-forge.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/company/96e0bd6f-1bbc-5f9e-b501-71a77b69503c"
+  },
+  {
+    "id": "code-cauldron",
+    "type": "company",
+    "name": "Code Cauldron",
+    "filename": "empresa-code-cauldron.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/company/77132d75-ca52-5066-a8bb-fe46ee7ec7a9"
+  },
+  {
+    "id": "data-crypt",
+    "type": "company",
+    "name": "Data Crypt",
+    "filename": "empresa-data-crypt.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/company/7795b7ea-15d3-5987-a642-be1b8dc9966d"
+  },
+  {
+    "id": "ghost-stack",
+    "type": "company",
+    "name": "Ghost Stack",
+    "filename": "empresa-ghost-stack.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/company/389f4d40-2988-515c-a3ab-1c49cd40d644"
+  },
+  {
+    "id": "neon-labs",
+    "type": "company",
+    "name": "Neon Labs",
+    "filename": "empresa-neon-labs.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/company/7334ff8d-674f-5361-a725-dac58ea599df"
+  },
+  {
+    "id": "pixel-vault",
+    "type": "company",
+    "name": "Pixel Vault",
+    "filename": "empresa-pixel-vault.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/company/41a2f63c-7882-5470-996b-db96d375272e"
+  },
+  {
+    "id": "runtime-studio",
+    "type": "company",
+    "name": "Runtime Studio",
+    "filename": "empresa-runtime-studio.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/company/c8ae4ed9-9e7c-5935-8649-2d415505cddb"
+  },
+  {
+    "id": "abobora-binaria",
+    "type": "tag",
+    "name": "Abóbora Binária",
+    "filename": "tag-abobora-binaria.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/29b6e5ba-b04e-5834-b0b1-ca11f7b00643"
+  },
+  {
+    "id": "abobora-programadora",
+    "type": "tag",
+    "name": "Abóbora Programadora",
+    "filename": "tag-abobora-programadora.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/bd134172-8dcb-51ab-b6c1-42f846247893"
+  },
+  {
+    "id": "android-queijo-vampiro",
+    "type": "tag",
+    "name": "Android Queijo Vampiro",
+    "filename": "tag-android-queijo-vampiro.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/6c726fa9-287d-5866-91ea-ef322628ec5c"
+  },
+  {
+    "id": "aranha-da-web",
+    "type": "tag",
+    "name": "Aranha da Web",
+    "filename": "tag-aranha-da-web.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/c6a4859f-8fe4-54a5-8e90-f1c1a9a0852f"
+  },
+  {
+    "id": "bruxa-da-nuvem",
+    "type": "tag",
+    "name": "Bruxa da Nuvem",
+    "filename": "tag-bruxa-da-nuvem.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/67dc6421-51a8-5185-aacd-d9f8f58c77a0"
+  },
+  {
+    "id": "caveira-do-commit",
+    "type": "tag",
+    "name": "Caveira do Commit",
+    "filename": "tag-caveira-do-commit.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/76388ca1-ad55-5b4a-875f-6b826bcb3913"
+  },
+  {
+    "id": "caveira-neon",
+    "type": "tag",
+    "name": "Caveira Neon",
+    "filename": "tag-caveira-neon.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/f1b390be-6ace-515b-bd17-cf4c8d8e0ec2"
+  },
+  {
+    "id": "corvo-da-nuvem",
+    "type": "tag",
+    "name": "Corvo da Nuvem",
+    "filename": "tag-corvo-da-nuvem.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/227e1d6d-1333-534a-a364-84a51bc2d106"
+  },
+  {
+    "id": "dash",
+    "type": "tag",
+    "name": "Dash",
+    "filename": "tag-dash.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/fbf5176e-37ea-5271-b82b-8c68790edd1a"
+  },
+  {
+    "id": "dinoffline",
+    "type": "tag",
+    "name": "Dinoffline",
+    "filename": "tag-dinoffline.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/15c4f2b9-018c-5522-9c55-d9c396816d66"
+  },
+  {
+    "id": "dragao-do-firewall",
+    "type": "tag",
+    "name": "Dragão do Firewall",
+    "filename": "tag-dragao-do-firewall.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/27ea28a0-2eae-5641-ba85-846bd1e7260f"
+  },
+  {
+    "id": "fantasma-do-arcade",
+    "type": "tag",
+    "name": "Fantasma do Arcade",
+    "filename": "tag-fantasma-do-arcade.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/e7b87c5f-4bd4-5455-8408-598f8f4fd23a"
+  },
+  {
+    "id": "fantasma-do-bug",
+    "type": "tag",
+    "name": "Fantasma do Bug",
+    "filename": "tag-fantasma-do-bug.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/76a95632-8558-569c-8d5b-6ef5a496dd1e"
+  },
+  {
+    "id": "gato-do-terminal",
+    "type": "tag",
+    "name": "Gato do Terminal",
+    "filename": "tag-gato-do-terminal.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/aa51a333-67ca-520d-89ba-86711c7a9ad1"
+  },
+  {
+    "id": "golem-de-dados",
+    "type": "tag",
+    "name": "Golem de Dados",
+    "filename": "tag-golem-de-dados.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/662255b7-5477-50d1-9d3b-1a25519cb910"
+  },
+  {
+    "id": "morcego-cosmico",
+    "type": "tag",
+    "name": "Morcego Cósmico",
+    "filename": "tag-morcego-cosmico.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/72b8cbf1-e041-56e6-8658-4cd008f88fce"
+  },
+  {
+    "id": "morcego-do-build",
+    "type": "tag",
+    "name": "Morcego do Build",
+    "filename": "tag-morcego-do-build.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/73b84c4c-8e55-5003-a7b5-d3472b9b2888"
+  },
+  {
+    "id": "pocao-acida",
+    "type": "tag",
+    "name": "Poção Ácida",
+    "filename": "tag-pocao-acida.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/434011ed-ec91-5c74-a12c-651e19163a48"
+  },
+  {
+    "id": "pocao-de-cache",
+    "type": "tag",
+    "name": "Poção de Cache",
+    "filename": "tag-pocao-de-cache.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/fcde0cbf-ccda-54db-9044-a3e44b804282"
+  },
+  {
+    "id": "runa-do-runtime",
+    "type": "tag",
+    "name": "Runa do Runtime",
+    "filename": "tag-runa-do-runtime.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/4400c7e3-dfd1-52e9-b101-600dcfd0e450"
+  },
+  {
+    "id": "slime-do-runtime",
+    "type": "tag",
+    "name": "Slime do Runtime",
+    "filename": "tag-slime-do-runtime.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/ea1015fe-fce6-5789-9418-aa2d2a431096"
+  },
+  {
+    "id": "sparky",
+    "type": "tag",
+    "name": "Sparky",
+    "filename": "tag-sparky.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/tag/123c7cac-7001-511a-ae16-ca5f784df5ef"
+  },
+  {
+    "id": "caldeirao-do-codigo",
+    "type": "mission",
+    "name": "Caldeirão do Código",
+    "filename": "missao-caldeirao-do-codigo.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/mission/eeb4ddcb-17d0-51b7-b813-20091a51252f"
+  },
+  {
+    "id": "visita-aurora",
+    "type": "mission",
+    "name": "Conheça a Aurora Cloud",
+    "filename": "missao-conheca-a-aurora-cloud.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/mission/a7f81330-12f5-535a-8d5e-9081094bbab2"
+  },
+  {
+    "id": "oraculo-da-nuvem",
+    "type": "mission",
+    "name": "Consulte o Oráculo da Nuvem",
+    "filename": "missao-consulte-o-oraculo-da-nuvem.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/mission/9746ea4c-250c-538a-a615-d52b059843c6"
+  },
+  {
+    "id": "desafio-byte-forge",
+    "type": "mission",
+    "name": "Desafio da Byte Forge",
+    "filename": "missao-desafio-da-byte-forge.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/mission/b8a4397e-f192-5f55-a6a6-a9f61d4185c2"
+  },
+  {
+    "id": "qr-secreto",
+    "type": "mission",
+    "name": "Encontre o QR secreto",
+    "filename": "missao-encontre-o-qr-secreto.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/mission/cc973b98-66f9-567e-bc0b-1d7edb2acbe5"
+  },
+  {
+    "id": "guardiao-dos-dados",
+    "type": "mission",
+    "name": "Guardião dos Dados",
+    "filename": "missao-guardiao-dos-dados.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/mission/9d092bd4-8a77-5004-8589-2a31a3a972e5"
+  },
+  {
+    "id": "trilha-do-terminal",
+    "type": "mission",
+    "name": "Trilha do Terminal",
+    "filename": "missao-trilha-do-terminal.png",
+    "url": "https://pokedex.heldsonluiz.dev.br/qr/devfest-triangulo-2026/mission/d7e42dcc-d241-5865-a73d-8fadf1203224"
+  }
+]
