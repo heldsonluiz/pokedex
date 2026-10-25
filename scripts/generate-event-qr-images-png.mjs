@@ -24,7 +24,9 @@ import sharp from "sharp"
 import { EVENT_QR_PRINT_STYLE } from "./lib/event-qr-print-style.mjs"
 import { getFirestoreCollectionName } from "./lib/firestore-admin.mjs"
 
-const OUTPUT_DIRECTORY = path.resolve("artifacts/qr")
+const OUTPUT_DIRECTORY = path.resolve(
+  process.env.QR_OUTPUT_DIRECTORY || "artifacts/qr"
+)
 const LINKS_FILE = path.join(OUTPUT_DIRECTORY, "qr-links.json")
 const PAGE_WIDTH = 1050
 const PAGE_HEIGHT = 1480
@@ -214,7 +216,12 @@ await mkdir(OUTPUT_DIRECTORY, { recursive: true })
 
 for (const item of items) {
   const svg = buildSvg(item)
-  const pngBuffer = await sharp(Buffer.from(svg)).png().toBuffer()
+  // 254 dpi maps the 105 × 148 mm SVG exactly to its 1050 × 1480 grid.
+  // The default 72 dpi shrinks modules to fractional pixels and can break reads.
+  const pngBuffer = await sharp(Buffer.from(svg), { density: 254 })
+    .png()
+    .withMetadata({ density: 254 })
+    .toBuffer()
   await writeFile(path.join(OUTPUT_DIRECTORY, item.filename), pngBuffer)
 }
 
