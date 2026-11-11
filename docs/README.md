@@ -23,6 +23,11 @@ O objetivo é centralizar as decisões, padrões, fluxos e requisitos necessári
 - [Validação de desempenho](./project/09-performance-validation.md)
 - [Planejamento de brindes e tickets](./project/10-reward-planning.md)
 
+## Testes com voluntários
+
+- [Roteiro para participantes](./testing/roteiro-voluntarios.md)
+- [Organização, massa e critérios de conclusão](./testing/organizacao.md)
+
 ## Frontend
 
 - [Design System](./frontend/01-design-system.md)

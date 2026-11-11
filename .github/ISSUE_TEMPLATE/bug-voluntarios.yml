@@ -1,0 +1,69 @@
+name: Bug no teste da Pokédex
+description: Conte o que aconteceu durante o teste como participante.
+title: "[Teste voluntário] "
+body:
+  - type: markdown
+    attributes:
+      value: "Uma issue por problema. Antes, procure se alguém já relatou. Não inclua senhas, e-mails de outras pessoas, QR pessoal ou links com tokens."
+  - type: input
+    id: scenario
+    attributes:
+      label: Etapa do roteiro
+      placeholder: "Ex.: T05 — missão da Aurora"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Celular e navegador
+      placeholder: "Ex.: Samsung A54, Android 14, Chrome; Wi-Fi"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: URL do teste e horário
+      description: Cole somente o endereço do site, sem tokens ou parâmetros de autenticação.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Como reproduzir
+      placeholder: "1. Abri...\n2. Toquei em...\n3. Aconteceu..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: O que você esperava?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: O que aconteceu?
+      description: Inclua a mensagem exibida e uma captura ou vídeo, se possível. Oculte dados pessoais.
+    validations:
+      required: true
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Você conseguiu continuar?
+      options:
+        - Não, fiquei bloqueado
+        - Sim, usando outro caminho
+        - Sim, mas houve dificuldade ou erro visual
+    validations:
+      required: true
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Aconteceu novamente?
+      options:
+        - Sim, toda vez que tentei
+        - Algumas vezes
+        - Aconteceu uma vez
+        - Não tentei novamente
+    validations:
+      required: true
