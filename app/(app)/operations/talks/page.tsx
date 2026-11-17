@@ -17,7 +17,11 @@ import { cn } from "@/lib/utils"
 import { listManageableTalksForSession } from "@/modules/talks/talk.service"
 import { TalkEvaluationControls } from "@/modules/talks/talk-evaluation-controls"
 
-export const metadata: Metadata = { title: "Avaliações de palestras" }
+export const metadata: Metadata = {
+  title: "Avaliações de palestras",
+  description:
+    "Consulte as avaliações das palestras disponíveis para sua função no evento.",
+}
 export const dynamic = "force-dynamic"
 
 export default async function TalkOperationsPage() {

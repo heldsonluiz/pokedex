@@ -35,6 +35,8 @@ import {
 
 export const metadata: Metadata = {
   title: "Tags",
+  description:
+    "Explore as tags do evento e acompanhe as descobertas registradas na Pokédex.",
 }
 
 export const dynamic = "force-dynamic"

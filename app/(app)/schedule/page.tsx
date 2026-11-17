@@ -15,7 +15,10 @@ import {
 } from "@/modules/schedule/schedule-format"
 import { TRACK_COLORS } from "@/modules/schedule/schedule-presentation"
 
-export const metadata: Metadata = { title: "Programação" }
+export const metadata: Metadata = {
+  title: "Programação",
+  description: "Confira horários, locais e trilhas das atividades do DevFest.",
+}
 export const dynamic = "force-dynamic"
 
 export default async function SchedulePage() {

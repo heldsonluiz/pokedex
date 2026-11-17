@@ -24,7 +24,11 @@ import {
 import { listTalksForSession } from "@/modules/talks/talk.service"
 import { getTalkEvaluationGroup } from "@/modules/talks/talk-presentation"
 
-export const metadata: Metadata = { title: "Palestras" }
+export const metadata: Metadata = {
+  title: "Palestras",
+  description:
+    "Explore as palestras, trilhas e atividades da programação do DevFest.",
+}
 export const dynamic = "force-dynamic"
 
 const statusContent = {

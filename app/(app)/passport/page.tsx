@@ -35,7 +35,11 @@ import {
 import { hasPermission } from "@/modules/profile/profile.authorization"
 import { requireProfileForSession } from "@/modules/profile/profile.service"
 
-export const metadata: Metadata = { title: "Passaporte" }
+export const metadata: Metadata = {
+  title: "Passaporte",
+  description:
+    "Veja os selos dos estandes visitados e o histórico do seu passaporte digital.",
+}
 export const dynamic = "force-dynamic"
 
 type PassportPageProps = Readonly<{

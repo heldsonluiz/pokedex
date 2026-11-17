@@ -18,6 +18,7 @@ import { ConnectionCard } from "@/modules/networking/connection-card"
 
 export const metadata: Metadata = {
   title: "Conexões",
+  description: "Acompanhe as conexões que você registrou durante o DevFest.",
 }
 
 export const dynamic = "force-dynamic"

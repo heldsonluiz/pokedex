@@ -18,6 +18,8 @@ import { CompanyDetailsDialog } from "@/modules/companies/company-details-modal"
 
 export const metadata: Metadata = {
   title: "Empresas",
+  description:
+    "Conheça as empresas participantes do DevFest e acompanhe as visitas aos estandes.",
 }
 
 export const dynamic = "force-dynamic"

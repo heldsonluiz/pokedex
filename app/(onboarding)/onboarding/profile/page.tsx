@@ -10,6 +10,8 @@ import { ProfileForm } from "@/modules/profile/profile-form"
 
 export const metadata: Metadata = {
   title: "Configure seu perfil",
+  description:
+    "Configure seu perfil: acompanhe sua participação, informações e atividades no DevFest Triângulo.",
 }
 
 export default async function OnboardingProfilePage() {
@@ -33,6 +35,9 @@ export default async function OnboardingProfilePage() {
           defaultValues={{
             displayName: profile.displayName,
             gender: profile.gender ?? "",
+            ageRange: profile.ageRange ?? null,
+            eventGoal: profile.eventGoal ?? null,
+            careerStage: profile.careerStage ?? null,
             bio: profile.bio ?? "",
             role: profile.role ?? "",
             company: profile.company ?? "",

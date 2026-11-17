@@ -34,3 +34,8 @@ export default async function CompleteAuthenticationPage({
 
   redirect(redirectTo)
 }
+
+export const metadata = {
+  title: "Concluir acesso",
+  description: "Conclua a autenticação para acessar a Pokédex do DevFest.",
+}

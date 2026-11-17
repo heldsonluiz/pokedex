@@ -26,12 +26,24 @@ export const metadata: Metadata = {
   },
   description:
     "Passaporte digital do DevFest Triângulo para networking, missões, palestras e gamificação durante o evento.",
+  twitter: {
+    card: "summary_large_image",
+    title: "DevFest Triângulo Pokédex",
+    description: "Missões, conexões e passaporte digital do evento.",
+    images: ["/images/social-cover.png"],
+  },
   creator: "@devfesttriangulo",
   publisher: "DevFest Triângulo",
-  alternates: {
-    canonical: "/",
-  },
+  robots: { index: false, follow: true },
   openGraph: {
+    images: [
+      {
+        url: "/images/social-cover.png",
+        width: 1200,
+        height: 630,
+        alt: "Pokédex — DevFest Triângulo",
+      },
+    ],
     type: "website",
     locale: "pt_BR",
     url: "/",

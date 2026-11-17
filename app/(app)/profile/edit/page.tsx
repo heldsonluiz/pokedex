@@ -7,6 +7,8 @@ import { ProfileForm } from "@/modules/profile/profile-form"
 
 export const metadata: Metadata = {
   title: "Editar perfil",
+  description:
+    "Atualize seus dados de perfil, interesses e informações opcionais do evento.",
 }
 
 export default async function EditProfilePage() {
@@ -25,6 +27,9 @@ export default async function EditProfilePage() {
         defaultValues={{
           displayName: profile.displayName,
           gender: profile.gender ?? "",
+          ageRange: profile.ageRange ?? null,
+          eventGoal: profile.eventGoal ?? null,
+          careerStage: profile.careerStage ?? null,
           bio: profile.bio ?? "",
           role: profile.role ?? "",
           company: profile.company ?? "",

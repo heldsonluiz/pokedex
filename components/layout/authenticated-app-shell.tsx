@@ -38,6 +38,7 @@ export function AuthenticatedAppShell({
     <>
       <Toaster position="top-center" richColors />
       <AppShell
+        showLegalLinks={!scanner}
         className={IS_HALLOWEEN ? halloweenStyles.shell : undefined}
         contentClassName={cn(
           IS_HALLOWEEN && halloweenStyles.content,

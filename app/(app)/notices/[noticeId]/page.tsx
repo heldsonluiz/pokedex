@@ -10,7 +10,10 @@ import { getNoticeForSession } from "@/modules/notices/notice.service"
 import { NoticeReadMarker } from "@/modules/notices/notice-read-marker"
 import { NoticeTimestamp } from "@/modules/notices/notice-timestamp"
 
-export const metadata = { title: "Aviso" }
+export const metadata = {
+  title: "Aviso",
+  description: "Leia o comunicado da organização e seus links de orientação.",
+}
 export default async function NoticePage({
   params,
 }: {

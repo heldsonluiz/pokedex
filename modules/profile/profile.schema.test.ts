@@ -76,3 +76,27 @@ it("requires exactly one role and prevents public updates of sponsor affiliation
   ).toBe(false)
   expect(storedProfileFieldsSchema.parse({}).sponsorCompanyId).toBeNull()
 })
+
+it("accepts optional reporting answers without changing legacy requirements", () => {
+  expect(
+    profileUpdateSchema.parse({
+      ...baseProfile,
+      ageRange: "25–34",
+      eventGoal: "Aprender",
+      careerStage: "Estudante",
+    }).ageRange
+  ).toBe("25–34")
+  expect(
+    profileUpdateSchema.safeParse({ ...baseProfile, ageRange: "inventado" })
+      .success
+  ).toBe(false)
+  expect(
+    profileUpdateSchema.safeParse({ ...baseProfile, ageRange: null }).success
+  ).toBe(true)
+  expect(
+    profileUpdateSchema.safeParse({
+      ...baseProfile,
+      contactCompanyIds: ["one"],
+    }).success
+  ).toBe(false)
+})

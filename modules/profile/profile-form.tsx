@@ -19,6 +19,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { InterestSelector } from "./interest-selector"
 import type { UpdateProfileActionResult } from "./profile.actions"
 import {
+  AGE_RANGE_OPTIONS,
+  CAREER_STAGE_OPTIONS,
+  EVENT_GOAL_OPTIONS,
   GENDER_OPTIONS,
   type ProfileUpdateInput,
   profileUpdateSchema,
@@ -41,6 +44,9 @@ type ProfileFormProps = Readonly<{
   )
 
 const BASIC_FIELDS = [
+  "ageRange",
+  "eventGoal",
+  "careerStage",
   "displayName",
   "gender",
   "bio",
@@ -238,6 +244,53 @@ export function ProfileForm({
             )}
           />
           <FieldError id="gender-error" message={errors.gender?.message} />
+        </div>
+
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            As respostas opcionais abaixo ajudam a compor estatísticas agregadas
+            do evento e das empresas visitadas.
+          </p>
+          {(
+            [
+              ["ageRange", "Faixa etária", AGE_RANGE_OPTIONS],
+              ["eventGoal", "Objetivo no evento", EVENT_GOAL_OPTIONS],
+              ["careerStage", "Momento profissional", CAREER_STAGE_OPTIONS],
+            ] as const
+          ).map(([name, label, options]) => (
+            <div key={name} className="space-y-2">
+              <label className="text-sm font-medium" htmlFor={name}>
+                {label} · opcional
+              </label>
+              <Controller
+                control={control}
+                name={name}
+                render={({ field }) => (
+                  <select
+                    id={name}
+                    className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value || null)}
+                    aria-invalid={Boolean(errors[name])}
+                    aria-describedby={
+                      errors[name] ? `${name}-error` : undefined
+                    }
+                  >
+                    <option value="">Não informado</option>
+                    {options.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              />
+              <FieldError
+                id={`${name}-error`}
+                message={errors[name]?.message}
+              />
+            </div>
+          ))}
         </div>
 
         <div className="space-y-2">

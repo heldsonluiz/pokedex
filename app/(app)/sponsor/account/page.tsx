@@ -30,3 +30,8 @@ export default async function SponsorAccountPage() {
     </div>
   )
 }
+
+export const metadata = {
+  title: "Conta da empresa",
+  description: "Gerencie o acesso da empresa às operações do DevFest.",
+}

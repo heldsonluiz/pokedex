@@ -4,6 +4,8 @@ import { OnboardingCarousel } from "@/modules/onboarding/onboarding-carousel"
 
 export const metadata: Metadata = {
   title: "Primeiros passos",
+  description:
+    "Primeiros passos: acompanhe sua participação, informações e atividades no DevFest Triângulo.",
 }
 
 type OnboardingPageProps = Readonly<{

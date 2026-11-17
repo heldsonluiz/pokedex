@@ -8,6 +8,8 @@ import { QrScanner } from "@/modules/scanner/qr-scanner"
 
 export const metadata: Metadata = {
   title: "Scanner",
+  description:
+    "Leia QR Codes do DevFest para registrar atividades, visitas e conexões.",
 }
 
 export default async function ScanPage() {

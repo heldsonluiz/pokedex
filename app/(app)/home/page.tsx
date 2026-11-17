@@ -56,6 +56,8 @@ import {
 
 export const metadata: Metadata = {
   title: "Início",
+  description:
+    "Acompanhe seu progresso, pontos e próximas atividades na Pokédex do DevFest.",
 }
 
 const explorationItems = [
