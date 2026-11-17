@@ -47,7 +47,7 @@ export type CompanyListItem = Readonly<{
   visitedAt: Date | null
 }>
 
-export type CompanyDetails = CompanyListItem
+export type CompanyDetails = CompanyListItem & { contactGranted?: boolean }
 
 function toCompanyListItem(
   company: Company,
@@ -99,7 +99,10 @@ export async function getCompanyDetailsForSession(
     company.id
   )
 
-  return toCompanyListItem(company, visit?.completedAt ?? null)
+  return {
+    ...toCompanyListItem(company, visit?.completedAt ?? null),
+    contactGranted: profile.contactCompanyIds?.includes(company.id) ?? false,
+  }
 }
 
 export async function visitCompanyForSession(

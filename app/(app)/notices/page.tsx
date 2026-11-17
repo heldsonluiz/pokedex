@@ -8,7 +8,11 @@ import { getNoticesForSession } from "@/modules/notices/notice.service"
 import { NoticeTimestamp } from "@/modules/notices/notice-timestamp"
 import { PushSettingsLink } from "@/modules/notices/push-settings-link"
 
-export const metadata = { title: "Avisos" }
+export const metadata = {
+  title: "Avisos",
+  description:
+    "Leia os comunicados e as orientações oficiais da organização do DevFest.",
+}
 export default async function NoticesPage() {
   const notices = await getNoticesForSession(await requireAuth())
   const unread = notices.filter((notice) => !notice.read).length

@@ -6,7 +6,11 @@ import { requireAuth } from "@/lib/require-auth"
 import { listReviewableMissionsForSession } from "@/modules/missions/mission.service"
 import { QrScanner } from "@/modules/scanner/qr-scanner"
 
-export const metadata: Metadata = { title: "Validar missão" }
+export const metadata: Metadata = {
+  title: "Validar missão",
+  description:
+    "Leia o QR Code de um participante para validar uma missão presencial autorizada.",
+}
 
 type PageProps = Readonly<{
   params: Promise<{ missionId: string }>

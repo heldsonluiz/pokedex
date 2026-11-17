@@ -124,8 +124,38 @@ const storedSkillsSchema = z
     "Stored profile contains duplicated skills"
   )
 
+export const AGE_RANGE_OPTIONS = [
+  "Menos de 18",
+  "18–24",
+  "25–34",
+  "35–44",
+  "45–54",
+  "55+",
+  "Prefiro não informar",
+] as const
+export const EVENT_GOAL_OPTIONS = [
+  "Aprender",
+  "Networking",
+  "Procurar oportunidades",
+  "Conhecer soluções",
+  "Prefiro não informar",
+] as const
+export const CAREER_STAGE_OPTIONS = [
+  "Estudante",
+  "Início de carreira",
+  "Profissional experiente",
+  "Liderança",
+  "Prefiro não informar",
+] as const
+const reportProfileFields = {
+  ageRange: z.enum(AGE_RANGE_OPTIONS).nullable().optional(),
+  eventGoal: z.enum(EVENT_GOAL_OPTIONS).nullable().optional(),
+  careerStage: z.enum(CAREER_STAGE_OPTIONS).nullable().optional(),
+}
+
 export const profileUpdateSchema = z
   .object({
+    ...reportProfileFields,
     displayName: z
       .string()
       .trim()
@@ -145,6 +175,8 @@ export const profileUpdateSchema = z
   .strict()
 
 export const storedProfileFieldsSchema = z.object({
+  contactCompanyIds: z.array(z.string()).optional(),
+  ...reportProfileFields,
   gender: genderSchema.nullable().default(null),
   bio: z.string().trim().max(200).nullable().default(null),
   role: z.string().trim().max(80).nullable().default(null),

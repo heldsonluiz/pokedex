@@ -45,3 +45,6 @@ next-env.d.ts
 # Firebase service account credentials
 *-firebase-adminsdk-*.json
 *:Zone.Identifier
+
+# Exportações locais com dados de participantes
+/exports/

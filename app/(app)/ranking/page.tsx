@@ -10,7 +10,11 @@ import {
   type RankingEntry,
 } from "@/modules/ranking/ranking.service"
 
-export const metadata: Metadata = { title: "Ranking" }
+export const metadata: Metadata = {
+  title: "Ranking",
+  description:
+    "Confira a classificação de participantes com base na pontuação do evento.",
+}
 export const dynamic = "force-dynamic"
 
 export default async function RankingPage() {

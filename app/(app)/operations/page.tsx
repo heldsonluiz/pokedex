@@ -36,7 +36,11 @@ import {
 import { OperationServiceToggle } from "@/modules/tickets/operation-service-toggle"
 import { getOperationsForSession } from "@/modules/tickets/ticket.service"
 
-export const metadata: Metadata = { title: "Operações" }
+export const metadata: Metadata = {
+  title: "Operações",
+  description:
+    "Acesse as operações de atendimento e validação disponíveis para sua função no evento.",
+}
 export const dynamic = "force-dynamic"
 
 export default async function OperationsPage() {

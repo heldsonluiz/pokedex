@@ -9,6 +9,8 @@ import { RaffleLiveRefresh } from "@/modules/raffles/raffle-live-refresh"
 
 export const metadata: Metadata = {
   title: "Sorteio ao vivo",
+  description:
+    "Sorteio ao vivo: acompanhe sua participação, informações e atividades no DevFest Triângulo.",
   robots: { index: false, follow: false },
 }
 export const dynamic = "force-dynamic"

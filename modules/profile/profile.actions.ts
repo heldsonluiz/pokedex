@@ -16,6 +16,9 @@ import {
 type ProfileField = keyof ProfileUpdateInput
 type ProfileFieldErrors = Partial<Record<ProfileField, string>>
 const PROFILE_FIELDS = [
+  "ageRange",
+  "eventGoal",
+  "careerStage",
   "displayName",
   "gender",
   "bio",

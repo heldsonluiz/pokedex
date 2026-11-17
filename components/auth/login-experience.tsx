@@ -151,8 +151,8 @@ export function LoginExperience({
             </form>
 
             <p className="mt-4 text-xs leading-5 text-muted-foreground">
-              Ao continuar, você concorda com o uso dos dados necessários para
-              sua participação no evento.
+              Consulte a política de privacidade e os termos abaixo para
+              conhecer o uso dos dados necessários à participação no evento.
             </p>
           </div>
         )}

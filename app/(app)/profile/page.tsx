@@ -29,6 +29,8 @@ import { INTERESTS } from "@/modules/profile/profile-interests"
 
 export const metadata: Metadata = {
   title: "Perfil",
+  description:
+    "Consulte seu perfil, interesses e preferências na Pokédex do DevFest.",
 }
 
 function getInitials(displayName: string) {

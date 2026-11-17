@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { cache } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -26,7 +27,20 @@ type TalkDetailsPageProps = Readonly<{
   params: Promise<{ talkId: string }>
 }>
 
-export const metadata: Metadata = { title: "Palestra" }
+const loadDetails = cache(async (talkId: string) =>
+  getTalkDetailsForSession(await requireAuth(), talkId)
+)
+export async function generateMetadata({
+  params,
+}: TalkDetailsPageProps): Promise<Metadata> {
+  const { talkId } = await params
+  const talk = await loadDetails(talkId)
+  if (!talk) notFound()
+  return {
+    title: talk.title,
+    description: `Confira horário, palestrantes e avaliação de ${talk.title} no DevFest.`,
+  }
+}
 export const dynamic = "force-dynamic"
 
 const formatLabels = {
@@ -39,8 +53,8 @@ const formatLabels = {
 export default async function TalkDetailsPage({
   params,
 }: TalkDetailsPageProps) {
-  const [{ talkId }, session] = await Promise.all([params, requireAuth()])
-  const talk = await getTalkDetailsForSession(session, talkId)
+  const { talkId } = await params
+  const talk = await loadDetails(talkId)
 
   if (!talk) {
     notFound()

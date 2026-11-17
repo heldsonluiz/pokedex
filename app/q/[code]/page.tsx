@@ -10,7 +10,10 @@ import { QrResult } from "@/modules/qr-code/qr-result"
 import { resolveQrCodeUrl } from "@/modules/qr-code/resolve-qr-code.service"
 import { TagDiscoveryResult } from "@/modules/tags/tag-discovery-result"
 
-export const metadata: Metadata = { title: "QR Code do evento" }
+export const metadata: Metadata = {
+  title: "QR Code do evento",
+  description: "Abra o destino de um QR Code oficial do DevFest Triângulo.",
+}
 export const dynamic = "force-dynamic"
 
 export default async function QrCodePage({

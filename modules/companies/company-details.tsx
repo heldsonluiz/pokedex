@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 import type { CompanyDetails as CompanyDetailsData } from "./company.service"
+import { CompanyContactControl } from "./company-contact-control"
 
 export function CompanyDetails({
   company,
@@ -48,6 +49,12 @@ export function CompanyDetails({
           )}
         </div>
       </section>
+
+      <CompanyContactControl
+        companyId={company.id}
+        companyName={company.name}
+        granted={company.contactGranted ?? false}
+      />
 
       {company.description && (
         <Card className="rounded-2xl">

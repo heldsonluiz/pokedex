@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { cache } from "react"
 
 import { requireAuth } from "@/lib/require-auth"
 import { getCompanyDetailsForSession } from "@/modules/companies/company.service"
@@ -11,15 +12,26 @@ type CompanyDetailsPageProps = Readonly<{
   }>
 }>
 
-export const metadata: Metadata = {
-  title: "Empresa",
+const loadDetails = cache(async (companyId: string) =>
+  getCompanyDetailsForSession(await requireAuth(), companyId)
+)
+export async function generateMetadata({
+  params,
+}: CompanyDetailsPageProps): Promise<Metadata> {
+  const { companyId } = await params
+  const company = await loadDetails(companyId)
+  if (!company) notFound()
+  return {
+    title: company.name,
+    description: `Informações de ${company.name}, visita ao estande e preferência de contato no DevFest.`,
+  }
 }
 
 export default async function CompanyDetailsPage({
   params,
 }: CompanyDetailsPageProps) {
-  const [{ companyId }, session] = await Promise.all([params, requireAuth()])
-  const company = await getCompanyDetailsForSession(session, companyId)
+  const { companyId } = await params
+  const company = await loadDetails(companyId)
 
   if (!company) {
     notFound()

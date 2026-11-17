@@ -12,7 +12,11 @@ import { getRewardsForParticipantService } from "@/modules/rewards/reward.servic
 import { RewardRedemptionButton } from "@/modules/rewards/reward-redemption-button"
 import { TicketConversionForm } from "@/modules/tickets/ticket-conversion-form"
 
-export const metadata: Metadata = { title: "Atendimento" }
+export const metadata: Metadata = {
+  title: "Atendimento",
+  description:
+    "Consulte os dados necessários ao atendimento autorizado de um participante.",
+}
 export const dynamic = "force-dynamic"
 
 type ParticipantServicePageProps = Readonly<{

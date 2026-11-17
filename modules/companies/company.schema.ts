@@ -7,6 +7,7 @@ export const companyFieldsSchema = z
     id: companyIdSchema,
     eventId: z.string().trim().min(1).max(128),
     qrId: z.string().uuid(),
+    targetInterests: z.array(z.string()).optional(),
     name: z.string().trim().min(2).max(120),
     description: z.string().trim().max(1_000).nullable(),
     logoUrl: z.url(),

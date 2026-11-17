@@ -10,7 +10,11 @@ import { getTicketsForSession } from "@/modules/tickets/ticket.service"
 import { TicketConversionForm } from "@/modules/tickets/ticket-conversion-form"
 import { TicketIntroductionDialog } from "@/modules/tickets/ticket-introduction-dialog"
 
-export const metadata: Metadata = { title: "Tickets" }
+export const metadata: Metadata = {
+  title: "Tickets",
+  description:
+    "Acompanhe o saldo e o histórico de tickets e recompensas da sua participação.",
+}
 export const dynamic = "force-dynamic"
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", {

@@ -2,7 +2,10 @@ import type { ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
 
+import { LegalLinks } from "./legal-links"
+
 type AppShellProps = {
+  showLegalLinks?: boolean
   children: ReactNode
   header?: ReactNode
   navigation?: ReactNode
@@ -13,6 +16,7 @@ type AppShellProps = {
 
 export function AppShell({
   children,
+  showLegalLinks = true,
   header,
   navigation,
   theme = "light",
@@ -44,6 +48,7 @@ export function AppShell({
           )}
         >
           {children}
+          {showLegalLinks && <LegalLinks />}
         </main>
         {navigation}
       </div>

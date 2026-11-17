@@ -8,6 +8,7 @@ import {
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { cache } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -18,8 +19,20 @@ import { getConnectedProfileForSession } from "@/modules/networking/connection.s
 import { getLinkedinProfileUrl } from "@/modules/profile/profile.schema"
 import { INTERESTS } from "@/modules/profile/profile-interests"
 
-export const metadata: Metadata = {
-  title: "Perfil da conexão",
+const loadDetails = cache(async (connectionId: string) =>
+  getConnectedProfileForSession(await requireAuth(), connectionId)
+)
+export async function generateMetadata({
+  params,
+}: ConnectedProfilePageProps): Promise<Metadata> {
+  const { connectionId } = await params
+  const profile = await loadDetails(connectionId)
+  if (!profile) notFound()
+  return {
+    title: `Conexão com ${profile.displayName}`,
+    description:
+      "Perfil e canais compartilhados desta conexão registrada no DevFest.",
+  }
 }
 
 export const dynamic = "force-dynamic"
@@ -40,8 +53,8 @@ function getInitials(displayName: string) {
 export default async function ConnectedProfilePage({
   params,
 }: ConnectedProfilePageProps) {
-  const [{ connectionId }, session] = await Promise.all([params, requireAuth()])
-  const profile = await getConnectedProfileForSession(session, connectionId)
+  const { connectionId } = await params
+  const profile = await loadDetails(connectionId)
 
   if (!profile) {
     notFound()

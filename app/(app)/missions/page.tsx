@@ -21,7 +21,11 @@ import {
 } from "@/modules/missions/mission.service"
 import { MissionParticipantExperience } from "@/modules/missions/mission-participant-experience"
 
-export const metadata: Metadata = { title: "Missões" }
+export const metadata: Metadata = {
+  title: "Missões",
+  description:
+    "Confira as missões do DevFest, seus requisitos, recompensas e progresso.",
+}
 export const dynamic = "force-dynamic"
 
 type MissionsPageProps = Readonly<{

@@ -7,6 +7,8 @@ import { UserQrCodeCard } from "@/modules/qr-code/user-qr-code-card"
 
 export const metadata: Metadata = {
   title: "Meu QR Code",
+  description:
+    "Meu QR Code: acompanhe sua participação, informações e atividades no DevFest Triângulo.",
 }
 
 export default async function ProfileQrCodePage() {
